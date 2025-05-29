@@ -5,131 +5,167 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FDFAF2"
+    android:background="@drawable/bg_gradient"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/btnLogin"
-        android:layout_width="295dp"
-        android:layout_height="63dp"
-        android:layout_marginEnd="56dp"
-        android:backgroundTint="@color/orange"
-        android:text="@string/login"
-        android:textSize="20sp"
-        app:cornerRadius="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:layout_editor_absoluteY="444dp" />
-
-    <EditText
-        android:id="@+id/edtTxtPassword"
-        android:layout_width="266dp"
-        android:layout_height="45dp"
-        android:layout_marginEnd="28dp"
-        android:ems="10"
-        android:hint="@string/password"
-        android:inputType="textPassword"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:layout_editor_absoluteY="318dp" />
-
-    <ImageView
-        android:id="@+id/imgViewKey"
-        android:layout_width="42dp"
-        android:layout_height="45dp"
-        android:layout_marginStart="44dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/key"
-        tools:layout_editor_absoluteY="318dp" />
-
-    <ImageView
-        android:id="@+id/imgViewMail"
-        android:layout_width="45dp"
-        android:layout_height="58dp"
-        android:layout_marginStart="36dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/gmail"
-        tools:layout_editor_absoluteY="216dp" />
-
-    <EditText
-        android:id="@+id/edtTxtEmailAddress"
-        android:layout_width="272dp"
-        android:layout_height="43dp"
-        android:layout_marginEnd="24dp"
-        android:ems="10"
-        android:hint="Email"
-        android:inputType="textEmailAddress"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:layout_editor_absoluteY="231dp" />
-
-    <TextView
-        android:id="@+id/txtViewOrUse"
-        android:layout_width="wrap_content"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/loginCard"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/or_use"
-        android:textSize="20sp"
-        tools:layout_editor_absoluteX="176dp"
-        tools:layout_editor_absoluteY="539dp" />
-
-    <TextView
-        android:id="@+id/txtViewNeedAccount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/need_account"
-        android:textSize="16sp"
-        tools:layout_edit_absoluteX="61dp"
-        tools:layout_editor_absoluteX="81dp"
-        tools:layout_editor_absoluteY="678dp" />
-
-    <TextView
-        android:id="@+id/txtViewSignUp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/signup"
-        android:textSize="16sp"
-        android:textColor="@color/red"
-        android:textStyle="bold"
-        tools:layout_edit_absoluteX="61dp"
-        tools:layout_editor_absoluteX="228dp"
-        tools:layout_editor_absoluteY="678dp" />
-
-    <ImageView
-        android:id="@+id/imgViewLogo"
-        android:layout_width="323dp"
-        android:layout_height="141dp"
-        android:layout_marginTop="44dp"
-        android:layout_marginEnd="44dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="32dp"
+        android:backgroundTint="@color/yellow_slight"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="6dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/logo" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <LinearLayout
-        android:layout_width="309dp"
-        android:layout_height="63dp"
-        android:background="@drawable/bg_rounded_border"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:outlineProvider="bounds"
-        android:padding="8dp"
-        tools:layout_editor_absoluteX="51dp"
-        tools:layout_editor_absoluteY="589dp">
-
-        <ImageView
-            android:id="@+id/imgViewLogoGoogle"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_gravity="center"
-            android:layout_marginEnd="0dp"
-            app:srcCompat="@drawable/google" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/txtViewSignInGoogle"
-            android:layout_width="234dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:backgroundTint="@color/yellow_light"
-            android:elevation="0dp"
-            android:text="@string/sign_in_google"
-            android:textColor="@color/black"
-            android:textSize="20sp" />
-    </LinearLayout>
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingHorizontal="30dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="35dp">
+
+            <ImageView
+                android:id="@+id/logoImage"
+                android:layout_width="238dp"
+                android:layout_height="113dp"
+                android:layout_marginBottom="30dp"
+                android:src="@drawable/logo_tradeup" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_input"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="8dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginEnd="2dp"
+                    android:src="@drawable/gmail" />
+
+                <EditText
+                    android:id="@+id/emailField"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="@string/email"
+                    android:inputType="textEmailAddress"
+                    android:paddingStart="12dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_input"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="8dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginEnd="2dp"
+                    android:src="@drawable/key" />
+
+                <EditText
+                    android:id="@+id/passwordField"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="@string/password"
+                    android:inputType="textPassword"
+                    android:paddingStart="12dp" />
+            </LinearLayout>
+
+
+            <Button
+                android:id="@+id/btnLogin"
+                android:layout_width="258dp"
+                android:layout_height="52dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="12dp"
+                android:backgroundTint="@color/orange"
+                android:text="@string/login"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="12dp"
+                android:text="@string/or_use"
+                android:textColor="#444444" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/btnGoogleSignIn"
+                android:layout_width="258dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_rounded_border"
+                android:clickable="true"
+                android:elevation="2dp"
+                android:focusable="true"
+                android:padding="8dp">
+
+                <ImageView
+                    android:id="@+id/googleIcon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="10dp"
+                    android:src="@drawable/google"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/googleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/sign_in_google"
+                    android:textColor="@color/orange"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/googleIcon"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:text="@string/need_account"
+                android:textColor="#666666"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/signUpLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="@string/signup"
+                android:textColor="#90A98E"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
