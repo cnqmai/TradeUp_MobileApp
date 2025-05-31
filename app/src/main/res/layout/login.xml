@@ -10,7 +10,7 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/loginCard"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="32dp"
         android:backgroundTint="@color/yellow_slight"
@@ -37,9 +37,10 @@
                 android:layout_marginBottom="30dp"
                 android:src="@drawable/logo_tradeup" />
 
+            <!-- Email Input -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="55dp"
                 android:layout_marginBottom="12dp"
                 android:background="@drawable/bg_input"
                 android:gravity="center_vertical"
@@ -51,12 +52,14 @@
                     android:layout_height="24dp"
                     android:layout_marginStart="5dp"
                     android:layout_marginEnd="2dp"
-                    android:src="@drawable/gmail" />
+                    android:scaleType="centerInside"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/email" />
 
                 <EditText
                     android:id="@+id/emailField"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="50dp"
                     android:layout_weight="1"
                     android:background="@null"
                     android:hint="@string/email"
@@ -64,9 +67,10 @@
                     android:paddingStart="12dp" />
             </LinearLayout>
 
+            <!-- Password Input -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="55dp"
                 android:layout_marginTop="2dp"
                 android:layout_marginBottom="16dp"
                 android:background="@drawable/bg_input"
@@ -79,12 +83,14 @@
                     android:layout_height="24dp"
                     android:layout_marginStart="5dp"
                     android:layout_marginEnd="2dp"
+                    android:scaleType="centerInside"
+                    android:adjustViewBounds="true"
                     android:src="@drawable/key" />
 
                 <EditText
                     android:id="@+id/passwordField"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="50dp"
                     android:layout_weight="1"
                     android:background="@null"
                     android:hint="@string/password"
@@ -92,7 +98,38 @@
                     android:paddingStart="12dp" />
             </LinearLayout>
 
+            <!-- Remember + Forgot -->
+            <LinearLayout
+                android:layout_width="297dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="0dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="0dp">
 
+                <CheckBox
+                    android:id="@+id/rememberPasswordCheck"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/remember_pass"
+                    android:textColor="#444444"
+                    android:textSize="12sp" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/forgotPasswordLink"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/forgot_pass"
+                    android:textColor="@color/orange"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- Login Button -->
             <Button
                 android:id="@+id/btnLogin"
                 android:layout_width="258dp"
@@ -105,6 +142,7 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
+            <!-- Or use Google -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -2,9 +2,21 @@
     <string name="app_name">TradeUp</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
+    <string name="remember_pass">Remember password</string>
+    <string name="forgot_pass">Forgot password</string>
     <string name="login">Log in</string>
     <string name="signup">Sign up</string>
     <string name="sign_in_google">Sign in with Google</string>
     <string name="or_use">Or use</string>
     <string name="need_account">Need an account?</string>
+
+    <string name="verify_email">Verify Your Email Address</string>
+    <string name="verify_instruction">We sent a verification mail to</string>
+    <string name="email_account">cnqmai@gmail.com</string>
+    <string name="change_email">Want to change your email address?</string>
+    <string name="change">Change</string>
+    <string name="send_verification">Verify email</string>
+    <string name="not_receive_email">Didn\'t receive the email?</string>
+    <string name="resend_mail">Resend</string>
+    <string name="already_verified">Already verified</string>
 </resources>
