@@ -2,6 +2,7 @@
     <string name="app_name">TradeUp</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
+    <string name="toggle_password_visibility">View or hide password</string>
     <string name="remember_pass">Remember password</string>
     <string name="forgot_pass">Forgot password</string>
     <string name="login">Log in</string>
@@ -9,6 +10,11 @@
     <string name="sign_in_google">Sign in with Google</string>
     <string name="or_use">Or use</string>
     <string name="need_account">Need an account?</string>
+
+    <string name="first_name">First name</string>
+    <string name="last_name">Last name</string>
+    <string name="already_have_account">Already have an account?</string>
+    <string name="sign_up_google">Sign up with Google</string>
 
     <string name="verify_email">Verify Your Email Address</string>
     <string name="verify_instruction">We sent a verification mail to</string>
@@ -19,4 +25,13 @@
     <string name="not_receive_email">Didn\'t receive the email?</string>
     <string name="resend_mail">Resend</string>
     <string name="already_verified">Already verified</string>
+
+    <string name="cart">cart</string>
+    <string name="menu_hamburger">menu_hamburger</string>
+    <string name="home">Home</string>
+    <string name="post">Post</string>
+    <string name="message">Message</string>
+    <string name="notification">Notification</string>
+    <string name="profile">Profile</string>
+
 </resources>
