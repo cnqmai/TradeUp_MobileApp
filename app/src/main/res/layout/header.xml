@@ -59,10 +59,12 @@
             android:id="@+id/btnCart"
             android:layout_width="48dp"
             android:layout_height="48dp"
+            android:padding="6dp"
             android:layout_gravity="center"
             android:clickable="true"
             android:contentDescription="@string/cart"
             android:focusable="true"
+
             android:src="@drawable/cart" />
     </FrameLayout>
 

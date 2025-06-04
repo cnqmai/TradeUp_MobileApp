@@ -1,4 +1,4 @@
-package com.example.tradeup;
+package com.example.tradeup.features.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +15,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.activity.EdgeToEdge;
 import androidx.constraintlayout.widget.ConstraintLayout;
+
+import com.example.tradeup.MainActivity;
+import com.example.tradeup.R;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -85,7 +88,7 @@ public class RegisterActivity extends AppCompatActivity {
             // Giả lập kiểm tra đăng ký (thay bằng API thật sau này)
             if (!firstName.isEmpty() && !lastName.isEmpty() && isValidEmail(email) && password.length() >= 6) {
                 Toast.makeText(RegisterActivity.this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish(); // Đóng màn hình đăng ký
             } else {

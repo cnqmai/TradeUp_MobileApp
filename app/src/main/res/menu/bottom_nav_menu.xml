@@ -12,10 +12,6 @@
         android:icon="@drawable/message"
         android:title="@string/message" />
     <item
-        android:id="@+id/nav_notification"
-        android:icon="@drawable/notification"
-        android:title="@string/notification" />
-    <item
         android:id="@+id/nav_profile"
         android:icon="@drawable/profile"
         android:title="@string/profile" />

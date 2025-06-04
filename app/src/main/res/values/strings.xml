@@ -25,13 +25,41 @@
     <string name="not_receive_email">Didn\'t receive the email?</string>
     <string name="resend_mail">Resend</string>
     <string name="already_verified">Already verified</string>
+    <string name="otp1">1</string>
+    <string name="otp2">2</string>
+    <string name="otp3">3</string>
+    <string name="otp4">4</string>
+    <string name="otp5">5</string>
 
     <string name="cart">cart</string>
     <string name="menu_hamburger">menu_hamburger</string>
+    <string name="search_filter">Search Filter</string>
+    <string name="prompt_category">Choose category</string>
+    <string name="prompt_condition">Condition</string>
+    <string name="prompt_sort">Sort by</string>
+    <string name="keyword">Keyword</string>
+    <string name="apply_filter">Apply Filter</string>
+    <string name="price_range">Price Range</string>
+    <string name="price_from">Price from</string>
+    <string name="price_to">Price to</string>
+    <string name="distance_range">Distance Range</string>
+    <string name="use_gps">Use GPS to filter by distance</string>
+    <string name="distance_value">Distance value: 10km</string>
     <string name="home">Home</string>
+
+    <string name="category_image">Category image</string>
+    <string name="categories">Categories</string>
+    <string name="flash_sale">Flash sale</string>
+    <string name="view_all">View all</string>
+    <string name="suggest">Suggest for you</string>
+
+    <string name="search">Search...</string>
     <string name="post">Post</string>
     <string name="message">Message</string>
     <string name="notification">Notification</string>
     <string name="profile">Profile</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

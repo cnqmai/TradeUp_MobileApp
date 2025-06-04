@@ -1,32 +1,13 @@
 {
   "project_info": {
-    "project_number": "499483246226",
-    "project_id": "tradeup-ae615",
-    "storage_bucket": "tradeup-ae615.firebasestorage.app"
+    "project_number": "555112018003",
+    "project_id": "tradeup-a83a0",
+    "storage_bucket": "tradeup-a83a0.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:499483246226:android:ee3c317b852a2ad340f04b",
-        "android_client_info": {
-          "package_name": "com.example.convertapp"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAuYOzoHZ2Wc68_Zv9kZpbnwlpKLVLw2pk"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:499483246226:android:9d0f0c816b21bf3140f04b",
+        "mobilesdk_app_id": "1:555112018003:android:28d0864eedbc1ad4dd96a6",
         "android_client_info": {
           "package_name": "com.example.tradeup"
         }
@@ -34,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAuYOzoHZ2Wc68_Zv9kZpbnwlpKLVLw2pk"
+          "current_key": "AIzaSyDJCbOLDr9ApfNjc1qVB_9JGYOw8SQlRnc"
         }
       ],
       "services": {

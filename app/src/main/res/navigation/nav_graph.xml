@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.tradeup.features.home.HomeFragment"
+        android:label="Home" />
+    <fragment
+        android:id="@+id/postFragment"
+        android:name="com.example.tradeup.features.post.PostFragment"
+        android:label="Post" />
+    <fragment
+        android:id="@+id/messageFragment"
+        android:name="com.example.tradeup.features.message.MessageFragment"
+        android:label="Message" />
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.tradeup.features.profile.ProfileFragment"
+        android:label="Profile" />
+</navigation>

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_gradient"
-    tools:context=".EmailVerificationActivity">
+    tools:context=".features.auth.EmailVerificationActivity">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/verifyCard"
@@ -84,6 +84,7 @@
                     android:gravity="center"
                     android:inputType="number"
                     android:maxLength="1"
+                    android:hint="1"
                     android:background="@drawable/otp_background"
                     android:textSize="20sp"
                     android:padding="10dp"/>
@@ -97,6 +98,7 @@
                     android:gravity="center"
                     android:inputType="number"
                     android:maxLength="1"
+                    android:hint="2"
                     android:background="@drawable/otp_background"
                     android:textSize="20sp"
                     android:padding="10dp"/>
@@ -109,6 +111,7 @@
                     android:layout_marginHorizontal="3dp"
                     android:gravity="center"
                     android:inputType="number"
+                    android:hint="3"
                     android:maxLength="1"
                     android:background="@drawable/otp_background"
                     android:textSize="20sp"
@@ -123,6 +126,7 @@
                     android:gravity="center"
                     android:inputType="number"
                     android:maxLength="1"
+                    android:hint="4"
                     android:background="@drawable/otp_background"
                     android:textSize="20sp"
                     android:padding="10dp"/>
@@ -136,6 +140,7 @@
                     android:gravity="center"
                     android:inputType="number"
                     android:maxLength="1"
+                    android:hint="5"
                     android:background="@drawable/otp_background"
                     android:textSize="20sp"
                     android:padding="10dp"/>
