@@ -53,6 +53,18 @@
     <string name="view_all">View all</string>
     <string name="suggest">Suggest for you</string>
 
+    <string name="gold_member">Gold member</string>
+    <string name="diamond_member">Diamond member</string>
+    <string name="user_name">Mai Cao</string>
+    <string name="username">\@cnqmai</string>
+    <string name="bio">I like to sleep and eat and play</string>
+    <string name="contact">Contact info:</string>
+    <string name="edit_profile">Edit profile</string>
+    <string name="change_email_profile">Change email</string>
+    <string name="change_pass">Change password</string>
+    <string name="settings">Settings</string>
+
+
     <string name="search">Search...</string>
     <string name="post">Post</string>
     <string name="message">Message</string>

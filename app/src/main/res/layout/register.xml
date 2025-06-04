@@ -256,7 +256,7 @@
                 android:layout_width="258dp"
                 android:layout_height="50dp"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/bg_rounded_border"
+                android:background="@drawable/bg_orange_rounded_border"
                 android:clickable="true"
                 android:elevation="2dp"
                 android:focusable="true"

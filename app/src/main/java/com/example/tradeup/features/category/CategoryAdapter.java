@@ -39,10 +39,23 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         Category category = categoryList.get(position);
         holder.categoryName.setText(category.getName());
 
-        Glide.with(context)
-                .load(category.getImageUrl())
-                .placeholder(R.drawable.ic_launcher_background) // Replace with your actual placeholder
-                .into(holder.categoryImage);
+        String imageUrl = category.getImageUrl();
+        if (imageUrl != null && (imageUrl.startsWith("http://") || imageUrl.startsWith("https://"))) {
+            // Load ảnh từ URL
+            Glide.with(context)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ic_launcher_background) // ảnh placeholder
+                    .into(holder.categoryImage);
+        } else {
+            // Load ảnh từ drawable (tên resource)
+            int resId = context.getResources().getIdentifier(imageUrl, "drawable", context.getPackageName());
+            if (resId != 0) {
+                holder.categoryImage.setImageResource(resId);
+            } else {
+                // Ảnh mặc định nếu không tìm thấy drawable
+                holder.categoryImage.setImageResource(R.drawable.ic_launcher_background);
+            }
+        }
     }
 
     @Override

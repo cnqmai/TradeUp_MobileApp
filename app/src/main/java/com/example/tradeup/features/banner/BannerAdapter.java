@@ -37,10 +37,25 @@ public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerView
         BannerItem item = bannerList.get(position);
         holder.button.setText(item.getButtonText());
 
-        // Load ảnh/GIF/video thumbnail
-        Glide.with(context)
-                .load(item.getImageUrl())
-                .into(holder.image);
+        String imageUrl = item.getImageUrl();
+        if (imageUrl != null && imageUrl.startsWith("http")) {
+            // Ảnh từ Internet
+            Glide.with(context)
+                    .load(imageUrl)
+                    .into(holder.image);
+        } else if (imageUrl != null) {
+            // Ảnh local drawable, lấy resource id từ tên
+            int resId = context.getResources().getIdentifier(imageUrl, "drawable", context.getPackageName());
+            if (resId != 0) {
+                holder.image.setImageResource(resId);
+            } else {
+                // Nếu không tìm thấy resource, bạn có thể set ảnh mặc định hoặc để trống
+                holder.image.setImageResource(R.drawable.placeholder_image);
+            }
+        } else {
+            // imageUrl null => ảnh mặc định
+            holder.image.setImageResource(R.drawable.placeholder_image);
+        }
     }
 
     @Override

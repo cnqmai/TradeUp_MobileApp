@@ -8,7 +8,7 @@
     <!-- Viền -->
     <stroke
         android:width="2dp"
-        android:color="#C8C8C8" /> <!-- Màu viền: cam -->
+        android:color="#C8C8C8" />
 
     <!-- Bo góc nếu muốn -->
     <corners android:radius="8dp" />

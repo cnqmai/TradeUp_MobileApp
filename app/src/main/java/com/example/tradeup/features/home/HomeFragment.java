@@ -24,6 +24,8 @@ import com.example.tradeup.features.banner.BannerItem;
 import com.example.tradeup.features.category.Category;
 import com.example.tradeup.features.category.CategoryAdapter;
 import com.example.tradeup.features.filter.FilterBottomSheet;
+import com.example.tradeup.features.product.Product;
+import com.example.tradeup.features.product.ProductAdapter;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -40,18 +42,11 @@ public class HomeFragment extends Fragment {
     private CategoryAdapter adapter;
     private List<Category> categoryList = new ArrayList<>();
 
-    public HomeFragment() {
-        // Required empty public constructor
-    }
+    private RecyclerView productRecyclerView;
+    private ProductAdapter productAdapter;      // Adapter cho products
+    private List<Product> productList = new ArrayList<>();  // Danh sách products
 
-    public static HomeFragment newInstance(String param1, String param2) {
-        HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        args.putString("param1", param1);
-        args.putString("param2", param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    public HomeFragment() { }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -63,15 +58,12 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ImageView btnFilter = view.findViewById(R.id.btn_filter);
-        btnFilter.setOnClickListener(v -> {
-            FilterBottomSheet.newInstance().show(getChildFragmentManager(), "FilterBottomSheet");
-        });
+        view.findViewById(R.id.btn_filter).setOnClickListener(v ->
+                FilterBottomSheet.newInstance().show(getChildFragmentManager(), "FilterBottomSheet"));
 
         categoryRecyclerView = view.findViewById(R.id.categoryRecyclerView);
-        categoryRecyclerView.setLayoutManager(
-                new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        );
+        categoryRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext(),
+                LinearLayoutManager.HORIZONTAL, false));
 
         adapter = new CategoryAdapter(requireContext(), categoryList);
         categoryRecyclerView.setAdapter(adapter);
@@ -82,37 +74,28 @@ public class HomeFragment extends Fragment {
         Button bannerButton = view.findViewById(R.id.bannerButton);
 
         loadBannerFromFirebase(bannerImage, bannerButton);
-
     }
 
     private void loadCategoriesFromFirebase() {
         FirebaseDatabase database = FirebaseDatabase.getInstance("https://tradeup-a83a0-default-rtdb.asia-southeast1.firebasedatabase.app/");
         DatabaseReference databaseRef = database.getReference("categories");
 
-        Log.d("FIREBASE", "Bắt đầu truy cập Database...");
-
         databaseRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.d("FIREBASE", "onDataChange: dữ liệu đã nhận");
-
-                categoryList.clear(); // Clear trước khi add để tránh trùng
+                categoryList.clear();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Category category = dataSnapshot.getValue(Category.class);
                     if (category != null) {
                         categoryList.add(category);
-                        Log.d("FIREBASE", "Thêm category: " + category.getName());
-                    } else {
-                        Log.w("FIREBASE", "Category null trong snapshot");
                     }
                 }
-                adapter.notifyDataSetChanged(); // Cập nhật RecyclerView
+                adapter.notifyDataSetChanged();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("FIREBASE", "Lỗi khi truy cập database: " + error.getMessage());
-                Toast.makeText(requireContext(), "Lỗi: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Lỗi tải danh mục: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -126,28 +109,80 @@ public class HomeFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 BannerItem banner = snapshot.getValue(BannerItem.class);
                 if (banner != null) {
-                    Log.d("Banner", "Image URL: " + banner.getImageUrl());
-                    Log.d("Banner", "Button Text: " + banner.getButtonText());
-                    Log.d("Banner", "Action URL: " + banner.getActionUrl());
+                    String imageUrl = banner.getImageUrl();
 
-                    // Load ảnh
-                    Glide.with(requireContext()).asGif().load(banner.getImageUrl()).into(bannerImage);
+                    if (imageUrl != null) {
+                        if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+                            Glide.with(requireContext()).load(imageUrl)
+                                    .placeholder(R.drawable.placeholder_image)
+                                    .into(bannerImage);
+                        } else {
+                            int resId = getResources().getIdentifier(imageUrl, "drawable", requireContext().getPackageName());
+                            if (resId != 0) {
+                                bannerImage.setImageResource(resId);
+                            } else {
+                                bannerImage.setImageResource(R.drawable.placeholder_image);
+                            }
+                        }
+                    } else {
+                        bannerImage.setImageResource(R.drawable.placeholder_image);
+                    }
 
-                    // Cập nhật các thành phần khác
-                    bannerButton.setText(banner.getButtonText());
+                    bannerButton.setText(banner.getButtonText() != null ? banner.getButtonText() : "Xem thêm");
 
                     bannerButton.setOnClickListener(v -> {
-                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(banner.getActionUrl()));
-                        startActivity(browserIntent);
+                        String actionUrl = banner.getActionUrl();
+                        if (actionUrl != null && !actionUrl.trim().isEmpty()) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(actionUrl));
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(requireContext(), "Không có đường dẫn hành động", Toast.LENGTH_SHORT).show();
+                        }
                     });
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("Firebase", "Lỗi đọc dữ liệu", error.toException());
+                Toast.makeText(requireContext(), "Lỗi tải banner: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadProductsFromFirebase() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://tradeup-a83a0-default-rtdb.asia-southeast1.firebasedatabase.app/");
+        DatabaseReference productRef = database.getReference("products");
+
+        productRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                productList.clear();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Product product = dataSnapshot.getValue(Product.class);
+                    if (product != null) {
+                        productList.add(product);
+                    }
+                }
+
+                // 👉 Cá nhân hóa:
+                // 1️⃣ Sắp xếp theo độ phổ biến
+                productList.sort((p1, p2) -> Float.compare(p2.getPopularity(), p1.getPopularity()));
+
+                // 2️⃣ Giả sử: nếu có Location (hoặc sau khi lấy được), có thể sắp xếp thêm theo vị trí
+                // ví dụ:
+                // Location userLocation = ...;
+                // for (Product p : productList) {
+                //     p.setDistanceToUser(TÍNH khoảng cách ở đây);
+                // }
+                // Collections.sort(productList, Comparator.comparing(Product::getDistanceToUser));
+
+                productAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(requireContext(), "Lỗi tải sản phẩm: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 }
-
