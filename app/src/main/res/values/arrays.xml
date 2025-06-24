@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="category_options">
+        <item>@string/category_all_categories</item>
+        <item>Điện thoại</item>
+        <item>Máy tính</item>
+        <item>Đồ gia dụng</item>
+        <item>Thời trang</item>
+        <item>Sách</item>
+        <item>Khác</item>
+    </string-array>
+
+    <string-array name="condition_options">
+        <item>@string/condition_any_condition</item>
+        <item>Mới</item>
+        <item>Như mới</item>
+        <item>Đã qua sử dụng (Tốt)</item>
+        <item>Đã qua sử dụng (Khá)</item>
+        <item>Hư hỏng nhẹ</item>
+    </string-array>
+
+    <string-array name="sort_options">
+        <item>@string/sort_relevance</item>
+        <item>@string/sort_price_low_to_high</item>
+        <item>@string/sort_price_high_to_low</item>
+        <item>@string/sort_newest</item>
+        <item>@string/sort_top_rated</item>
+    </string-array>
+</resources>

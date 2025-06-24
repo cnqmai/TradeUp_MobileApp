@@ -21,5 +21,6 @@
         android:background="@color/white"
         app:itemIconTint="@color/orange_bold"
         app:itemTextColor="@color/orange_bold"
-        app:menu="@menu/bottom_nav_menu" />
+        app:menu="@menu/bottom_nav_menu"
+        app:labelVisibilityMode="labeled" />
 </LinearLayout>

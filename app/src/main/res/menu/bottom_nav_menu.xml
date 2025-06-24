@@ -1,18 +1,28 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
     <item
-        android:id="@+id/nav_home"
-        android:icon="@drawable/home"
-        android:title="@string/home" />
+        android:id="@+id/homeFragment"
+        android:icon="@drawable/ic_home"
+        android:title="Home" />
+
     <item
-        android:id="@+id/nav_post"
-        android:icon="@drawable/post"
-        android:title="@string/post" />
+        android:id="@+id/searchFragment"
+        android:icon="@drawable/ic_search"
+        android:title="Search" />
+
     <item
-        android:id="@+id/nav_message"
-        android:icon="@drawable/message"
-        android:title="@string/message" />
+        android:id="@+id/sellFragment"
+        android:icon="@drawable/ic_sell"
+        android:title="Sell" />
+
     <item
-        android:id="@+id/nav_profile"
-        android:icon="@drawable/profile"
-        android:title="@string/profile" />
+        android:id="@+id/messageFragment"
+        android:icon="@drawable/ic_message"
+        android:title="Messages" />
+
+    <item
+        android:id="@+id/profileFragment"
+        android:icon="@drawable/ic_profile"
+        android:title="Profile" />
+
 </menu>

@@ -45,11 +45,32 @@ dependencies {
     implementation(libs.navigation.ui.ktx)
     implementation(libs.legacy.support.v4)
     implementation(libs.recyclerview)
+    implementation(libs.gridlayout)
+
+    // Firebase
+    implementation(libs.firebase.database)
+    implementation("com.google.firebase:firebase-auth:23.0.0")
+    implementation("com.google.firebase:firebase-storage:21.0.0")
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+
+    // GeoFire
+    implementation("com.firebase:geofire-android:3.2.0")
+
+    // Google Sign-In
+    implementation ("com.google.android.gms:play-services-auth:21.2.0")
+
+    // Glide
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+
+    // Picasso
+    implementation("com.squareup.picasso:picasso:2.71828")
+
+    // ThreeTenABP
+    implementation ("com.jakewharton.threetenabp:threetenabp:1.4.6")
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
-    implementation(libs.firebase.database)
-    implementation("com.squareup.picasso:picasso:2.71828")
 }
