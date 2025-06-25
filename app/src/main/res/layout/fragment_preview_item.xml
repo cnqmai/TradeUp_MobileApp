@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragment.PreviewItemFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Xem trước tin đăng"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="24dp"/>
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/vp_preview_item_images"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/tv_preview_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"
+            tools:text="Tiêu đề mặt hàng"/>
+
+        <TextView
+            android:id="@+id/tv_preview_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textColor="?attr/colorPrimary"
+            android:layout_marginBottom="16dp"
+            tools:text="Giá: 15.000.000 VNĐ"/>
+
+        <TextView
+            android:id="@+id/tv_preview_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_marginBottom="16dp"
+            tools:text="Mô tả chi tiết về sản phẩm này..."/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Danh mục: "
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/tv_preview_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Điện tử"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tình trạng: "
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/tv_preview_condition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Mới"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Vị trí: "
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/tv_preview_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Quận 1, TP. Hồ Chí Minh"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hình thức giao dịch: "
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/tv_preview_item_behavior"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Trao đổi, Thương lượng"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thẻ: "
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/tv_preview_tags"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="#điện_thoại #iphone"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_back_to_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Quay lại chỉnh sửa" />
+
+    </LinearLayout>
+</ScrollView>

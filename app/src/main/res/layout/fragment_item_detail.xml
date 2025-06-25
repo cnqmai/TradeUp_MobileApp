@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragment.ItemDetailFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/vp_item_images"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/tv_detail_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tên Sản Phẩm Chi Tiết"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tv_detail_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Giá: 1.500.000 VNĐ"
+            android:textSize="20sp"
+            android:textColor="?attr/colorPrimary"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:id="@+id/tv_detail_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mô tả chi tiết về sản phẩm, bao gồm các thông tin kỹ thuật, tình trạng, và lý do bán."
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:id="@+id/tv_detail_category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Danh mục: Điện tử"
+            android:textSize="14sp"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tv_detail_condition"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tình trạng: Như mới"
+            android:textSize="14sp"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tv_detail_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Vị trí: Quận 1, TP. Hồ Chí Minh"
+            android:textSize="14sp"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tv_detail_item_behavior"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hành vi mặt hàng: Có thể thương lượng"
+            android:textSize="14sp"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tv_detail_tags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tags: laptop, gaming, mỏng nhẹ"
+            android:textSize="14sp"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tv_detail_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Trạng thái: Có sẵn"
+            android:textSize="14sp"
+            android:textStyle="italic"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/tv_detail_views_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Lượt xem: 0"
+            android:textSize="14sp"
+            android:textStyle="italic"
+            android:layout_marginBottom="16dp" />
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Thông tin người bán:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tv_detail_seller_name" android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Người bán: John Doe"
+            android:textSize="14sp"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tv_detail_seller_rating" android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Đánh giá: 4.8/5.0"
+            android:textSize="14sp"
+            android:layout_marginBottom="16dp"/>
+
+        <Button
+            android:id="@+id/btn_detail_chat_seller" android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Trò chuyện với người bán"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btn_detail_make_offer" android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Gửi đề nghị"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btn_detail_add_to_favorites" android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Thêm vào mục yêu thích"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+
+    </LinearLayout>
+</ScrollView>

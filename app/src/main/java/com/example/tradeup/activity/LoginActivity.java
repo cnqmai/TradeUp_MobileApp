@@ -18,10 +18,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog; // Import AlertDialog
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.tradeup.R;
+import com.example.tradeup.model.User; // Import User model
 import com.example.tradeup.utils.FirebaseHelper;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -30,6 +32,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.util.HashMap; // Import HashMap
+import java.util.Map; // Import Map
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -139,47 +144,34 @@ public class LoginActivity extends AppCompatActivity {
             firebaseHelper.loginUser(email, password, new FirebaseHelper.AuthCallback() {
                 @Override
                 public void onSuccess(FirebaseUser user) {
-                    // Authentication successful, now create/update user profile in DB
-                    firebaseHelper.createOrUpdateUserProfile(user, null, null, new FirebaseHelper.DbWriteCallback() {
-                        @Override
-                        public void onSuccess() {
-                            progressBar.setVisibility(View.GONE);
-                            // Re-enable button after processing (if needed for other operations,
-                            // or it will automatically disable if fields don't meet conditions)
-                            validateInputsAndUpdateButtonState();
-                            Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+                    if (user != null) {
+                        // Authentication successful, now check account status in DB
+                        firebaseHelper.getUserProfile(user.getUid(), new FirebaseHelper.DbReadCallback<User>() {
+                            @Override
+                            public void onSuccess(User userData) {
+                                progressBar.setVisibility(View.GONE);
+                                validateInputsAndUpdateButtonState(); // Re-enable button
 
-                            if (rememberMeCheckbox.isChecked()) {
-                                SharedPreferences.Editor editor = sharedPreferences.edit();
-                                editor.putBoolean(PREF_REMEMBER_ME, true);
-                                editor.putString(PREF_EMAIL, email);
-                                editor.putString(PREF_PASSWORD, password);
-                                editor.apply();
-                            } else {
-                                SharedPreferences.Editor editor = sharedPreferences.edit();
-                                editor.putBoolean(PREF_REMEMBER_ME, false);
-                                editor.remove(PREF_EMAIL);
-                                editor.remove(PREF_PASSWORD);
-                                editor.apply();
+                                if (userData != null && "inactive".equals(userData.getAccount_status())) {
+                                    // Account is deactivated, show reactivate dialog
+                                    showReactivateAccountDialog(user.getUid());
+                                } else {
+                                    // Account is active or status not found (assume active), proceed to create/update profile and then Main Activity
+                                    handleSuccessfulLogin(user);
+                                }
                             }
 
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }
-
-                        @Override
-                        public void onFailure(String errorMessage) {
-                            progressBar.setVisibility(View.GONE);
-                            // Re-enable button after processing
-                            validateInputsAndUpdateButtonState();
-                            Toast.makeText(LoginActivity.this, "Login successful but failed to save data: " + errorMessage, Toast.LENGTH_SHORT).show();
-                            // Even if data save fails, allow to proceed to MainActivity if login was successful
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }
-                    });
+                            @Override
+                            public void onFailure(String errorMessage) {
+                                // In case of failure to read user profile, still proceed to create/update profile.
+                                // It might be a new user, or a temporary database issue.
+                                progressBar.setVisibility(View.GONE);
+                                validateInputsAndUpdateButtonState();
+                                Toast.makeText(LoginActivity.this, "Login successful, but failed to read profile status: " + errorMessage, Toast.LENGTH_LONG).show();
+                                handleSuccessfulLogin(user); // Proceed as if active
+                            }
+                        });
+                    }
                 }
 
                 @Override
@@ -219,6 +211,46 @@ public class LoginActivity extends AppCompatActivity {
         validateInputsAndUpdateButtonState();
     }
 
+    // New method to handle logic after successful Firebase Auth login
+    private void handleSuccessfulLogin(FirebaseUser user) {
+        // Authentication successful, now create/update user profile in DB
+        firebaseHelper.createOrUpdateUserProfile(user, null, null, new FirebaseHelper.DbWriteCallback() {
+            @Override
+            public void onSuccess() {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(LoginActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
+
+                if (rememberMeCheckbox.isChecked()) {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean(PREF_REMEMBER_ME, true);
+                    editor.putString(PREF_EMAIL, emailField.getText().toString().trim());
+                    editor.putString(PREF_PASSWORD, passwordField.getText().toString().trim());
+                    editor.apply();
+                } else {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean(PREF_REMEMBER_ME, false);
+                    editor.remove(PREF_EMAIL);
+                    editor.remove(PREF_PASSWORD);
+                    editor.apply();
+                }
+
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(LoginActivity.this, "Login successful but failed to save/update user data: " + errorMessage, Toast.LENGTH_LONG).show();
+                // Even if data save fails, allow to proceed to MainActivity if login was successful
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+    }
+
     // Function to validate email
     private boolean isValidEmail(String email) {
         return !email.isEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches();
@@ -243,6 +275,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private void signInWithGoogle() {
+        progressBar.setVisibility(View.VISIBLE); // Show progress bar
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
@@ -254,44 +287,115 @@ public class LoginActivity extends AppCompatActivity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
-                progressBar.setVisibility(View.VISIBLE);
+
                 firebaseHelper.firebaseAuthWithGoogle(account.getIdToken(), new FirebaseHelper.AuthCallback() {
                     @Override
                     public void onSuccess(FirebaseUser user) {
-                        String firstName = account.getGivenName() != null ? account.getGivenName() : "";
-                        String lastName = account.getFamilyName() != null ? account.getFamilyName() : "";
+                        if (user != null) {
+                            // Google Auth successful, now check account status in DB
+                            firebaseHelper.getUserProfile(user.getUid(), new FirebaseHelper.DbReadCallback<User>() {
+                                @Override
+                                public void onSuccess(User userData) {
+                                    progressBar.setVisibility(View.GONE); // Hide progress bar
+                                    if (userData != null && "inactive".equals(userData.getAccount_status())) {
+                                        // Account is deactivated, show reactivate dialog
+                                        showReactivateAccountDialog(user.getUid());
+                                    } else {
+                                        // Account is active or status not found (assume active), proceed to create/update profile and then Main Activity
+                                        String firstName = account.getGivenName() != null ? account.getGivenName() : "";
+                                        String lastName = account.getFamilyName() != null ? account.getFamilyName() : "";
+                                        handleSuccessfulGoogleLogin(user, firstName, lastName);
+                                    }
+                                }
 
-                        firebaseHelper.createOrUpdateUserProfile(user, firstName, lastName, new FirebaseHelper.DbWriteCallback() {
-                            @Override
-                            public void onSuccess() {
-                                progressBar.setVisibility(View.GONE);
-                                Toast.makeText(LoginActivity.this, "Google login successful", Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                startActivity(intent);
-                                finish();
-                            }
-
-                            @Override
-                            public void onFailure(String errorMessage) {
-                                progressBar.setVisibility(View.GONE);
-                                Toast.makeText(LoginActivity.this, "Google login successful but failed to save data: " + errorMessage, Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                startActivity(intent);
-                                finish();
-                            }
-                        });
+                                @Override
+                                public void onFailure(String errorMessage) {
+                                    // In case of failure to read user profile, still proceed to create/update profile.
+                                    progressBar.setVisibility(View.GONE); // Hide progress bar
+                                    Toast.makeText(LoginActivity.this, "Google login successful, but failed to read profile status: " + errorMessage, Toast.LENGTH_LONG).show();
+                                    String firstName = account.getGivenName() != null ? account.getGivenName() : "";
+                                    String lastName = account.getFamilyName() != null ? account.getFamilyName() : "";
+                                    handleSuccessfulGoogleLogin(user, firstName, lastName); // Proceed as if active
+                                }
+                            });
+                        }
                     }
 
                     @Override
                     public void onFailure(String errorMessage) {
-                        progressBar.setVisibility(View.GONE);
+                        progressBar.setVisibility(View.GONE); // Hide progress bar
                         Toast.makeText(LoginActivity.this, "Google Sign-In failed: " + errorMessage, Toast.LENGTH_SHORT).show();
                     }
                 });
             } catch (ApiException e) {
-                progressBar.setVisibility(View.GONE);
+                progressBar.setVisibility(View.GONE); // Hide progress bar
                 Toast.makeText(LoginActivity.this, "Google Sign-In failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    // New method for handling successful Google sign-in and profile update
+    private void handleSuccessfulGoogleLogin(FirebaseUser user, String firstName, String lastName) {
+        firebaseHelper.createOrUpdateUserProfile(user, firstName, lastName, new FirebaseHelper.DbWriteCallback() {
+            @Override
+            public void onSuccess() {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(LoginActivity.this, "Google login successful!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(LoginActivity.this, "Google login successful but failed to save/update user data: " + errorMessage, Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+    }
+
+
+    // New method to show dialog for reactivating account
+    private void showReactivateAccountDialog(String userId) {
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.account_deactivated_title))
+                .setMessage(getString(R.string.account_deactivated_message))
+                .setPositiveButton(getString(R.string.reactivate_button), (dialog, which) -> {
+                    reactivateAccount(userId);
+                })
+                .setNegativeButton(getString(R.string.cancel_button), (dialog, which) -> {
+                    firebaseHelper.signOut(); // Ensure user is signed out if they choose not to reactivate
+                    Toast.makeText(this, getString(R.string.account_remains_deactivated), Toast.LENGTH_SHORT).show();
+                })
+                .setCancelable(false) // Prevent dialog from being dismissed by tapping outside
+                .show();
+    }
+
+    // New method to reactivate account
+    private void reactivateAccount(String userId) {
+        progressBar.setVisibility(View.VISIBLE); // Show progress bar during reactivation
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("account_status", "active");
+        firebaseHelper.updateUserProfileFields(userId, updates, new FirebaseHelper.DbWriteCallback() {
+            @Override
+            public void onSuccess() {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(LoginActivity.this, getString(R.string.account_reactivated_success), Toast.LENGTH_SHORT).show();
+                // After reactivation, proceed to MainActivity
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(LoginActivity.this, getString(R.string.failed_to_reactivate_account) + errorMessage, Toast.LENGTH_LONG).show();
+                firebaseHelper.signOut(); // Ensure user is signed out if reactivation fails
+            }
+        });
     }
 }

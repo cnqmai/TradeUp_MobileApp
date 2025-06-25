@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sell_nav_graph"
+    app:startDestination="@id/myItemsFragment">
+
+    <fragment
+        android:id="@+id/myItemsFragment"
+        android:name="com.example.tradeup.fragment.MyItemsFragment"
+        android:label="My Items"
+        tools:layout="@layout/fragment_my_items">
+        <action
+            android:id="@+id/action_myItemsFragment_to_addItemFragment"
+            app:destination="@id/addItemFragment" />
+        <action
+            android:id="@+id/action_myItemsFragment_to_itemDetailFragment"
+            app:destination="@id/itemDetailFragment" />
+        <action
+            android:id="@+id/action_myItemsFragment_to_editItemFragment"
+            app:destination="@id/editItemFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addItemFragment"
+        android:name="com.example.tradeup.fragment.AddItemFragment"
+        android:label="Add New Item"
+        tools:layout="@layout/fragment_add_item">
+        <action
+            android:id="@+id/action_addItemFragment_to_myItemsFragment"
+            app:destination="@id/myItemsFragment"
+            app:popUpTo="@id/addItemFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_addItemFragment_to_previewItemFragment"
+            app:destination="@id/previewItemFragment">
+            <argument
+                android:name="title"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                app:argType="string" />
+            <argument
+                android:name="price"
+                app:argType="long" />
+            <argument
+                android:name="category"
+                app:argType="string" />
+            <argument
+                android:name="condition"
+                app:argType="string" />
+            <argument
+                android:name="location"
+                app:argType="string" />
+            <argument
+                android:name="itemBehavior"
+                app:argType="string" />
+            <argument
+                android:name="tags"
+                app:argType="string[]"
+                app:nullable="true" />
+            <argument
+                android:name="imageUrls"
+                app:argType="string[]"
+                app:nullable="true" />
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/itemDetailFragment"
+        android:name="com.example.tradeup.fragment.ItemDetailFragment"
+        android:label="Item Details"
+        tools:layout="@layout/fragment_item_detail">
+        <action
+            android:id="@+id/action_itemDetailFragment_to_editItemFragment"
+            app:destination="@id/editItemFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editItemFragment"
+        android:name="com.example.tradeup.fragment.EditItemFragment"
+        android:label="Edit Item"
+        tools:layout="@layout/fragment_edit_item">
+        <action
+            android:id="@+id/action_editItemFragment_to_itemDetailFragment"
+            app:destination="@id/itemDetailFragment"
+            app:popUpTo="@id/myItemsFragment"
+            app:popUpToInclusive="false">
+            <argument
+                android:name="itemId"
+                app:argType="string" />
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/previewItemFragment"
+        android:name="com.example.tradeup.fragment.PreviewItemFragment"
+        android:label="Xem trước tin đăng"
+        tools:layout="@layout/fragment_preview_item">
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="description"
+            app:argType="string" />
+        <argument
+            android:name="price"
+            app:argType="long" />
+        <argument
+            android:name="category"
+            app:argType="string" />
+        <argument
+            android:name="condition"
+            app:argType="string" />
+        <argument
+            android:name="location"
+            app:argType="string" />
+        <argument
+            android:name="itemBehavior"
+            app:argType="string" />
+        <argument
+            android:name="tags"
+            app:argType="string[]"
+            app:nullable="true" />
+        <argument
+            android:name="imageUrls"
+            app:argType="string[]"
+            app:nullable="true" />
+    </fragment>
+</navigation>

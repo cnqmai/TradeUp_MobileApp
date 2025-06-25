@@ -7,165 +7,164 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_gradient">
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/profileCard"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="60dp"
-        android:layout_marginEnd="32dp"
-        android:backgroundTint="@color/yellow_slight"
-        app:cardCornerRadius="24dp"
-        app:cardElevation="6dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <ScrollView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical"
             android:padding="20dp">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/image_profile"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginBottom="16dp"
+                android:contentDescription="@string/profile_picture"
+                app:civ_border_width="2dp"
+                app:civ_border_color="@color/orange_skin"
+                android:src="@drawable/img_profile_placeholder" />
+
+            <TextView
+                android:id="@+id/text_display_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sample_name"
+                android:textColor="@android:color/black"
+                android:textSize="26sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/text_rating_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="4.5"
+                android:textColor="@color/black"
+                android:textSize="20sp" />
+
+            <RatingBar
+                android:id="@+id/rating_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="45dp"
+                android:isIndicator="true"
+                android:numStars="5"
+                android:progressTint="@color/yellow_star"
+                android:rating="4.5"
+                android:scaleX="0.7"
+                android:scaleY="0.7"
+                android:secondaryProgressTint="@color/yellow_star"
+                android:stepSize="0.5" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:layout_marginTop="10dp"
-                android:orientation="vertical">
+                android:layout_marginTop="15dp"
+                android:background="@drawable/bg_input"
+                android:orientation="vertical"
+                android:padding="15dp">
 
-                <!-- Avatar -->
-                <ImageView
-                    android:id="@+id/image_profile"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_marginBottom="16dp"
-                    android:background="@drawable/bg_profile_circle"
-                    android:contentDescription="@string/profile_picture"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/img_profile_placeholder" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="4dp">
 
-                <!-- Name -->
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="8dp"
+                        android:src="@drawable/ic_bio"
+                        app:tint="@color/orange_bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_bio"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:textColor="@android:color/black" />
+                </LinearLayout>
+
                 <TextView
-                    android:id="@+id/text_display_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/sample_name"
-                    android:textColor="@android:color/black"
-                    android:textSize="22sp"
-                    android:textStyle="bold" />
-
-                <!-- Rating -->
-                <RatingBar
-                    android:id="@+id/rating_bar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:isIndicator="true"
-                    android:numStars="5"
-                    android:progressTint="@color/yellow_star"
-                    android:rating="4.5"
-                    android:scaleX="0.7"
-                    android:scaleY="0.7"
-                    android:secondaryProgressTint="@color/yellow_star"
-                    android:stepSize="0.5" />
-                <!-- Bio -->
-                <LinearLayout
+                    android:id="@+id/text_bio"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:background="@drawable/bg_input"
-                    android:orientation="vertical"
-                    android:padding="10dp">
+                    android:text="@string/sample_bio"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/black" />
+            </LinearLayout>
 
-                    <!-- Icon + Label -->
-                    <LinearLayout
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/bg_input"
+                android:orientation="vertical"
+                android:padding="15dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="4dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="8dp"
+                        android:src="@drawable/ic_contact"
+                        app:tint="@color/orange_bold" />
+
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="4dp">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_marginEnd="8dp"
-                            android:src="@drawable/ic_bio"
-                            app:tint="@color/orange_bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/label_bio"
-                            android:textStyle="bold"
-                            android:textColor="@android:color/black" />
-                    </LinearLayout>
-
-                    <!-- Nội dung bio -->
-                    <TextView
-                        android:id="@+id/text_bio"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/sample_bio"
+                        android:text="@string/label_contact"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
                         android:textColor="@android:color/black" />
                 </LinearLayout>
 
-                <!-- Email -->
-                <LinearLayout
+                <TextView
+                    android:id="@+id/text_email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/bg_input"
-                    android:orientation="vertical"
-                    android:padding="10dp">
+                    android:text="@string/sample_email"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/black" />
+            </LinearLayout>
 
-                    <!-- Icon + Label -->
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="4dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="vertical"
+                android:backgroundTint="@color/yellow_slight"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="0dp"
+                android:background="@drawable/bg_card_rounded">
 
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_marginEnd="8dp"
-                            android:src="@drawable/ic_contact"
-                            app:tint="@color/orange_bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/label_contact"
-                            android:textStyle="bold"
-                            android:textColor="@android:color/black" />
-                    </LinearLayout>
-
-                    <!-- Nội dung email -->
-                    <TextView
-                        android:id="@+id/text_email"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/sample_email"
-                        android:textColor="@android:color/black" />
-                </LinearLayout>
-
-
-                <!-- Action Panel -->
                 <LinearLayout
                     android:id="@+id/row_edit_profile"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingVertical="12dp"
-                    android:paddingHorizontal="2dp">
+                    android:paddingVertical="12dp" >
 
-                    <!-- Icon tròn -->
                     <FrameLayout
                         android:layout_width="36dp"
                         android:layout_height="36dp"
@@ -181,7 +180,6 @@
                             app:tint="@color/orange_bold" />
                     </FrameLayout>
 
-                    <!-- Tiêu đề -->
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -190,7 +188,6 @@
                         android:textColor="@android:color/black"
                         android:textSize="16sp" />
 
-                    <!-- Mũi tên -->
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
@@ -203,7 +200,6 @@
                     android:layout_height="1dp"
                     android:background="#DADADA" />
 
-                <!-- Change Photo -->
                 <LinearLayout
                     android:id="@+id/row_change_photo"
                     android:layout_width="match_parent"
@@ -251,7 +247,6 @@
                     android:layout_height="1dp"
                     android:background="#DADADA" />
 
-                <!-- My Listings -->
                 <LinearLayout
                     android:id="@+id/row_my_listings"
                     android:layout_width="match_parent"
@@ -299,9 +294,8 @@
                     android:layout_height="1dp"
                     android:background="#DADADA" />
 
-                <!-- Deactivate -->
                 <LinearLayout
-                    android:id="@+id/row_deactivate"
+                    android:id="@+id/row_account_management"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="?attr/selectableItemBackground"
@@ -322,8 +316,8 @@
                         <ImageView
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:contentDescription="@string/deactivate_account"
-                            android:src="@drawable/ic_warning"
+                            android:contentDescription="@string/account_management"
+                            android:src="@drawable/ic_settings"
                             app:tint="@color/orange_bold" />
                     </FrameLayout>
 
@@ -331,7 +325,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="@string/deactivate_account"
+                        android:text="@string/account_management"
                         android:textColor="@color/red_bold"
                         android:textSize="16sp" />
 
@@ -342,19 +336,20 @@
                         app:tint="@color/gray" />
                 </LinearLayout>
 
-                <!-- Logout -->
-                <LinearLayout
-                    android:id="@+id/row_logout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_logout_highlight"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingVertical="12dp"
-                    android:paddingHorizontal="2dp"
-                    android:layout_marginTop="12dp">
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/row_logout"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="@drawable/bg_logout_highlight"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingVertical="12dp"
+                android:paddingHorizontal="2dp"
+                android:layout_marginTop="20dp">
 
                 <FrameLayout
                     android:layout_width="36dp"
@@ -378,12 +373,11 @@
                     android:layout_weight="1"
                     android:text="@string/logout"
                     android:textColor="@android:color/white"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
-                </LinearLayout>
-
             </LinearLayout>
-        </ScrollView>
-    </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

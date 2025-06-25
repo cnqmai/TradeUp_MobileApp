@@ -17,7 +17,7 @@
     <fragment
         android:id="@+id/sellFragment"
         android:name="com.example.tradeup.fragment.SellFragment"
-        android:label="Post" />
+        android:label="Sell" />
 
     <fragment
         android:id="@+id/messageFragment"
@@ -28,5 +28,7 @@
         android:id="@+id/profileFragment"
         android:name="com.example.tradeup.fragment.ProfileFragment"
         android:label="Profile" />
+
+    <include app:graph="@navigation/sell_nav_graph" />
 
 </navigation>

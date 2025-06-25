@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.gms.google.services)
+    id ("androidx.navigation.safeargs")
 }
 
 android {
@@ -59,6 +60,18 @@ dependencies {
     // Google Sign-In
     implementation ("com.google.android.gms:play-services-auth:21.2.0")
 
+    // Google Play Services Location (Bắt buộc cho FusedLocationProviderClient)
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
+
+    // Cloudinary Storage
+    implementation ("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // Apache Commons IO
+    implementation ("commons-io:commons-io:2.13.0")
+
+    // SONObject để parse JSON (nếu chưa có)
+    implementation ("org.json:json:20231013")
+
     // Glide
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
@@ -68,6 +81,9 @@ dependencies {
 
     // ThreeTenABP
     implementation ("com.jakewharton.threetenabp:threetenabp:1.4.6")
+
+    // Circle ImageView
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
 
     // Testing
     testImplementation(libs.junit)

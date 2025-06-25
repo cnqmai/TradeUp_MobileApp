@@ -1,9 +1,9 @@
-// models/Item.java
 package com.example.tradeup.model;
 
 import java.util.List;
 
 public class Item {
+    private String id; // Thêm trường này để lưu trữ ID của item từ Firebase
     private String user_id;
     private String title;
     private String description;
@@ -11,7 +11,7 @@ public class Item {
     private String category;
     private String condition;
     private String status;
-    private Location location;
+    private Location location; // Đảm bảo lớp Location đã được định nghĩa
     private List<String> photos;
     private String item_behavior;
     private List<String> tags;
@@ -22,7 +22,8 @@ public class Item {
         // Required for Firebase
     }
 
-    public Item(String user_id, String title, String description, Long price, String category, String condition, String status, Location location, List<String> photos, String item_behavior, List<String> tags, String created_at, String updated_at) {
+    public Item(String id, String user_id, String title, String description, Long price, String category, String condition, String status, Location location, List<String> photos, String item_behavior, List<String> tags, String created_at, String updated_at) {
+        this.id = id; // Thêm vào constructor
         this.user_id = user_id;
         this.title = title;
         this.description = description;
@@ -38,7 +39,16 @@ public class Item {
         this.updated_at = updated_at;
     }
 
-    // Getters and Setters
+    // Getters and Setters for 'id'
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    // Getters and Setters for other fields (unchanged)
     public String getUser_id() { return user_id; }
     public void setUser_id(String user_id) { this.user_id = user_id; }
     public String getTitle() { return title; }

@@ -73,8 +73,24 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="change_photo">Change Profile Photo</string>
     <string name="my_listings">My Listings</string>
+    <string name="logout">Log out</string>
+    <string name="account_management">Account Management</string>
     <string name="deactivate_account">Deactivate Account</string>
-    <string name="logout">Logout</string>
+    <string name="delete_account">Delete Account Permanently</string>
+
+    <string name="account_deactivated_title">Account Deactivated</string>
+    <string name="account_deactivated_message">Your account is currently deactivated. Do you want to reactivate it?</string>
+    <string name="reactivate_button">Reactivate</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="account_remains_deactivated">Account remains deactivated.</string>
+    <string name="account_reactivated_success">Account reactivated successfully!</string>
+    <string name="failed_to_reactivate_account">Failed to reactivate account: </string>
 
     <string name="go_to_details">Go to detail</string>
+
+    <string name="first_name_hint">First Name</string>
+    <string name="last_name_hint">Last Name</string>
+    <string name="bio_hint">Tell us about yourself</string>
+    <string name="contact_info_hint">E.g., phone number, social media link</string>
+    <string name="save_profile">Save Profile</string>
 </resources>
