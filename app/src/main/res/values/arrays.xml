@@ -2,26 +2,54 @@
 <resources>
     <string-array name="categories">
         <item>Điện tử</item>
+        <item>Electronics</item>
         <item>Thời trang</item>
-        <item>Đồ gia dụng</item>
-        <item>Sách</item>
-        <item>Xe cộ</item>
-        <item>Thể thao</item>
-        <item>Khác</item>
-    </string-array>
+        <item>Fashion</item> <item>Đồ gia dụng</item>
+        <item>Home Appliances</item> <item>Sách</item>
+        <item>Books</item> <item>Sports &amp; Outdoors</item> <item>Home Decor</item> <item>Home &amp; Kitchen</item> <item>Art &amp; Collectibles</item> <item>Bags</item> <item>Home &amp; Garden</item> <item>Toys &amp; Hobbies</item> <item>Office Supplies</item> </string-array>
 
     <string-array name="conditions">
         <item>Mới</item>
-        <item>Như mới</item>
-        <item>Đã qua sử dụng</item>
-        <item>Cũ</item>
-        <item>Hư hỏng</item>
-    </string-array>
+        <item>New</item> <item>Như mới</item>
+        <item>Like New</item> <item>Đã qua sử dụng</item>
+        <item>Used</item> </string-array>
 
     <string-array name="item_statuses_array">
         <item>Available</item>
         <item>Pending</item>
         <item>Traded</item>
         <item>Closed</item>
+    </string-array>
+
+    <string-array name="search_categories">
+        <item>Tất cả danh mục</item> <item>Điện tử</item>
+        <item>Electronics</item>
+        <item>Sports &amp; Outdoors</item>
+        <item>Home Decor</item>
+        <item>Home &amp; Kitchen</item>
+        <item>Art &amp; Collectibles</item>
+        <item>Fashion</item>
+        <item>Home Appliances</item>
+        <item>Books</item>
+        <item>Bags</item>
+        <item>Home &amp; Garden</item>
+        <item>Toys &amp; Hobbies</item>
+        <item>Office Supplies</item>
+    </string-array>
+
+    <string-array name="search_conditions">
+        <item>Tất cả tình trạng</item> <item>Mới</item>
+        <item>New</item>
+        <item>Như mới</item>
+        <item>Like New</item>
+        <item>Đã qua sử dụng</item>
+        <item>Used</item>
+    </string-array>
+
+    <string-array name="search_sort_options">
+        <item>Liên quan</item>
+        <item>Mới nhất</item>
+        <item>Giá tăng dần</item>
+        <item>Giá giảm dần</item>
     </string-array>
 </resources>

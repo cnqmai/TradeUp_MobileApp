@@ -1,5 +1,7 @@
 package com.example.tradeup.fragment;
 
+import static android.content.ContentValues.TAG;
+
 import android.Manifest;
 import android.content.ContentValues;
 import android.content.Context;
@@ -25,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.location.Location; // For android.location.Location
+import android.os.Looper;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -77,6 +80,9 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import com.google.android.gms.location.CurrentLocationRequest; // New import for current location
+import com.google.android.gms.location.Priority; // New import for current location priority
+import com.google.android.gms.tasks.CancellationTokenSource; // New import for current location
 
 public class EditItemFragment extends Fragment {
 
@@ -125,7 +131,7 @@ public class EditItemFragment extends Fragment {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         okHttpClient = new OkHttpClient(); // Initialize OkHttpClient
 
-        setupLocationRequest(); // Setup location request
+        //setupLocationRequest(); // Setup location request
         setupActivityResultLaunchers();
 
         // Get item ID from arguments
@@ -150,13 +156,6 @@ public class EditItemFragment extends Fragment {
         }
     }
 
-    private void setupLocationRequest() {
-        locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000) // 10s interval
-                // .setWaitForActivityUpdates(false) // Removed due to 'Cannot resolve method' error
-                .setMinUpdateIntervalMillis(5000) // minimum 5s interval
-                .build();
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -172,24 +171,6 @@ public class EditItemFragment extends Fragment {
         setupSpinners();
         setupListeners();
 
-        // Initialize location callback
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(@NonNull LocationResult locationResult) {
-                if (locationResult == null) {
-                    return;
-                }
-                for (Location location : locationResult.getLocations()) {
-                    if (location != null) {
-                        getAddressFromLocation(location);
-                        // Stop updates after getting a location
-                        fusedLocationClient.removeLocationUpdates(locationCallback);
-                        return; // Process only the first good location
-                    }
-                }
-            }
-        };
-
         if (currentItemId != null) {
             loadItemData();
         }
@@ -199,9 +180,9 @@ public class EditItemFragment extends Fragment {
     public void onPause() {
         super.onPause();
         // Stop location updates when the fragment is paused to save battery
-        if (fusedLocationClient != null && locationCallback != null) {
-            fusedLocationClient.removeLocationUpdates(locationCallback);
-        }
+        //if (fusedLocationClient != null && locationCallback != null) {
+        //    fusedLocationClient.removeLocationUpdates(locationCallback);
+        //}
     }
 
     private void initViews(View view) {
@@ -510,17 +491,34 @@ public class EditItemFragment extends Fragment {
                     .setNegativeButton("Hủy", null)
                     .show();
         } else {
-            requestLocationUpdates();
+            getCurrentAccurateLocation();
         }
     }
 
-    private void requestLocationUpdates() {
+    private void getCurrentAccurateLocation() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(requireContext(), "Thiếu quyền vị trí.", Toast.LENGTH_SHORT).show();
             return;
         }
-        Toast.makeText(requireContext(), "Đang lấy vị trí hiện tại...", Toast.LENGTH_SHORT).show();
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+
+        CurrentLocationRequest currentLocationRequest = new CurrentLocationRequest.Builder()
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                .setDurationMillis(30000)
+                .build();
+
+        fusedLocationClient.getCurrentLocation(currentLocationRequest, new CancellationTokenSource().getToken())
+                .addOnSuccessListener(requireActivity(), location -> {
+                    if (location != null) {
+                        Log.d(TAG, "getCurrentLocation successful: Lat=" + location.getLatitude() + ", Lng=" + location.getLongitude());
+                        getAddressFromLocation(location);
+                    } else {
+                        Log.w(TAG, "getCurrentLocation returned null location.");
+                        Toast.makeText(requireContext(), "Không thể lấy vị trí hiện tại. Đảm bảo GPS đã bật và thử lại.", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to get current location: " + e.getMessage());
+                    Toast.makeText(requireContext(), "Lỗi khi lấy vị trí hiện tại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void getAddressFromLocation(Location location) {

@@ -93,6 +93,29 @@
             android:textStyle="italic"
             android:layout_marginBottom="16dp"/>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:id="@+id/tv_detail_item_average_rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đánh giá SP: N/A"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_detail_item_rating_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="(0 lượt)"
+                android:textSize="14sp"
+                android:layout_marginStart="4dp" />
+        </LinearLayout>
         <TextView
             android:id="@+id/tv_detail_views_count"
             android:layout_width="match_parent"
@@ -101,7 +124,6 @@
             android:textSize="14sp"
             android:textStyle="italic"
             android:layout_marginBottom="16dp" />
-
 
         <TextView
             android:layout_width="match_parent"
@@ -112,33 +134,38 @@
             android:layout_marginBottom="8dp"/>
 
         <TextView
-            android:id="@+id/tv_detail_seller_name" android:layout_width="match_parent"
+            android:id="@+id/tv_detail_seller_name"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Người bán: John Doe"
             android:textSize="14sp"
             android:layout_marginBottom="4dp"/>
 
         <TextView
-            android:id="@+id/tv_detail_seller_rating" android:layout_width="match_parent"
+            android:id="@+id/tv_detail_seller_rating"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Đánh giá: 4.8/5.0"
             android:textSize="14sp"
             android:layout_marginBottom="16dp"/>
 
         <Button
-            android:id="@+id/btn_detail_chat_seller" android:layout_width="match_parent"
+            android:id="@+id/btn_detail_chat_seller"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Trò chuyện với người bán"
             android:layout_marginBottom="8dp"/>
 
         <Button
-            android:id="@+id/btn_detail_make_offer" android:layout_width="match_parent"
+            android:id="@+id/btn_detail_make_offer"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Gửi đề nghị"
             android:layout_marginBottom="8dp"/>
 
         <Button
-            android:id="@+id/btn_detail_add_to_favorites" android:layout_width="match_parent"
+            android:id="@+id/btn_detail_add_to_favorites"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Thêm vào mục yêu thích"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>

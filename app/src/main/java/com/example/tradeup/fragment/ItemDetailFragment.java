@@ -21,9 +21,11 @@ import com.example.tradeup.R;
 import com.example.tradeup.model.Item;
 import com.example.tradeup.model.User;
 import com.example.tradeup.utils.FirebaseHelper;
-import com.google.firebase.database.DatabaseReference; // Import này có thể cần nếu bạn dùng addValueEventListener
-import com.google.firebase.database.ValueEventListener; // Import này có thể cần nếu bạn dùng addValueEventListener
-
+import com.google.firebase.auth.FirebaseAuth; // Cần import này để lấy User ID
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase; // Cần import này để truy cập DatabaseReference
+import com.google.firebase.database.ServerValue; // Cần import này cho ServerValue.TIMESTAMP
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -33,10 +35,15 @@ import java.util.Map;
 
 public class ItemDetailFragment extends Fragment {
 
-    private static final String TAG = "ItemDetailFragment"; // Define a TAG for logging
+    private static final String TAG = "ItemDetailFragment";
 
     private TextView tvTitle, tvPrice, tvDescription, tvCategory, tvCondition, tvLocation,
             tvItemBehavior, tvTags, tvStatus, tvSellerName, tvSellerRating, tvViewsCount;
+
+    // >>> THÊM CÁC TRƯỜNG TEXTVIEW MỚI CHO RATING CỦA SẢN PHẨM <<<
+    private TextView tvItemAverageRating;
+    private TextView tvItemRatingCount;
+
     private Button btnChatSeller, btnMakeOffer, btnAddToFavorites;
     private ViewPager2 vpItemImages;
 
@@ -44,13 +51,7 @@ public class ItemDetailFragment extends Fragment {
     private FirebaseHelper firebaseHelper;
 
     private String sellerId;
-
-    // Khai báo các biến để lưu trữ listener và reference nếu bạn sử dụng addValueEventListener
-    // private ValueEventListener itemEventListener;
-    // private ValueEventListener sellerEventListener;
-    // private DatabaseReference itemRef;
-    // private DatabaseReference userRef;
-
+    private String currentUserId; // Để lưu trữ User ID hiện tại
 
     public ItemDetailFragment() {
         // Required empty public constructor
@@ -69,6 +70,7 @@ public class ItemDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate called.");
         firebaseHelper = new FirebaseHelper();
+        currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ? FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
 
         if (getArguments() != null) {
             itemId = getArguments().getString("itemId");
@@ -117,6 +119,11 @@ public class ItemDetailFragment extends Fragment {
         tvSellerRating = view.findViewById(R.id.tv_detail_seller_rating);
         tvViewsCount = view.findViewById(R.id.tv_detail_views_count);
 
+        // >>> ÁNH XẠ CÁC TEXTVIEW MỚI CHO RATING CỦA SẢN PHẨM <<<
+        tvItemAverageRating = view.findViewById(R.id.tv_detail_item_average_rating);
+        tvItemRatingCount = view.findViewById(R.id.tv_detail_item_rating_count);
+
+
         btnChatSeller = view.findViewById(R.id.btn_detail_chat_seller);
         btnMakeOffer = view.findViewById(R.id.btn_detail_make_offer);
         btnAddToFavorites = view.findViewById(R.id.btn_detail_add_to_favorites);
@@ -129,16 +136,6 @@ public class ItemDetailFragment extends Fragment {
 
     private void loadItemDetails(String id) {
         Log.d(TAG, "loadItemDetails called for itemId: " + id);
-        // Nếu bạn sử dụng addValueEventListener ở đây, bạn cần gỡ bỏ listener cũ trước khi thêm listener mới
-        // if (itemEventListener != null && itemRef != null) {
-        //     itemRef.removeEventListener(itemEventListener);
-        // }
-        // itemRef = firebaseHelper.getItemReference(id); // Cần phương thức getItemReference trong FirebaseHelper
-        // itemEventListener = new ValueEventListener() { ... }; // Khởi tạo listener của bạn
-        // itemRef.addValueEventListener(itemEventListener);
-
-        // Với cách gọi hiện tại của bạn (sử dụng DbReadCallback), nó thường là single-value read,
-        // nên không cần removeEventListener cho phương thức này.
         firebaseHelper.getItem(id, new FirebaseHelper.DbReadCallback<Item>() {
             @Override
             public void onSuccess(Item item) {
@@ -166,6 +163,16 @@ public class ItemDetailFragment extends Fragment {
                     }
                     tvStatus.setText("Trạng thái: " + item.getStatus());
 
+                    // >>> HIỂN THỊ RATING CỦA SẢN PHẨM <<<
+                    if (item.getAverage_rating() != null && item.getRating_count() != null) {
+                        tvItemAverageRating.setText(String.format(Locale.getDefault(), "Đánh giá SP: %.1f/5.0", item.getAverage_rating()));
+                        tvItemRatingCount.setText(String.format(Locale.getDefault(), "(%d lượt)", item.getRating_count()));
+                    } else {
+                        tvItemAverageRating.setText("Đánh giá SP: N/A");
+                        tvItemRatingCount.setText("(0 lượt)");
+                    }
+
+
                     sellerId = item.getUser_id();
                     loadSellerInfo(sellerId);
 
@@ -179,6 +186,13 @@ public class ItemDetailFragment extends Fragment {
                         placeholders.add("android.resource://" + requireContext().getPackageName() + "/" + R.drawable.img_placeholder);
                         ImageSliderAdapter adapter = new ImageSliderAdapter(placeholders);
                         vpItemImages.setAdapter(adapter);
+                    }
+
+                    // >>> GHI NHẬN HOẠT ĐỘNG DUYỆT WEB CỦA NGƯỜI DÙNG <<<
+                    if (currentUserId != null && item.getCategory() != null) {
+                        recordUserView(currentUserId, id, item.getCategory());
+                    } else {
+                        Log.w(TAG, "Cannot record user view: currentUserId or item category is null.");
                     }
 
                 } else {
@@ -197,15 +211,6 @@ public class ItemDetailFragment extends Fragment {
 
     private void loadSellerInfo(String userId) {
         Log.d(TAG, "loadSellerInfo called for userId: " + userId);
-        // Tương tự cho seller info, nếu dùng addValueEventListener cần gỡ bỏ.
-        // if (sellerEventListener != null && userRef != null) {
-        //     userRef.removeEventListener(sellerEventListener);
-        // }
-        // userRef = firebaseHelper.getUserReference(userId); // Cần phương thức getUserReference trong FirebaseHelper
-        // sellerEventListener = new ValueEventListener() { ... }; // Khởi tạo listener của bạn
-        // userRef.addValueEventListener(sellerEventListener);
-
-        // Với cách gọi hiện tại của bạn, không cần removeEventListener.
         firebaseHelper.getUserProfile(userId, new FirebaseHelper.DbReadCallback<User>() {
             @Override
             public void onSuccess(User user) {
@@ -274,30 +279,47 @@ public class ItemDetailFragment extends Fragment {
         });
     }
 
+    /**
+     * Ghi nhận lượt xem danh mục của người dùng vào node user_activity.
+     * Phương thức này sẽ được gọi mỗi khi người dùng xem chi tiết sản phẩm.
+     * @param userId ID của người dùng hiện tại.
+     * @param itemId ID của sản phẩm đang được xem.
+     * @param category Danh mục của sản phẩm đang được xem.
+     */
+    private void recordUserView(String userId, String itemId, String category) {
+        if (userId == null || itemId == null || category == null || category.isEmpty()) {
+            Log.w(TAG, "Cannot record user view: missing userId, itemId or category.");
+            return;
+        }
+
+        // Tùy chọn: Bạn có thể di chuyển logic này vào FirebaseHelper để quản lý tập trung hơn
+        // Ví dụ: firebaseHelper.recordUserCategoryView(userId, category, new FirebaseHelper.DbWriteCallback() {...});
+
+        FirebaseDatabase.getInstance().getReference("user_activity")
+                .child(userId)
+                .child("viewed_categories")
+                .child(category)
+                .child("last_viewed")
+                .setValue(ServerValue.TIMESTAMP) // Ghi lại thời gian xem gần nhất
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "User category view recorded for: " + category))
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to record user category view: " + e.getMessage()));
+
+        // Tùy chọn: Ghi nhận cả từng item đã xem nếu cần chi tiết hơn
+        // FirebaseDatabase.getInstance().getReference("user_activity")
+        //         .child(userId)
+        //         .child("viewed_items")
+        //         .child(itemId)
+        //         .setValue(Map.of("timestamp", ServerValue.TIMESTAMP, "category", category))
+        //         .addOnSuccessListener(aVoid -> Log.d(TAG, "User item view recorded for: " + itemId))
+        //         .addOnFailureListener(e -> Log.e(TAG, "Failed to record user item view: " + e.getMessage()));
+    }
+
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         Log.d(TAG, "onDestroyView called.");
 
-        // Quan trọng: Gỡ bỏ các Firebase Listeners tại đây nếu bạn đang sử dụng
-        // addValueEventListener hoặc các listener thời gian thực khác.
-        // Với cách triển khai hiện tại của loadItemDetails và loadSellerInfo
-        // (sử dụng FirebaseHelper.DbReadCallback), chúng thường là các lượt đọc một lần
-        // (addListenerForSingleValueEvent hoặc get()), nên không cần phải gỡ bỏ listener
-        // cho các trường hợp đó.
-        // Tuy nhiên, nếu bạn có các listener khác được thêm vào bằng addValueEventListener
-        // mà không được gỡ bỏ, chúng có thể gây ra lỗi "Assertion failed" và rò rỉ bộ nhớ.
-        // Ví dụ:
-        // if (itemEventListener != null && itemRef != null) {
-        //     itemRef.removeEventListener(itemEventListener);
-        //     Log.d(TAG, "itemEventListener removed.");
-        // }
-        // if (sellerEventListener != null && userRef != null) {
-        //     userRef.removeEventListener(sellerEventListener);
-        //     Log.d(TAG, "sellerEventListener removed.");
-        // }
-
-        // Đặt các tham chiếu View về null để giúp dọn dẹp bộ nhớ và tránh rò rỉ
         tvTitle = null;
         tvPrice = null;
         tvDescription = null;
@@ -310,12 +332,13 @@ public class ItemDetailFragment extends Fragment {
         tvSellerName = null;
         tvSellerRating = null;
         tvViewsCount = null;
+        tvItemAverageRating = null; // Giải phóng TextView mới
+        tvItemRatingCount = null;   // Giải phóng TextView mới
         btnChatSeller = null;
         btnMakeOffer = null;
         btnAddToFavorites = null;
-        vpItemImages = null; // Rất quan trọng để giải phóng ViewPager2
+        vpItemImages = null;
     }
-
 
     private class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.SliderViewHolder> {
         private List<String> imageUrls;

@@ -72,6 +72,12 @@ import java.util.UUID;
 
 import android.location.Location; // Đảm bảo đây là android.location.Location
 
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.CurrentLocationRequest;
+import com.google.android.gms.location.Priority;
+import com.google.android.gms.tasks.CancellationTokenSource;
+import com.google.android.gms.tasks.CancellationToken;
+
 public class AddItemFragment extends Fragment {
 
     // UI Elements
@@ -93,6 +99,8 @@ public class AddItemFragment extends Fragment {
     private Uri cameraImageUri; // For camera capture
     private static final int MAX_IMAGES = 10;
     private FusedLocationProviderClient fusedLocationClient;
+
+    private static final String TAG = "AddItemFragment";
 
     // Biến để lưu trữ tọa độ GPS (quan trọng để truyền vào model Item)
     private double currentLat = 0.0;
@@ -308,26 +316,49 @@ public class AddItemFragment extends Fragment {
                     .setNegativeButton("Hủy", null)
                     .show();
         } else {
-            getLastLocation();
+            getCurrentAccurateLocation();
         }
     }
 
-    private void getLastLocation() {
+    private void getCurrentAccurateLocation() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return; // Should not happen if permission check is done
+            return;
         }
-        fusedLocationClient.getLastLocation()
+
+        // --- MÃ ĐÃ THAY ĐỔI: SỬ DỤNG CurrentLocationRequest ---
+        CurrentLocationRequest currentLocationRequest = new CurrentLocationRequest.Builder()
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY) // Yêu cầu độ chính xác cao nhất
+                .setDurationMillis(30000) // Thời gian chờ tối đa cho yêu cầu (30 giây)
+                // .setMaxUpdates(1) // KHÔNG CẦN DÒNG NÀY cho CurrentLocationRequest vì nó luôn chỉ là một lần cập nhật
+                .build();
+
+        fusedLocationClient.getCurrentLocation(currentLocationRequest, new CancellationTokenSource().getToken()) // Gửi yêu cầu lấy vị trí hiện tại
                 .addOnSuccessListener(requireActivity(), location -> {
-                    getAddressFromLocation(location);
+                    if (location != null) {
+                        Log.d(TAG, "getCurrentLocation successful: Lat=" + location.getLatitude() + ", Lng=" + location.getLongitude());
+                        getAddressFromLocation(location);
+                    } else {
+                        Log.w(TAG, "getCurrentLocation returned null location.");
+                        Toast.makeText(requireContext(), "Không thể lấy vị trí hiện tại. Đảm bảo GPS đã bật và thử lại.", Toast.LENGTH_SHORT).show();
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(requireContext(), "Lỗi khi lấy vị trí: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.e("AddItemFragment", "Error getting location: " + e.getMessage());
+                    Log.e(TAG, "Failed to get current location: " + e.getMessage());
+                    Toast.makeText(requireContext(), "Lỗi khi lấy vị trí hiện tại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
     private void getAddressFromLocation(Location location) {
-        Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
+        if (location == null) {
+            Toast.makeText(requireContext(), "Không thể lấy vị trí chính xác.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // --- DÒNG LOG NÀY RẤT QUAN TRỌNG: HIỂN THỊ TỌA ĐỘ THÔ ĐƯỢC CUNG CẤP BỞI FUSED LOCATION PROVIDER ---
+        Log.d("EditItemFragment", "Raw GPS Location received: Lat=" + location.getLatitude() + ", Lng=" + location.getLongitude());
+
+        // Sử dụng Locale("vi", "VN") để cố gắng lấy địa chỉ cụ thể cho Việt Nam
+        Geocoder geocoder = new Geocoder(requireContext(), new Locale("vi", "VN"));
         try {
             List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
             if (addresses != null && !addresses.isEmpty()) {
@@ -338,11 +369,15 @@ public class AddItemFragment extends Fragment {
                 this.currentLat = location.getLatitude();
                 this.currentLng = location.getLongitude();
 
+                // GỠ LỖI: LOG ĐỊA CHỈ ĐƯỢC CHUYỂN ĐỔI TỪ GPS
+                Log.d("AddItemFragment", "Geocoded address (from GPS): " + fullAddress);
+
             } else {
                 this.currentLat = location.getLatitude();
                 this.currentLng = location.getLongitude();
                 etLocation.setText(String.format(Locale.getDefault(), "Lat: %.4f, Lng: %.4f", this.currentLat, this.currentLng));
                 Toast.makeText(requireContext(), "Không tìm thấy địa chỉ, sử dụng tọa độ.", Toast.LENGTH_SHORT).show();
+                Log.w("AddItemFragment", "Geocoder returned no address for Lat: " + location.getLatitude() + ", Lng: " + location.getLongitude());
             }
         } catch (IOException e) {
             Log.e("AddItemFragment", "Geocoder failed: " + e.getMessage());
@@ -671,7 +706,10 @@ public class AddItemFragment extends Fragment {
                 itemBehavior.isEmpty() ? null : itemBehavior,
                 tagsList.isEmpty() ? null : tagsList, // Sử dụng tagsList
                 currentTime,
-                currentTime
+                currentTime,
+                0L, // rating_sum khởi tạo là 0
+                0L, // rating_count khởi tạo là 0
+                0.0 // average_rating khởi tạo là 0.0
         );
 
         firebaseHelper.addItem(itemId, newItem, new FirebaseHelper.DbWriteCallback() {

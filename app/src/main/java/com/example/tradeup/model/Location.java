@@ -1,29 +1,29 @@
 package com.example.tradeup.model;
 
 public class Location {
-    private double lat;
-    private double lng;
+    private Double lat;
+    private Double lng;
     private String manual_address;
 
     public Location() {
         // Required for Firebase
     }
 
-    public Location(double lat, double lng, String manual_address) {
+    public Location(Double lat, Double lng, String manual_address) {
         this.lat = lat;
         this.lng = lng;
         this.manual_address = manual_address;
     }
 
-    public double getLat() {
+    public Double getLat() {
         return lat;
     }
 
-    public void setLat(double lat) {
+    public void setLat(Double lat) {
         this.lat = lat;
     }
 
-    public double getLng() {
+    public Double getLng() {
         return lng;
     }
 
