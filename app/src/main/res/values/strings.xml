@@ -93,4 +93,8 @@
     <string name="bio_hint">Tell us about yourself</string>
     <string name="contact_info_hint">E.g., phone number, social media link</string>
     <string name="save_profile">Save Profile</string>
+
+    // FR Chat
+    <string name="default_notification_channel_id" translatable="false">tradeup_channel</string>
+    <string name="default_notification_channel_name" translatable="true">Thông báo TradeUp</string>
 </resources>

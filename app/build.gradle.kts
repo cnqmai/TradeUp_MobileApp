@@ -54,6 +54,9 @@ dependencies {
     implementation("com.google.firebase:firebase-storage:21.0.0")
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
 
+    // Chat
+    implementation("com.google.firebase:firebase-messaging")
+
     // GeoFire
     implementation("com.firebase:geofire-android:3.2.0")
 

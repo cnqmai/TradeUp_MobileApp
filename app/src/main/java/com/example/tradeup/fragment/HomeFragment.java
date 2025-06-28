@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -58,6 +59,7 @@ public class HomeFragment extends Fragment {
     private CategoryAdapter categoryAdapter;
     private FirebaseHelper firebaseHelper;
     private NavController navController;
+    private ImageView ivNotificationBellHome;
 
     private FusedLocationProviderClient fusedLocationClient;
     private CancellationTokenSource cancellationTokenSource;
@@ -107,6 +109,15 @@ public class HomeFragment extends Fragment {
         rvPersonalizedItems.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         rvPersonalizedItems.setAdapter(personalizedItemsAdapter); // Thiết lập cho RecyclerView mới
 
+        // Khởi tạo ImageView
+        ivNotificationBellHome = view.findViewById(R.id.iv_notification_bell_home);
+
+        // Đặt OnClickListener cho ImageView
+        ivNotificationBellHome.setOnClickListener(v -> {
+            // Điều hướng đến NotificationFragment
+            navController.navigate(R.id.action_homeFragment_to_notificationFragment);
+        });
+
         // Set click listeners for items
         categoryAdapter.setOnCategoryClickListener(category -> {
             Bundle bundle = new Bundle();
@@ -131,7 +142,6 @@ public class HomeFragment extends Fragment {
             bundle.putString("itemId", itemId);
             navController.navigate(R.id.action_homeFragment_to_itemDetailFragment, bundle);
         });
-
 
         // Fetch data
         fetchCategories(); // Duyệt theo danh mục

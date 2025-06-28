@@ -1,11 +1,14 @@
 package com.example.tradeup.fragment;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -13,25 +16,35 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.example.tradeup.R;
-import com.example.tradeup.model.Item;
+import com.example.tradeup.model.Item; // Đảm bảo import Item model
+import com.example.tradeup.model.Offer;
 import com.example.tradeup.model.User;
 import com.example.tradeup.utils.FirebaseHelper;
-import com.google.firebase.auth.FirebaseAuth; // Cần import này để lấy User ID
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase; // Cần import này để truy cập DatabaseReference
-import com.google.firebase.database.ServerValue; // Cần import này cho ServerValue.TIMESTAMP
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 public class ItemDetailFragment extends Fragment {
 
@@ -52,6 +65,7 @@ public class ItemDetailFragment extends Fragment {
 
     private String sellerId;
     private String currentUserId; // Để lưu trữ User ID hiện tại
+    private Item currentItem; // Biến mới để lưu trữ thông tin Item hiện tại
 
     public ItemDetailFragment() {
         // Required empty public constructor
@@ -129,9 +143,277 @@ public class ItemDetailFragment extends Fragment {
         btnAddToFavorites = view.findViewById(R.id.btn_detail_add_to_favorites);
         vpItemImages = view.findViewById(R.id.vp_item_images);
 
-        btnChatSeller.setOnClickListener(v -> Toast.makeText(getContext(), "Chức năng chat đang phát triển!", Toast.LENGTH_SHORT).show());
-        btnMakeOffer.setOnClickListener(v -> Toast.makeText(getContext(), "Chức năng đề nghị đang phát triển!", Toast.LENGTH_SHORT).show());
-        btnAddToFavorites.setOnClickListener(v -> Toast.makeText(getContext(), "Chức năng yêu thích đang phát triển!", Toast.LENGTH_SHORT).show());
+        btnChatSeller.setOnClickListener(v -> {
+            if (currentUserId == null) {
+                Toast.makeText(getContext(), "Vui lòng đăng nhập để trò chuyện.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (sellerId != null && !sellerId.isEmpty()) {
+                startChatWithSeller(sellerId);
+            } else {
+                Toast.makeText(getContext(), "Không thể tìm thấy thông tin người bán.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnMakeOffer.setOnClickListener(v -> {
+            if (currentUserId == null) {
+                Toast.makeText(getContext(), "Vui lòng đăng nhập để gửi đề nghị.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (itemId == null || sellerId == null || sellerId.isEmpty()) {
+                Toast.makeText(getContext(), "Không thể gửi đề nghị: Thiếu thông tin tin đăng hoặc người bán.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            showMakeOfferDialog();
+        });
+
+        btnAddToFavorites.setOnClickListener(v -> {
+            if (currentUserId == null) {
+                Toast.makeText(getContext(), "Vui lòng đăng nhập để thêm vào yêu thích.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (itemId != null && !itemId.isEmpty()) {
+                toggleFavorite(itemId);
+            } else {
+                Toast.makeText(getContext(), "Không thể thêm vào yêu thích: Thiếu ID tin đăng.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void startChatWithSeller(String otherUserId) {
+        if (currentUserId == null || otherUserId == null || currentUserId.equals(otherUserId)) {
+            Log.e(TAG, "Invalid chat participants: currentUserId or otherUserId is null/same.");
+            Toast.makeText(getContext(), "Không thể bắt đầu cuộc trò chuyện.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        DatabaseReference chatsRef = FirebaseDatabase.getInstance().getReference("chats");
+
+        // Tìm kiếm cuộc trò chuyện hiện có
+        // Query cả hai trường hợp user_1 = currentUserId AND user_2 = otherUserId
+        // Hoặc user_1 = otherUserId AND user_2 = currentUserId
+        Query query1 = chatsRef.orderByChild("user_1").equalTo(currentUserId);
+        Query query2 = chatsRef.orderByChild("user_1").equalTo(otherUserId);
+
+        query1.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String chatId = findExistingChat(dataSnapshot, otherUserId, "user_2"); // Kiểm tra user_2
+
+                if (chatId != null) {
+                    navigateToChatDetail(chatId, otherUserId);
+                } else {
+                    // Nếu không tìm thấy, thử với query2 (swap user_1 và user_2)
+                    query2.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot2) {
+                            String chatId2 = findExistingChat(dataSnapshot2, otherUserId, "user_2"); // Kiểm tra user_2
+                            if (chatId2 != null) {
+                                navigateToChatDetail(chatId2, otherUserId);
+                            } else {
+                                // Nếu vẫn không tìm thấy, tạo cuộc trò chuyện mới
+                                createNewChat(otherUserId);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            Log.e(TAG, "Error checking chat (query2): " + databaseError.getMessage());
+                            Toast.makeText(getContext(), "Lỗi khi kiểm tra cuộc trò chuyện.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e(TAG, "Error checking chat (query1): " + databaseError.getMessage());
+                Toast.makeText(getContext(), "Lỗi khi kiểm tra cuộc trò chuyện.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private String findExistingChat(DataSnapshot dataSnapshot, String targetUserId, String otherUserField) {
+        for (DataSnapshot chatSnapshot : dataSnapshot.getChildren()) {
+            String user1 = chatSnapshot.child("user_1").getValue(String.class);
+            String user2 = chatSnapshot.child("user_2").getValue(String.class);
+            if ((Objects.equals(user1, currentUserId) && Objects.equals(user2, targetUserId)) ||
+                    (Objects.equals(user1, targetUserId) && Objects.equals(user2, currentUserId))) {
+                return chatSnapshot.getKey();
+            }
+        }
+        return null;
+    }
+
+    private void createNewChat(String otherUserId) {
+        DatabaseReference chatsRef = FirebaseDatabase.getInstance().getReference("chats");
+        String newChatId = chatsRef.push().getKey();
+
+        if (newChatId != null) {
+            // Tạo một bản ghi chat cơ bản
+            Map<String, Object> chatData = new HashMap<>();
+            chatData.put("user_1", currentUserId);
+            chatData.put("user_2", otherUserId);
+            chatData.put("lastMessage", "Cuộc trò chuyện mới"); // Tin nhắn mặc định
+            chatData.put("lastMessageTimestamp", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date()));
+            chatData.put("blocked", false);
+            chatData.put("reported", false);
+            // Không cần thêm "messages": {} ở đây, Firebase tự động tạo khi có tin nhắn đầu tiên
+            // Nhưng bạn có thể thêm nó nếu muốn đảm bảo node con tồn tại ngay từ đầu:
+            // chatData.put("messages", new HashMap<>()); // Thêm node 'messages' trống ban đầu
+
+            chatsRef.child(newChatId).setValue(chatData)
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d(TAG, "New chat created: " + newChatId);
+                        navigateToChatDetail(newChatId, otherUserId);
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Failed to create new chat: " + e.getMessage());
+                        Toast.makeText(getContext(), "Lỗi khi tạo cuộc trò chuyện mới.", Toast.LENGTH_SHORT).show();
+                    });
+        }
+    }
+
+    private void navigateToChatDetail(String chatId, String otherUserId) {
+        Bundle bundle = new Bundle();
+        bundle.putString("chatId", chatId);
+        bundle.putString("otherUserId", otherUserId); // Truyền otherUserId để ChatDetailFragment có thể hiển thị tên người dùng
+        NavController navController = Navigation.findNavController(requireView());
+        navController.navigate(R.id.action_itemDetailFragment_to_chatDetailFragment, bundle);
+    }
+
+    private void showMakeOfferDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Gửi Đề nghị Giá");
+
+        final EditText input = new EditText(getContext());
+        input.setHint("Nhập giá đề nghị của bạn (ví dụ: 1200000)");
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        builder.setView(input);
+
+        builder.setPositiveButton("Gửi Đề nghị", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String offerPriceStr = input.getText().toString().trim();
+                if (offerPriceStr.isEmpty()) {
+                    Toast.makeText(getContext(), "Vui lòng nhập giá đề nghị.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                long offerPrice = Long.parseLong(offerPriceStr);
+                createOffer(offerPrice);
+            }
+        });
+        builder.setNegativeButton("Hủy", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    private void createOffer(long offerPrice) {
+        DatabaseReference offersRef = FirebaseDatabase.getInstance().getReference("offers");
+        String offerId = offersRef.push().getKey(); // Tạo ID duy nhất cho đề nghị
+
+        if (offerId == null) {
+            Toast.makeText(getContext(), "Lỗi: Không thể tạo ID đề nghị.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+        String timestamp = sdf.format(new Date());
+
+        Offer offer = new Offer(
+                itemId,
+                currentUserId, // buyer_id
+                sellerId,      // seller_id
+                offerPrice,
+                "pending",     // Trạng thái ban đầu
+                null,          // counter_price ban đầu là null
+                timestamp,
+                timestamp      // updated_at ban đầu giống created_at
+        );
+
+        offersRef.child(offerId).setValue(offer)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(getContext(), "Đề nghị đã được gửi thành công!", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Offer created: " + offerId);
+
+                    // >>> BẮT ĐẦU PHẦN THÊM MỚI: TẠO THÔNG BÁO CHO NGƯỜI BÁN <<<
+                    if (sellerId != null && !sellerId.isEmpty() && currentItem != null) {
+                        DatabaseReference notificationsRef = FirebaseDatabase.getInstance().getReference("notifications");
+                        String notificationId = notificationsRef.push().getKey();
+
+                        if (notificationId != null) {
+                            Map<String, Object> notificationContent = new HashMap<>();
+                            notificationContent.put("user_id", sellerId); // ID của người nhận thông báo (người bán)
+                            notificationContent.put("title", "Đề nghị mới!");
+                            notificationContent.put("body", "Có đề nghị mới cho sản phẩm \"" + currentItem.getTitle() + "\" của bạn.");
+                            notificationContent.put("type", "new_offer");
+                            notificationContent.put("related_id", offerId); // ID của offer mới tạo
+                            notificationContent.put("timestamp", ServerValue.TIMESTAMP); // Timestamp từ server
+                            notificationContent.put("read", false); // Mặc định là chưa đọc
+
+                            notificationsRef.child(notificationId).setValue(notificationContent)
+                                    .addOnSuccessListener(aVoid1 -> Log.d(TAG, "Notification created for seller: " + sellerId))
+                                    .addOnFailureListener(e -> Log.e(TAG, "Failed to create notification for seller: " + e.getMessage()));
+                        }
+                    } else {
+                        Log.w(TAG, "Cannot create notification: Seller ID or Item data is missing.");
+                    }
+                    // >>> KẾT THÚC PHẦN THÊM MỚI <<<
+
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Lỗi khi gửi đề nghị: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Failed to create offer: " + e.getMessage());
+                });
+    }
+
+    private void toggleFavorite(String itemId) {
+        DatabaseReference favoritesRef = FirebaseDatabase.getInstance().getReference("users")
+                .child(currentUserId)
+                .child("favorites")
+                .child(itemId);
+
+        favoritesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    // Nếu đã có trong yêu thích, xóa đi
+                    favoritesRef.removeValue()
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(getContext(), "Đã xóa khỏi mục yêu thích.", Toast.LENGTH_SHORT).show();
+                                Log.d(TAG, "Item " + itemId + " removed from favorites.");
+                                // Cập nhật UI của nút để thể hiện trạng thái (ví dụ: đổi icon)
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(getContext(), "Lỗi khi xóa khỏi yêu thích: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Log.e(TAG, "Failed to remove item " + itemId + " from favorites: " + e.getMessage());
+                            });
+                } else {
+                    // Nếu chưa có, thêm vào
+                    favoritesRef.setValue(true) // Ghi đơn giản là true để đánh dấu có mặt
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(getContext(), "Đã thêm vào mục yêu thích!", Toast.LENGTH_SHORT).show();
+                                Log.d(TAG, "Item " + itemId + " added to favorites.");
+                                // Cập nhật UI của nút để thể hiện trạng thái (ví dụ: đổi icon)
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(getContext(), "Lỗi khi thêm vào yêu thích: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Log.e(TAG, "Failed to add item " + itemId + " to favorites: " + e.getMessage());
+                            });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Lỗi kiểm tra yêu thích: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Failed to check favorite status: " + error.getMessage());
+            }
+        });
     }
 
     private void loadItemDetails(String id) {
@@ -140,6 +422,7 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onSuccess(Item item) {
                 if (item != null) {
+                    currentItem = item; // Lưu item vào biến toàn cục mới
                     Log.d(TAG, "Item data loaded successfully for itemId: " + id + ", title: " + item.getTitle());
                     tvTitle.setText(item.getTitle());
                     NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
@@ -163,7 +446,6 @@ public class ItemDetailFragment extends Fragment {
                     }
                     tvStatus.setText("Trạng thái: " + item.getStatus());
 
-                    // >>> HIỂN THỊ RATING CỦA SẢN PHẨM <<<
                     if (item.getAverage_rating() != null && item.getRating_count() != null) {
                         tvItemAverageRating.setText(String.format(Locale.getDefault(), "Đánh giá SP: %.1f/5.0", item.getAverage_rating()));
                         tvItemRatingCount.setText(String.format(Locale.getDefault(), "(%d lượt)", item.getRating_count()));
@@ -172,8 +454,7 @@ public class ItemDetailFragment extends Fragment {
                         tvItemRatingCount.setText("(0 lượt)");
                     }
 
-
-                    sellerId = item.getUser_id();
+                    sellerId = item.getUser_id(); // Seller ID được gán ở đây
                     loadSellerInfo(sellerId);
 
                     if (item.getPhotos() != null && !item.getPhotos().isEmpty()) {
@@ -188,12 +469,27 @@ public class ItemDetailFragment extends Fragment {
                         vpItemImages.setAdapter(adapter);
                     }
 
-                    // >>> GHI NHẬN HOẠT ĐỘNG DUYỆT WEB CỦA NGƯỜI DÙNG <<<
                     if (currentUserId != null && item.getCategory() != null) {
                         recordUserView(currentUserId, id, item.getCategory());
                     } else {
                         Log.w(TAG, "Cannot record user view: currentUserId or item category is null.");
                     }
+
+                    // --- BỔ SUNG LOGIC HIỂN THỊ NÚT Ở ĐÂY ---
+                    if (currentUserId != null && currentUserId.equals(sellerId)) {
+                        // Nếu người dùng hiện tại là người bán của tin đăng này
+                        btnChatSeller.setVisibility(View.GONE); // Ẩn nút Chat
+                        btnMakeOffer.setVisibility(View.GONE);  // Ẩn nút Make Offer
+                        btnAddToFavorites.setVisibility(View.GONE); // Người bán không thêm tin của mình vào yêu thích
+                        Log.d(TAG, "Current user is seller. Hiding chat, offer, and favorite buttons.");
+                    } else {
+                        // Nếu không phải người bán, đảm bảo các nút hiển thị
+                        btnChatSeller.setVisibility(View.VISIBLE);
+                        btnMakeOffer.setVisibility(View.VISIBLE);
+                        btnAddToFavorites.setVisibility(View.VISIBLE);
+                        Log.d(TAG, "Current user is buyer. Showing chat, offer, and favorite buttons.");
+                    }
+                    // --- KẾT THÚC BỔ SUNG ---
 
                 } else {
                     Log.w(TAG, "Item data is null for itemId: " + id);
@@ -338,6 +634,7 @@ public class ItemDetailFragment extends Fragment {
         btnMakeOffer = null;
         btnAddToFavorites = null;
         vpItemImages = null;
+        currentItem = null; // Giải phóng currentItem
     }
 
     private class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.SliderViewHolder> {

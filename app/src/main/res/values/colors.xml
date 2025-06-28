@@ -21,4 +21,6 @@
 
     <color name="gray">#888888</color>
     <color name="gray_light">#DADADA</color>
+
+    <color name="unread_notification_background">#FFCF4B</color>
 </resources>

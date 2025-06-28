@@ -16,9 +16,9 @@
         android:title="Sell" />
 
     <item
-        android:id="@+id/messageFragment"
+        android:id="@+id/chatListFragment"
         android:icon="@drawable/ic_message"
-        android:title="Messages" />
+        android:title="Message" />
 
     <item
         android:id="@+id/profileFragment"
