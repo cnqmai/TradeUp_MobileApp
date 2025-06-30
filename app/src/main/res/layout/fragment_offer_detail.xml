@@ -72,4 +72,13 @@
             android:layout_height="wrap_content"
             android:text="Trả giá" />
     </LinearLayout>
+
+    <!-- Nút mới cho người mua phản hồi -->
+    <Button
+        android:id="@+id/btn_buyer_respond_offer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Đưa ra đề nghị mới"
+        android:visibility="gone"/>
 </LinearLayout>

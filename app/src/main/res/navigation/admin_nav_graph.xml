@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/admin_nav_graph"
+    app:startDestination="@id/adminDashboardHomeFragment">
+
+    <fragment
+        android:id="@+id/adminDashboardHomeFragment"
+        android:name="com.example.tradeup.fragment.AdminDashboardHomeFragment"
+        android:label="Admin Dashboard"
+        tools:layout="@layout/fragment_admin_dashboard_home">
+        <action
+            android:id="@+id/action_adminDashboardHomeFragment_to_reviewModerationFragment"
+            app:destination="@id/reviewModerationFragment" />
+        <!-- Các action đến các màn hình quản lý khác sẽ được thêm vào đây -->
+        <!-- Ví dụ: -->
+        <!-- <action -->
+        <!-- android:id="@+id/action_adminDashboardHomeFragment_to_reportedItemsFragment" -->
+        <!-- app:destination="@id/reportedItemsFragment" /> -->
+        <!-- <action -->
+        <!-- android:id="@+id/action_adminDashboardHomeFragment_to_reportedUsersFragment" -->
+        <!-- app:destination="@id/reportedUsersFragment" /> -->
+        <!-- <action -->
+        <!-- android:id="@+id/action_adminDashboardHomeFragment_to_reportedChatsFragment" -->
+        <!-- app:destination="@id/reportedChatsFragment" /> -->
+    </fragment>
+
+    <!-- Bao gồm ReviewModerationFragment đã tạo trước đó -->
+    <fragment
+        android:id="@+id/reviewModerationFragment"
+        android:name="com.example.tradeup.fragment.ReviewModerationFragment"
+        android:label="Kiểm duyệt đánh giá"
+        tools:layout="@layout/fragment_review_moderation"/>
+
+    <!-- Placeholder cho các Fragment quản lý báo cáo khác -->
+    <!-- <fragment -->
+    <!-- android:id="@+id/reportedItemsFragment" -->
+    <!-- android:name="com.example.tradeup.fragment.ReportedItemsFragment" -->
+    <!-- android:label="Tin đăng bị báo cáo" -->
+    <!-- tools:layout="@layout/fragment_reported_items" /> -->
+
+    <!-- <fragment -->
+    <!-- android:id="@+id/reportedUsersFragment" -->
+    <!-- android:name="com.example.tradeup.fragment.ReportedUsersFragment" -->
+    <!-- android:label="Người dùng bị báo cáo" -->
+    <!-- tools:layout="@layout/fragment_reported_users" /> -->
+
+    <!-- <fragment -->
+    <!-- android:id="@+id/reportedChatsFragment" -->
+    <!-- android:name="com.example.tradeup.fragment.ReportedChatsFragment" -->
+    <!-- android:label="Trò chuyện bị báo cáo" -->
+    <!-- tools:layout="@layout/fragment_reported_chats" /> -->
+
+</navigation>

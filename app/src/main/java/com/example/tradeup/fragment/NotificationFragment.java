@@ -118,18 +118,20 @@ public class NotificationFragment extends Fragment implements NotificationAdapte
 
                 // Sắp xếp lại theo timestamp giảm dần (mới nhất lên đầu)
                 Collections.sort(notificationList, (n1, n2) -> {
-                    // Cần parse timestamp string để so sánh
-                    // Sử dụng cùng định dạng "yyyy-MM-dd'T'HH:mm:ss'Z'"
                     try {
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+                        sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC")); // Parse đúng ISO 8601 UTC
+
                         Date date1 = sdf.parse(n1.getTimestamp());
                         Date date2 = sdf.parse(n2.getTimestamp());
+
                         return date2.compareTo(date1); // Mới nhất lên đầu
-                    } catch (java.text.ParseException e) {
-                        Log.e(TAG, "Error parsing timestamp for sorting: " + e.getMessage());
-                        return 0; // Giữ nguyên thứ tự nếu lỗi parse
+                    } catch (Exception e) {
+                        Log.e(TAG, "Lỗi parse timestamp khi sort: " + e.getMessage());
+                        return 0; // Nếu lỗi, giữ nguyên vị trí
                     }
                 });
+
 
                 if (notificationList.isEmpty()) {
                     tvNoNotifications.setVisibility(View.VISIBLE);
@@ -175,10 +177,20 @@ public class NotificationFragment extends Fragment implements NotificationAdapte
                     break;
                 case "new_offer":
                 case "offer_accepted":
-                    bundle.putString("itemId", notification.getRelated_id()); // related_id là item_id hoặc offer_id
-                    // Nếu là offer_id, bạn cần tra cứu item_id từ offer_id
-                    // Giả sử related_id là item_id:
-                    navController.navigate(R.id.action_notificationFragment_to_itemDetailFragment, bundle); // Cần hành động này
+                case "counter_offer": //
+                case "buyer_responded_offer":
+                    String offerIdFromNotification = notification.getRelated_id(); // Lấy offerId từ notification
+                    if (offerIdFromNotification != null) {
+                        // Tạo Bundle và đặt offerId vào với KEY "offerId"
+                        Bundle offerDetailBundle = new Bundle();
+                        offerDetailBundle.putString("offerId", offerIdFromNotification); // <--- Sửa ở đây
+
+                        // Điều hướng đến OfferDetailFragment
+                        navController.navigate(R.id.action_notificationFragment_to_offerDetailFragment, offerDetailBundle);
+                    } else {
+                        Toast.makeText(requireContext(), "Không tìm thấy ID đề nghị trong thông báo.", Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "Related ID (offerId) is null in notification for offer type.");
+                    }
                     break;
                 case "promotion":
                     // Có thể điều hướng đến một danh sách sản phẩm theo category

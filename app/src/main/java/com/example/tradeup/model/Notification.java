@@ -3,12 +3,12 @@ package com.example.tradeup.model;
 public class Notification {
     private String id; // ID của thông báo từ Firebase
     private String title;
-    private String body; // Để dễ dàng mapping từ FCM RemoteMessage.getNotification().getBody()
-    private String type; // Ví dụ: "new_message", "promotion", "new_offer", "reported_chat"
-    private String related_id; // ID của đối tượng liên quan (chat_id, item_id, offer_id, category_id)
-    private String user_id; // ID của người dùng nhận thông báo
+    private String body;
+    private String type; // "new_message", "promotion", "new_offer", etc.
+    private String related_id;
+    private String user_id;
     private Boolean read;
-    private String timestamp;
+    private String timestamp; // ✅ Đổi từ Long → String
 
     public Notification() {
         // Required for Firebase
@@ -17,7 +17,7 @@ public class Notification {
     public Notification(String id, String title, String body, String type, String related_id, String user_id, Boolean read, String timestamp) {
         this.id = id;
         this.title = title;
-        this.body = body; // Giả định body là phần nội dung chính của thông báo
+        this.body = body;
         this.type = type;
         this.related_id = related_id;
         this.user_id = user_id;
@@ -25,14 +25,14 @@ public class Notification {
         this.timestamp = timestamp;
     }
 
-    // Getters and Setters for all fields
+    // Getters and Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
-    public String getBody() { return body; } // Thêm getter/setter cho body
+    public String getBody() { return body; }
     public void setBody(String body) { this.body = body; }
 
     public String getType() { return type; }

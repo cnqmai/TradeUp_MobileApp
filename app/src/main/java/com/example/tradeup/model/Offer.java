@@ -1,7 +1,7 @@
-// models/Offer.java
-package com.example.tradeup.model; // Corrected package name
+package com.example.tradeup.model;
 
 public class Offer {
+    private String offer_id; // <-- THÊM DÒNG NÀY
     private String item_id;
     private String buyer_id;
     private String seller_id;
@@ -15,7 +15,9 @@ public class Offer {
         // Required for Firebase
     }
 
-    public Offer(String item_id, String buyer_id, String seller_id, Long offer_price, String status, Long counter_price, String created_at, String updated_at) {
+    // Constructor đã được cập nhật để bao gồm offer_id
+    public Offer(String offer_id, String item_id, String buyer_id, String seller_id, Long offer_price, String status, Long counter_price, String created_at, String updated_at) {
+        this.offer_id = offer_id; // <-- THÊM DÒNG NÀY
         this.item_id = item_id;
         this.buyer_id = buyer_id;
         this.seller_id = seller_id;
@@ -26,7 +28,16 @@ public class Offer {
         this.updated_at = updated_at;
     }
 
-    // Getters and Setters
+    // Getter và Setter cho offer_id
+    public String getOffer_id() {
+        return offer_id;
+    }
+
+    public void setOffer_id(String offer_id) {
+        this.offer_id = offer_id;
+    }
+
+    // Getters and Setters còn lại
     public String getItem_id() { return item_id; }
     public void setItem_id(String item_id) { this.item_id = item_id; }
     public String getBuyer_id() { return buyer_id; }

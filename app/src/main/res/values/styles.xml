@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Your existing AppTheme or MaterialComponents theme -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Your existing theme attributes -->
+        <item name="colorPrimary">#4285F4</item>
+        <item name="colorPrimaryDark">#1967D2</item>
+        <item name="colorAccent">#FFC107</item>
+    </style>
+
+    <!-- Style for a yellow RatingBar (as previously defined) -->
+    <style name="RatingBarYellow" parent="Widget.AppCompat.RatingBar">
+        <item name="android:progressTint">#FFC107</item>
+        <item name="android:secondaryProgressTint">#FFECB3</item>
+        <item name="android:minHeight">32dp</item>
+        <item name="android:maxHeight">32dp</item>
+    </style>
+
+    <!-- NEW: Style for a small yellow RatingBar for moderation item -->
+    <style name="RatingBarYellowSmall" parent="Widget.AppCompat.RatingBar.Small">
+        <item name="android:progressTint">#FFC107</item>
+        <item name="android:secondaryProgressTint">#FFECB3</item>
+        <item name="android:minHeight">20dp</item> <!-- Adjust size if needed -->
+        <item name="android:maxHeight">20dp</item> <!-- Adjust size if needed -->
+    </style>
+
+    <!-- If you still need the white rating bar from before -->
+    <style name="RatingBarWhite" parent="Widget.AppCompat.RatingBar.Small">
+        <item name="android:progressTint">@android:color/white</item>
+        <item name="android:secondaryProgressTint">#AAFFFFFF</item>
+        <item name="android:minHeight">20dp</item>
+        <item name="android:maxHeight">20dp</item>
+    </style>
+</resources>

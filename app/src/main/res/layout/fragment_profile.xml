@@ -64,6 +64,15 @@
                 android:secondaryProgressTint="@color/yellow_star"
                 android:stepSize="0.5" />
 
+            <!-- Total Transactions Display -->
+            <TextView
+                android:id="@+id/tv_total_transactions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tổng giao dịch: 0"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"/>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -280,6 +289,102 @@
                         android:layout_weight="1"
                         android:text="@string/my_listings"
                         android:textColor="@android:color/black"
+                        android:textSize="16sp" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/gray" />
+                </LinearLayout>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#DADADA" />
+
+                <LinearLayout
+                    android:id="@+id/row_transaction_history"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingVertical="12dp"
+                    android:paddingHorizontal="2dp">
+
+                    <FrameLayout
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_marginEnd="12dp"
+                        android:background="@drawable/bg_circle_icon"
+                        android:padding="6dp">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:contentDescription="Transaction History Icon"
+                            android:src="@drawable/ic_transaction_history"
+                            app:tint="@color/orange_bold" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/transaction_history"
+                        android:textColor="@color/black"
+                        android:textSize="16sp" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/gray" />
+                </LinearLayout>
+                <View
+                    android:id="@+id/divider_admin_dashboard"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#DADADA"
+                    android:visibility="gone" /> <!-- Hidden by default -->
+
+                <!-- NEW: Admin Dashboard Row (hidden by default) -->
+                <LinearLayout
+                    android:id="@+id/row_admin_dashboard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingVertical="12dp"
+                    android:paddingHorizontal="2dp"
+                    android:visibility="gone"> <!-- Hidden by default -->
+
+                    <FrameLayout
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_marginEnd="12dp"
+                        android:background="@drawable/bg_circle_icon"
+                        android:padding="6dp">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:contentDescription="Admin Dashboard Icon"
+                            android:src="@drawable/ic_admin_dashboard"
+                            app:tint="@color/orange_bold" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Admin Dashboard"
+                        android:textColor="@color/black"
                         android:textSize="16sp" />
 
                     <ImageView

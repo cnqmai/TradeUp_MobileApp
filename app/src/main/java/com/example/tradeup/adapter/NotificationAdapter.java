@@ -88,10 +88,13 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     }
 
     private String formatTimestamp(String timestamp) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
-        sdf.setLenient(false); // Make parsing strict
+        if (timestamp == null || timestamp.isEmpty()) return "";
+
         try {
-            Date notificationDate = sdf.parse(timestamp);
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+            inputFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC")); // Chuẩn để parse đúng ISO 'Z'
+
+            Date notificationDate = inputFormat.parse(timestamp);
             Date now = new Date();
 
             long diffMillis = now.getTime() - notificationDate.getTime();
@@ -110,15 +113,16 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             } else if (days < 7) {
                 return days + " ngày trước";
             } else {
-                // If older than a week, show full date
-                SimpleDateFormat displaySdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-                return displaySdf.format(notificationDate);
+                SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                return outputFormat.format(notificationDate);
             }
         } catch (ParseException e) {
-            Log.e("NotificationAdapter", "Error parsing timestamp: " + timestamp, e);
-            return timestamp; // Return original if parsing fails
+            Log.e("NotificationAdapter", "Lỗi định dạng timestamp: " + timestamp, e);
+            return timestamp;
         }
     }
+
+
 
     private int getIconForNotificationType(String type) {
         if (type == null) return R.drawable.ic_notification; // Icon mặc định

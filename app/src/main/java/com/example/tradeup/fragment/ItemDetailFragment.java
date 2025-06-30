@@ -249,29 +249,32 @@ public class ItemDetailFragment extends Fragment {
         DatabaseReference chatsRef = FirebaseDatabase.getInstance().getReference("chats");
         String newChatId = chatsRef.push().getKey();
 
-        if (newChatId != null) {
-            // Tạo một bản ghi chat cơ bản
-            Map<String, Object> chatData = new HashMap<>();
-            chatData.put("user_1", currentUserId);
-            chatData.put("user_2", otherUserId);
-            chatData.put("lastMessage", "Cuộc trò chuyện mới"); // Tin nhắn mặc định
-            chatData.put("lastMessageTimestamp", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date()));
-            chatData.put("blocked", false);
-            chatData.put("reported", false);
-            // Không cần thêm "messages": {} ở đây, Firebase tự động tạo khi có tin nhắn đầu tiên
-            // Nhưng bạn có thể thêm nó nếu muốn đảm bảo node con tồn tại ngay từ đầu:
-            // chatData.put("messages", new HashMap<>()); // Thêm node 'messages' trống ban đầu
-
-            chatsRef.child(newChatId).setValue(chatData)
-                    .addOnSuccessListener(aVoid -> {
-                        Log.d(TAG, "New chat created: " + newChatId);
-                        navigateToChatDetail(newChatId, otherUserId);
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e(TAG, "Failed to create new chat: " + e.getMessage());
-                        Toast.makeText(getContext(), "Lỗi khi tạo cuộc trò chuyện mới.", Toast.LENGTH_SHORT).show();
-                    });
+        if (newChatId == null) {
+            Toast.makeText(getContext(), "Lỗi: Không thể tạo ID đề nghị.", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        // Tạo một bản ghi chat cơ bản
+        Map<String, Object> chatData = new HashMap<>();
+        chatData.put("user_1", currentUserId);
+        chatData.put("user_2", otherUserId);
+        chatData.put("lastMessage", "Cuộc trò chuyện mới"); // Tin nhắn mặc định
+        chatData.put("lastMessageTimestamp", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date()));
+        chatData.put("blocked", false);
+        chatData.put("reported", false);
+        // Không cần thêm "messages": {} ở đây, Firebase tự động tạo khi có tin nhắn đầu tiên
+        // Nhưng bạn có thể thêm nó nếu muốn đảm bảo node con tồn tại ngay từ đầu:
+        // chatData.put("messages", new HashMap<>()); // Thêm node 'messages' trống ban đầu
+
+        chatsRef.child(newChatId).setValue(chatData)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "New chat created: " + newChatId);
+                    navigateToChatDetail(newChatId, otherUserId);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to create new chat: " + e.getMessage());
+                    Toast.makeText(getContext(), "Lỗi khi tạo cuộc trò chuyện mới.", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void navigateToChatDetail(String chatId, String otherUserId) {
@@ -326,6 +329,7 @@ public class ItemDetailFragment extends Fragment {
         String timestamp = sdf.format(new Date());
 
         Offer offer = new Offer(
+                offerId,
                 itemId,
                 currentUserId, // buyer_id
                 sellerId,      // seller_id
@@ -353,7 +357,9 @@ public class ItemDetailFragment extends Fragment {
                             notificationContent.put("body", "Có đề nghị mới cho sản phẩm \"" + currentItem.getTitle() + "\" của bạn.");
                             notificationContent.put("type", "new_offer");
                             notificationContent.put("related_id", offerId); // ID của offer mới tạo
-                            notificationContent.put("timestamp", ServerValue.TIMESTAMP); // Timestamp từ server
+                            String isoTimestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date());
+                            notificationContent.put("timestamp", isoTimestamp);
+                            // Timestamp từ server
                             notificationContent.put("read", false); // Mặc định là chưa đọc
 
                             notificationsRef.child(notificationId).setValue(notificationContent)
@@ -446,6 +452,7 @@ public class ItemDetailFragment extends Fragment {
                     }
                     tvStatus.setText("Trạng thái: " + item.getStatus());
 
+                    // >>> THAY ĐỔI Ở ĐÂY: average_rating và rating_count <<<
                     if (item.getAverage_rating() != null && item.getRating_count() != null) {
                         tvItemAverageRating.setText(String.format(Locale.getDefault(), "Đánh giá SP: %.1f/5.0", item.getAverage_rating()));
                         tvItemRatingCount.setText(String.format(Locale.getDefault(), "(%d lượt)", item.getRating_count()));
@@ -513,9 +520,10 @@ public class ItemDetailFragment extends Fragment {
                 if (user != null) {
                     Log.d(TAG, "Seller info loaded: " + user.getDisplay_name());
                     tvSellerName.setText("Người bán: " + user.getDisplay_name());
-                    Double rating = user.getRating();
-                    if (rating != null) {
-                        tvSellerRating.setText(String.format(Locale.getDefault(), "Đánh giá: %.1f/5.0", rating));
+                    // THAY ĐỔI TẠI ĐÂY: Dùng getAverage_rating() thay vì getRating()
+                    Double averageRating = user.getAverage_rating();
+                    if (averageRating != null) {
+                        tvSellerRating.setText(String.format(Locale.getDefault(), "Đánh giá: %.1f/5.0", averageRating));
                     } else {
                         tvSellerRating.setText("Đánh giá: N/A");
                     }
@@ -653,10 +661,11 @@ public class ItemDetailFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull SliderViewHolder holder, int position) {
+            String imageUrl = imageUrls.get(position);
             Glide.with(holder.itemView.getContext())
-                    .load(imageUrls.get(position))
-                    .placeholder(R.drawable.img_placeholder)
-                    .error(R.drawable.img_error)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.img_placeholder) // Placeholder image
+                    .error(R.drawable.img_error) // Error image
                     .into(holder.imageView);
         }
 
@@ -665,12 +674,12 @@ public class ItemDetailFragment extends Fragment {
             return imageUrls.size();
         }
 
-        class SliderViewHolder extends RecyclerView.ViewHolder {
+        public class SliderViewHolder extends RecyclerView.ViewHolder {
             ImageView imageView;
 
             public SliderViewHolder(@NonNull View itemView) {
                 super(itemView);
-                imageView = itemView.findViewById(R.id.image_slider_image);
+                imageView = itemView.findViewById(R.id.image_slider_image); // Đảm bảo ID này chính xác trong image_slider_item.xml
             }
         }
     }

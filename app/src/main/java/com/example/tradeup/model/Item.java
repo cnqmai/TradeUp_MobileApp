@@ -1,7 +1,12 @@
 package com.example.tradeup.model;
 
+import com.google.firebase.database.IgnoreExtraProperties; // Ensure this import is present
+
 import java.util.List;
 
+// @IgnoreExtraProperties is important if you don't want fields like 'distanceToUser'
+// which are not directly mapped to Firebase to cause issues.
+@IgnoreExtraProperties
 public class Item {
     private String id;
     private String user_id;
@@ -11,7 +16,7 @@ public class Item {
     private String category;
     private String condition;
     private String status;
-    private Location location;
+    private Location location; // Assuming you have a Location model class
     private List<String> photos;
     private String item_behavior;
     private List<String> tags;
@@ -20,12 +25,15 @@ public class Item {
     private Long rating_sum;
     private Long rating_count;
     private Double average_rating;
+    private transient double distanceToUser; // <-- THÊM TRƯỜNG NÀY (transient để không lưu vào Firebase)
 
     public Item() {
         // Required for Firebase
     }
 
-    public Item(String id, String user_id, String title, String description, Long price, String category, String condition, String status, Location location, List<String> photos, String item_behavior, List<String> tags, String created_at, String updated_at, Long rating_sum, Long rating_count, Double average_rating) {
+    public Item(String id, String user_id, String title, String description, Long price, String category,
+                String condition, String status, Location location, List<String> photos, String item_behavior,
+                List<String> tags, String created_at, String updated_at, Long rating_sum, Long rating_count, Double average_rating) {
         this.id = id;
         this.user_id = user_id;
         this.title = title;
@@ -40,11 +48,10 @@ public class Item {
         this.tags = tags;
         this.created_at = created_at;
         this.updated_at = updated_at;
-        // >>> ĐIỂM CHỈNH SỬA <<<
-        // Gán các tham số đầu vào cho các thuộc tính rating
         this.rating_sum = rating_sum;
         this.rating_count = rating_count;
         this.average_rating = average_rating;
+        // distanceToUser không được gán trong constructor vì nó là giá trị tạm thời tính toán
     }
 
     // Getters and Setters for 'id'
@@ -105,5 +112,14 @@ public class Item {
 
     public void setAverage_rating(Double average_rating) {
         this.average_rating = average_rating;
+    }
+
+    // <-- THÊM GETTER VÀ SETTER CHO distanceToUser
+    public double getDistanceToUser() {
+        return distanceToUser;
+    }
+
+    public void setDistanceToUser(double distanceToUser) {
+        this.distanceToUser = distanceToUser;
     }
 }

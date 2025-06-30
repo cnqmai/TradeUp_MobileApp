@@ -73,6 +73,7 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="change_photo">Change Profile Photo</string>
     <string name="my_listings">My Listings</string>
+    <string name="transaction_history">Transaction History</string>
     <string name="logout">Log out</string>
     <string name="account_management">Account Management</string>
     <string name="deactivate_account">Deactivate Account</string>

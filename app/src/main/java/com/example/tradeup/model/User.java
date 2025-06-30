@@ -4,39 +4,46 @@ import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.Map;
+import com.example.tradeup.model.Location; // Import class Location ngoài
 
 @IgnoreExtraProperties
 public class User {
 
-    private String uid; // Thêm trường UID
+    private String uid; // Trường UID của người dùng
     private String email;
-    private Boolean is_email_verified;
-    // Password should NEVER be stored in the database, even hashed on client side.
-    // private String password; // Do not include password here
-    private String display_name;
-    private String bio;
-    private String contact_info;
-    private String profile_picture_url;
-    private Double rating;
-    private Integer total_transactions;
-    private String role;
-    private String account_status;
-    private UserLocation location; // Inner class for location
-    private String created_at;
-    private String updated_at;
-    private String first_name;
-    private String last_name;
+    private Boolean is_email_verified; // Trạng thái xác minh email
+    // Password KHÔNG BAO GIỜ được lưu trữ trong cơ sở dữ liệu, ngay cả dưới dạng băm ở phía client.
+    // private String password; // Không bao gồm mật khẩu ở đây
+    private String display_name; // Tên hiển thị của người dùng
+    private String bio; // Tiểu sử người dùng
+    private String contact_info; // Thông tin liên hệ
+    private String profile_picture_url; // URL ảnh đại diện
+    // private Double rating; // Trường rating cũ, đã được thay thế bằng average_rating
+    private Integer total_transactions; // Tổng số giao dịch thành công
+    private String role; // Vai trò của người dùng (ví dụ: user, admin)
+    private String account_status; // Trạng thái tài khoản (ví dụ: active, suspended, banned)
+    private Location location; // Vị trí người dùng, sử dụng class Location độc lập
+    private String created_at; // Thời gian tạo tài khoản (ISO 8601 UTC timestamp)
+    private String updated_at; // Thời gian cập nhật tài khoản gần nhất (ISO 8601 UTC timestamp)
+    private String first_name; // Tên của người dùng
+    private String last_name; // Họ của người dùng
+
+    // Các trường mới cho chức năng Đánh giá (FR-7.2.1)
+    private Long rating_sum; // Tổng điểm sao mà người dùng này đã nhận được từ các đánh giá
+    private Long rating_count; // Tổng số lượt đánh giá mà người dùng này đã nhận được
+    private Double average_rating; // Xếp hạng trung bình (thay thế cho 'rating' cũ)
 
 
     public User() {
-        // Default constructor required for calls to DataSnapshot.getValue(User.class)
+        // Constructor mặc định cần thiết cho Firebase
     }
 
     // Constructor đã điều chỉnh để khớp với các trường hiện tại và thêm uid
     public User(String uid, String email, Boolean is_email_verified, String display_name, String bio, String contact_info,
-                String profile_picture_url, Double rating, Integer total_transactions, String role,
-                String account_status, UserLocation location, String created_at, String updated_at,
-                String first_name, String last_name) {
+                String profile_picture_url, Integer total_transactions, String role,
+                String account_status, Location location, String created_at, String updated_at,
+                String first_name, String last_name,
+                Long rating_sum, Long rating_count, Double average_rating) {
         this.uid = uid;
         this.email = email;
         this.is_email_verified = is_email_verified;
@@ -44,7 +51,6 @@ public class User {
         this.bio = bio;
         this.contact_info = contact_info;
         this.profile_picture_url = profile_picture_url;
-        this.rating = rating;
         this.total_transactions = total_transactions;
         this.role = role;
         this.account_status = account_status;
@@ -53,33 +59,39 @@ public class User {
         this.updated_at = updated_at;
         this.first_name = first_name;
         this.last_name = last_name;
+        this.rating_sum = rating_sum;
+        this.rating_count = rating_count;
+        this.average_rating = average_rating;
     }
 
     // Constructor cho việc tạo User khi đăng ký lần đầu (ít thông tin hơn)
     public User(String uid, String email, String first_name, String last_name, String display_name,
-                String bio, String contact_info, String profile_picture_url, Double rating,
+                String bio, String contact_info, String profile_picture_url,
                 Integer total_transactions, String role, String account_status,
-                UserLocation location, String created_at) {
+                Location location, String created_at) {
         this.uid = uid;
         this.email = email;
-        this.is_email_verified = false; // Mặc định false khi đăng ký, sẽ được cập nhật sau
+        this.is_email_verified = false; // Mặc định false khi đăng ký
         this.first_name = first_name;
         this.last_name = last_name;
         this.display_name = display_name;
         this.bio = bio;
         this.contact_info = contact_info;
         this.profile_picture_url = profile_picture_url;
-        this.rating = rating;
         this.total_transactions = total_transactions;
         this.role = role;
         this.account_status = account_status;
         this.location = location;
         this.created_at = created_at;
         this.updated_at = created_at; // Ban đầu updated_at = created_at
+        // Khởi tạo các trường rating mới với giá trị mặc định cho người dùng mới
+        this.rating_sum = 0L;
+        this.rating_count = 0L;
+        this.average_rating = 0.0;
     }
 
 
-    // Getters and Setters for all fields
+    // Getters and Setters cho tất cả các trường
 
     public String getUid() {
         return uid;
@@ -137,14 +149,6 @@ public class User {
         this.profile_picture_url = profile_picture_url;
     }
 
-    public Double getRating() {
-        return rating;
-    }
-
-    public void setRating(Double rating) {
-        this.rating = rating;
-    }
-
     public Integer getTotal_transactions() {
         return total_transactions;
     }
@@ -169,11 +173,11 @@ public class User {
         this.account_status = account_status;
     }
 
-    public UserLocation getLocation() {
+    public Location getLocation() { // Getter cho Location
         return location;
     }
 
-    public void setLocation(UserLocation location) {
+    public void setLocation(Location location) { // Setter cho Location
         this.location = location;
     }
 
@@ -209,46 +213,28 @@ public class User {
         this.last_name = last_name;
     }
 
-    // Inner class for location as per your JSON structure
-    @IgnoreExtraProperties
-    public static class UserLocation {
-        public Double lat;
-        public Double lng;
-        public String manual_address;
+    // Getters và Setters cho các trường rating mới
+    public Long getRating_sum() {
+        return rating_sum;
+    }
 
-        public UserLocation() {
-            // Default constructor required for calls to DataSnapshot.getValue(UserLocation.class)
-        }
+    public void setRating_sum(Long rating_sum) {
+        this.rating_sum = rating_sum;
+    }
 
-        public UserLocation(Double lat, Double lng, String manual_address) {
-            this.lat = lat;
-            this.lng = lng;
-            this.manual_address = manual_address;
-        }
+    public Long getRating_count() {
+        return rating_count;
+    }
 
-        // Getters and setters (optional, but good practice)
-        public Double getLat() {
-            return lat;
-        }
+    public void setRating_count(Long rating_count) {
+        this.rating_count = rating_count;
+    }
 
-        public void setLat(Double lat) {
-            this.lat = lat;
-        }
+    public Double getAverage_rating() {
+        return average_rating;
+    }
 
-        public Double getLng() {
-            return lng;
-        }
-
-        public void setLng(Double lng) {
-            this.lng = lng;
-        }
-
-        public String getManual_address() {
-            return manual_address;
-        }
-
-        public void setManual_address(String manual_address) {
-            this.manual_address = manual_address;
-        }
+    public void setAverage_rating(Double average_rating) {
+        this.average_rating = average_rating;
     }
 }

@@ -56,7 +56,6 @@
         <activity android:name=".activity.ForgotPasswordActivity" />
         <activity android:name=".activity.RegisterActivity" />
         <activity android:name=".activity.EditProfileActivity" />
-
     </application>
 
 </manifest>

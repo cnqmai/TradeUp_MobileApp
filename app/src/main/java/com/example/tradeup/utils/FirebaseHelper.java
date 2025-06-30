@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.tradeup.model.Location;
 import com.example.tradeup.model.User; // Import the User model
 import com.example.tradeup.model.Item;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List; // Thêm import này nếu User model có List trong đó
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class FirebaseHelper {
 
@@ -79,7 +81,6 @@ public class FirebaseHelper {
                     // User profile exists, update it
                     Map<String, Object> updates = new HashMap<>();
                     updates.put("updated_at", currentTime);
-                    // Also update first_name and last_name if provided and different
                     String existingFirstName = snapshot.child("first_name").getValue(String.class);
                     String existingLastName = snapshot.child("last_name").getValue(String.class);
 
@@ -96,41 +97,44 @@ public class FirebaseHelper {
                                     Log.d(TAG, "User profile updated successfully: " + userId);
                                     callback.onSuccess();
                                 } else {
-                                    Log.e(TAG, "Failed to update user profile: " + task.getException().getMessage());
-                                    callback.onFailure(task.getException().getMessage());
+                                    Log.e(TAG, "Failed to update user profile: " + Objects.requireNonNull(task.getException()).getMessage());
+                                    callback.onFailure(Objects.requireNonNull(task.getException()).getMessage());
                                 }
                             });
                 } else {
                     // User profile does not exist, create a new one
                     String email = firebaseUser.getEmail();
-                    // Set default display name if first/last name not provided
                     String displayName = (firstName != null && !firstName.isEmpty()) ? firstName : (email != null ? email.split("@")[0] : "New User");
                     if (lastName != null && !lastName.isEmpty()) {
                         displayName += " " + lastName;
                     } else if (email != null && displayName.isEmpty()) {
-                        displayName = email.split("@")[0]; // Fallback to email prefix if display name is still empty
+                        displayName = email.split("@")[0];
                     }
-                    if(displayName.isEmpty()) { // Final fallback
+                    if(displayName.isEmpty()) {
                         displayName = "New User";
                     }
 
+                    // CẬP NHẬT PHẦN NÀY ĐỂ KHỚP VỚI CONSTRUCTOR User MỚI CỦA BẠN
                     User newUser = new User(
-                            userId, // THÊM userId VÀO ĐÂY
+                            userId, // uid
                             email,
                             firebaseUser.isEmailVerified(),
                             displayName,
                             "", // bio mặc định
                             "", // contact_info mặc định
                             (firebaseUser.getPhotoUrl() != null) ? firebaseUser.getPhotoUrl().toString() : "", // profile_picture_url mặc định
-                            0.0,  // rating
-                            0,    // total_transactions
+                            0,    // total_transactions (Integer)
                             "user", // role
                             "active", // account_status
-                            null, // location
+                            // Khởi tạo một đối tượng Location mặc định
+                            new Location(0.0, 0.0, "Unknown"), // location (SỬ DỤNG CLASS Location ĐỘC LẬP)
                             currentTime, // created_at
                             currentTime, // updated_at
                             firstName,
-                            lastName
+                            lastName,
+                            0L,  // rating_sum (Long)
+                            0L,  // rating_count (Long)
+                            0.0  // average_rating (Double)
                     );
 
                     userRef.setValue(newUser)
@@ -139,8 +143,8 @@ public class FirebaseHelper {
                                     Log.d(TAG, "New user profile created successfully: " + userId);
                                     callback.onSuccess();
                                 } else {
-                                    Log.e(TAG, "Failed to create new user profile: " + task.getException().getMessage());
-                                    callback.onFailure(task.getException().getMessage());
+                                    Log.e(TAG, "Failed to create new user profile: " + Objects.requireNonNull(task.getException()).getMessage());
+                                    callback.onFailure(Objects.requireNonNull(task.getException()).getMessage());
                                 }
                             });
                 }
