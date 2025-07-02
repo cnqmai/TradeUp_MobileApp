@@ -14,6 +14,7 @@
     <color name="yellow_light">#FDFAF2</color>
     <color name="yellow_slight">#FFFDEA</color>
     <color name="yellow_star">#FFC107</color>
+    <color name="yellow_gradient_end">#FFE553</color>
 
     <color name="orange">#F6D6AD</color>
     <color name="orange_bold">#FAAC6A</color>

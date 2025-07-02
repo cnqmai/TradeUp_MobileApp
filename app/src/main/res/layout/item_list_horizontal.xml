@@ -2,8 +2,8 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_width="250dp"
+    android:layout_height="300dp"
     android:layout_marginBottom="8dp"
     android:layout_marginStart="8dp"
     android:layout_marginEnd="8dp"
@@ -14,22 +14,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="0dp"> <!-- Removed padding from here, will add to inner elements -->
+        android:padding="0dp">
 
         <!-- Product Image -->
         <ImageView
             android:id="@+id/iv_item_image"
             android:layout_width="match_parent"
-            android:layout_height="160dp"
+            android:layout_height="180dp"
             android:scaleType="centerCrop"
             android:src="@drawable/img_placeholder"
-            android:contentDescription="Product Image" />
+            android:contentDescription="@string/product_image_content_desc" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp"> <!-- Added padding to this inner LinearLayout -->
+            android:padding="12dp">
 
             <!-- Title -->
             <TextView
@@ -41,7 +41,8 @@
                 android:textColor="@android:color/black"
                 android:maxLines="2"
                 android:ellipsize="end"
-                tools:text="Used Samsung Galaxy S22 Phone" />
+                android:text="@string/item_title_placeholder"
+                tools:text="@string/item_title_placeholder" />
 
             <!-- Price -->
             <TextView
@@ -49,20 +50,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textSize="16sp"
-                android:textStyle="bold"
+                android:textSize="18sp"
                 android:textColor="@color/orange_bold"
-                tools:text="Giá: 8.500.000 đ" />
+                android:text="@string/item_price_placeholder"
+                tools:text="@string/item_price_placeholder" />
 
-            <!-- Location -->
+            <!-- Distance -->
             <TextView
-                android:id="@+id/tv_item_location"
+                android:id="@+id/tv_item_distance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:textColor="@android:color/darker_gray"
-                tools:text="Vị trí: District 1, Ho Chi Minh City" />
+                android:text="@string/item_distance_placeholder"
+                tools:text="@string/item_distance_placeholder" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

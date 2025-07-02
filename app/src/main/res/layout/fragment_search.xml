@@ -3,64 +3,103 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:padding="16dp">
+    android:background="@color/orange_skin"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Thanh tìm kiếm từ khóa -->
+    <!-- Custom Toolbar / Search Bar Section -->
     <LinearLayout
         android:id="@+id/layout_search_bar"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_height="80dp"
+        android:layout_marginBottom="10dp"
         android:gravity="center_vertical"
-        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@color/yellow_light"
+        app:layout_constraintBottom_toTopOf="@+id/advanced_filter_section"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Icon kính lúp -->
-        <ImageView
-            android:id="@+id/iv_search_icon"
+        <!-- Back Arrow (Optional, if you want a back button here) -->
+        <!-- You might need to add an ID if you want to set a click listener for this -->
+        <!-- <ImageView
+            android:id="@+id/iv_back_arrow"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_marginEnd="8dp"
-            android:src="@drawable/ic_search"
-            android:contentDescription="Tìm kiếm"
-            android:scaleType="centerInside" />
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@android:color/white"
+            android:contentDescription="Back"
+            android:layout_marginEnd="16dp" /> -->
 
-        <!-- Ô nhập từ khóa -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_search_keyword"
+        <!-- Search input field - styled to look like the image -->
+        <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
-            android:hint="Tìm kiếm từ khóa">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_search_keyword"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text" />
-        </com.google.android.material.textfield.TextInputLayout>
+            android:layout_marginTop="5dp"
+            android:background="@drawable/bg_outline"
+            android:gravity="center_vertical"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp">
 
-        <!-- Nút mở rộng / thu gọn -->
-        <ImageView
-            android:id="@+id/iv_toggle_advanced"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginStart="8dp"
-            android:src="@drawable/ic_expand_more"
-            android:contentDescription="Bộ lọc"
-            android:visibility="gone"
-            android:scaleType="centerInside" />
+            <ImageView
+                android:id="@+id/iv_search_icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="@string/search_icon_content_desc"
+                android:src="@drawable/ic_search"
+                app:tint="@color/gray" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_search_keyword"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:hint="@string/search_keyword_hint"
+                app:boxBackgroundMode="none"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_search_keyword"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@android:color/transparent"
+                    android:inputType="text"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="0dp"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Expand/collapse button - placed inside the search bar for visual consistency -->
+            <ImageView
+                android:id="@+id/iv_toggle_advanced"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:contentDescription="@string/filter_icon_content_desc"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_expand_more"
+                android:visibility="visible"
+                app:tint="@color/gray" />
+        </LinearLayout>
     </LinearLayout>
 
-    <!-- ScrollView: chứa các bộ lọc nâng cao (ẩn ban đầu) -->
+    <!-- Advanced filter section -->
     <ScrollView
         android:id="@+id/advanced_filter_section"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_marginTop="12dp"
+        android:visibility="visible"
+        android:layout_marginTop="0dp"
         android:fillViewport="true"
+        android:background="@color/yellow_light"
         app:layout_constraintTop_toBottomOf="@id/layout_search_bar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -69,56 +108,144 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="8dp">
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
 
+            <!-- Current Location -->
             <TextView
-                android:id="@+id/tv_current_location"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Vị trí hiện tại: đang lấy..."
-                android:textStyle="italic"
-                android:textColor="@android:color/darker_gray"
-                android:layout_marginBottom="8dp" />
+                android:text="@string/current_location_label"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginBottom="4dp" />
 
-            <!-- Trường nhập địa chỉ thủ công -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_location"
+            <!-- Manual address input & Get GPS button -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nhập vị trí thủ công hoặc dùng GPS"
-                android:layout_marginTop="12dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_location"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginVertical="10dp" >
+
+                <ImageView
+                    android:id="@+id/iv_current_location"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/location"
+                    android:contentDescription="@string/current_location_loading"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/tv_current_location"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:text="@string/current_location_loading"
+                    android:textStyle="normal"
+                    android:textColor="@color/gray"
+                    android:textSize="14sp" />
 
-            <!-- Nút lấy vị trí GPS -->
-            <Button
-                android:id="@+id/btn_get_location_gps"
-                android:layout_width="wrap_content"
+            </LinearLayout>
+
+
+            <!-- Manual address input & Get GPS button -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Lấy vị trí GPS"
-                android:layout_marginTop="8dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_location"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/manual_location_hint"
+                    android:layout_marginEnd="8dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    app:boxCornerRadiusBottomEnd="8dp"
+                    app:boxCornerRadiusBottomStart="8dp"
+                    app:boxCornerRadiusTopEnd="8dp"
+                    app:boxCornerRadiusTopStart="8dp"
+                    app:boxStrokeColor="@color/orange_bold"
+                    app:hintTextColor="@color/gray">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_location"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:textColor="@android:color/black" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <Button
+                    android:id="@+id/btn_get_location_gps"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/get_gps_location"
+                    android:backgroundTint="@color/green_bold"
+                    android:textColor="@android:color/white"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:minHeight="0dp"
+                    android:paddingVertical="12dp"
+                    app:cornerRadius="15dp" />
+            </LinearLayout>
+
+            <!-- Category Filter -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/all_categories"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginBottom="4dp" />
 
             <Spinner
                 android:id="@+id/spinner_search_category"
                 android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="16dp"
+                android:padding="12dp"
+                android:spinnerMode="dropdown" />
+
+            <!-- Condition Filter -->
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp" />
+                android:text="@string/all_conditions"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginBottom="4dp" />
 
             <Spinner
                 android:id="@+id/spinner_search_condition"
                 android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="16dp"
+                android:padding="12dp"
+                android:spinnerMode="dropdown" />
+
+            <!-- Price Range -->
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp" />
+                android:text="@string/price_range"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginBottom="4dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="12dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/til_min_price"
@@ -126,12 +253,20 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
-                    android:hint="Giá tối thiểu">
+                    android:hint="@string/min_price_hint"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    app:boxCornerRadiusBottomEnd="8dp"
+                    app:boxCornerRadiusBottomStart="8dp"
+                    app:boxCornerRadiusTopEnd="8dp"
+                    app:boxCornerRadiusTopStart="8dp"
+                    app:boxStrokeColor="@color/orange_bold"
+                    app:hintTextColor="@color/gray">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_min_price"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="numberDecimal" />
+                        android:inputType="numberDecimal"
+                        android:textColor="@android:color/black" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -139,53 +274,99 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="Giá tối đa">
+                    android:hint="@string/max_price_hint"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    app:boxCornerRadiusBottomEnd="8dp"
+                    app:boxCornerRadiusBottomStart="8dp"
+                    app:boxCornerRadiusTopEnd="8dp"
+                    app:boxCornerRadiusTopStart="8dp"
+                    app:boxStrokeColor="@color/orange_bold"
+                    app:hintTextColor="@color/gray">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_max_price"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="numberDecimal" />
+                        android:inputType="numberDecimal"
+                        android:textColor="@android:color/black" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
+
+            <!-- Max Distance -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/max_distance_label"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginBottom="4dp" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_search_distance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:hint="Khoảng cách tối đa (km)">
+                android:hint="@string/max_distance_hint"
+                android:layout_marginBottom="16dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                app:boxCornerRadiusBottomEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusTopStart="8dp"
+                app:boxStrokeColor="@color/orange_bold"
+                app:hintTextColor="@color/gray">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_search_distance"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberDecimal" />
+                    android:inputType="numberDecimal"
+                    android:textColor="@android:color/black" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Sort Option -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sort_label"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginBottom="4dp" />
 
             <Spinner
                 android:id="@+id/spinner_sort_option"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp" />
+                android:layout_height="50dp"
+                android:layout_marginBottom="12dp"
+                android:padding="12dp"
+                android:spinnerMode="dropdown" />
 
+            <!-- Perform Search Button -->
             <Button
                 android:id="@+id/btn_perform_search"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Tìm kiếm" />
+                android:text="@string/perform_search"
+                android:backgroundTint="@color/orange_bold"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:paddingVertical="12dp"
+                app:cornerRadius="12dp"
+                android:layout_marginBottom="16dp" />
         </LinearLayout>
     </ScrollView>
 
-    <!-- Kết quả tìm kiếm -->
+    <!-- Search results -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_search_results"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="10dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
         app:layout_constraintTop_toBottomOf="@id/advanced_filter_section"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:listitem="@layout/item_list_layout" />
+        tools:listitem="@layout/item_list_vertical" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

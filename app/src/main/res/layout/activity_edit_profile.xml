@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.EditProfileActivity"
-    android:background="@color/yellow_slight">
+    android:background="@color/orange_skin">
 
     <TextView
         android:id="@+id/title_edit_profile"
@@ -49,7 +49,7 @@
                 android:hint="@string/first_name_hint"
                 android:inputType="textPersonName"
                 android:padding="12dp"
-                android:background="@drawable/bg_input"
+                android:background="@drawable/bg_outline"
                 android:layout_marginTop="8dp"/>
 
             <TextView
@@ -66,7 +66,7 @@
                 android:hint="@string/last_name_hint"
                 android:inputType="textPersonName"
                 android:padding="12dp"
-                android:background="@drawable/bg_input"
+                android:background="@drawable/bg_outline"
                 android:layout_marginTop="8dp"/>
 
             <TextView
@@ -85,7 +85,7 @@
                 android:lines="3"
                 android:gravity="top"
                 android:padding="12dp"
-                android:background="@drawable/bg_input"
+                android:background="@drawable/bg_outline"
                 android:layout_marginTop="8dp"/>
 
             <TextView
@@ -102,7 +102,7 @@
                 android:hint="@string/contact_info_hint"
                 android:inputType="text"
                 android:padding="12dp"
-                android:background="@drawable/bg_input"
+                android:background="@drawable/bg_outline"
                 android:layout_marginTop="8dp"/>
 
             <Button
@@ -110,6 +110,7 @@
                 android:layout_gravity="center"
                 android:layout_width="250dp"
                 android:layout_height="60dp"
+                android:textSize="18sp"
                 android:text="@string/save_profile"
                 android:textColor="@android:color/white"
                 android:backgroundTint="@color/orange_bold"

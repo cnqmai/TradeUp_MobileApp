@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="8dp"
+    android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
     app:cardCornerRadius="8dp"
     app:cardElevation="4dp">
@@ -13,23 +13,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="12dp">
 
             <ImageView
                 android:id="@+id/iv_item_image"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/img_placeholder"
-                android:contentDescription="Item Image"
-                android:background="@drawable/border_image_preview"
+                android:contentDescription="@string/item_image_content_desc"
+                android:background="@drawable/rounded_corners_background"
                 android:padding="2dp"/>
 
             <LinearLayout
@@ -45,33 +45,98 @@
                     android:layout_height="wrap_content"
                     android:textStyle="bold"
                     android:textSize="18sp"
+                    android:textColor="@android:color/black"
                     android:maxLines="1"
                     android:ellipsize="end"
-                    tools:text="Tên Sản Phẩm Rất Dài Và Mô Tả Dài"/>
+                    tools:text="Used Samsung Galaxy S22 Phone"/>
 
                 <TextView
                     android:id="@+id/tv_item_price"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
-                    android:textColor="?attr/colorPrimary"
-                    tools:text="Giá: 1.500.000 VNĐ"/>
+                    android:textColor="@color/orange_bold"
+                    android:textStyle="bold"
+                    android:layout_marginTop="2dp"
+                    tools:text="8.500.000 đ"/>
 
-                <TextView
-                    android:id="@+id/tv_item_status"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:textStyle="italic"
-                    tools:text="Trạng thái: Đang bán"/>
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/status_label"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray" />
+                    <TextView
+                        android:id="@+id/tv_item_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:textColor="@android:color/black"
+                        android:layout_marginStart="4dp"
+                        tools:text="Available"/>
+                </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tv_item_analytics"
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:textColor="?android:attr/textColorSecondary"
-                    tools:text="Lượt xem: 123 | Chats: 4 | Đề nghị: 1"/>
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="4dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/views_label"
+                        android:textSize="12sp"
+                        android:textColor="@color/gray" />
+                    <TextView
+                        android:id="@+id/tv_item_views"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:textColor="@android:color/black"
+                        android:layout_marginStart="4dp"
+                        tools:text="156"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/chats_label"
+                        android:textSize="12sp"
+                        android:textColor="@color/gray"
+                        android:layout_marginStart="12dp"/>
+                    <TextView
+                        android:id="@+id/tv_item_chats"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:textColor="@android:color/black"
+                        android:layout_marginStart="4dp"
+                        tools:text="10"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/offers_label"
+                        android:textSize="12sp"
+                        android:textColor="@color/gray"
+                        android:layout_marginStart="12dp"/>
+                    <TextView
+                        android:id="@+id/tv_item_offers"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:textColor="@android:color/black"
+                        android:layout_marginStart="4dp"
+                        tools:text="3"/>
+                </LinearLayout>
 
             </LinearLayout>
         </LinearLayout>
@@ -79,8 +144,8 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="?android:attr/listDivider"
-            android:layout_marginVertical="8dp"/>
+            android:background="@color/gray_light"
+            android:layout_marginVertical="12dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -91,27 +156,40 @@
             <Button
                 android:id="@+id/btn_edit_item"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 android:layout_weight="1"
-                android:text="Sửa"
-                style="@style/Widget.MaterialComponents.Button.TextButton"/>
+                android:text="@string/edit_button"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:textColor="@color/yellow_bold"
+                android:backgroundTint="@color/yellow"
+                android:textSize="14sp"
+                android:layout_marginEnd="8dp"
+                android:paddingVertical="8dp"/>
 
             <Button
                 android:id="@+id/btn_delete_item"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 android:layout_weight="1"
-                android:text="Xóa"
+                android:text="@string/delete_button"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:textColor="@color/design_default_color_error"/>
+                android:textColor="@color/red_bold"
+                android:backgroundTint="@color/red"
+                android:textSize="14sp"
+                android:layout_marginEnd="8dp"
+                android:paddingVertical="8dp"/>
 
             <Button
                 android:id="@+id/btn_change_status"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 android:layout_weight="1"
-                android:text="Đổi Trạng Thái"
-                style="@style/Widget.MaterialComponents.Button.TextButton"/>
+                android:text="@string/change_status_button"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:textColor="@color/green_bold"
+                android:backgroundTint="@color/green"
+                android:textSize="14sp"
+                android:paddingVertical="8dp"/>
         </LinearLayout>
 
     </LinearLayout>

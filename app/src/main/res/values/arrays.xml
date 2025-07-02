@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="categories">
-        <item>Điện tử</item>
         <item>Electronics</item>
-        <item>Thời trang</item>
-        <item>Fashion</item> <item>Đồ gia dụng</item>
-        <item>Home Appliances</item> <item>Sách</item>
-        <item>Books</item> <item>Sports &amp; Outdoors</item> <item>Home Decor</item> <item>Home &amp; Kitchen</item> <item>Art &amp; Collectibles</item> <item>Bags</item> <item>Home &amp; Garden</item> <item>Toys &amp; Hobbies</item> <item>Office Supplies</item> </string-array>
+        <item>Fashion</item>
+        <item>Home Appliances</item>
+        <item>Books</item>
+        <item>Sports &amp; Outdoors</item>
+        <item>Home Decor</item>
+        <item>Home &amp; Kitchen</item>
+        <item>Art &amp; Collectibles</item>
+        <item>Bags</item>
+        <item>Home &amp; Garden</item>
+        <item>Toys &amp; Hobbies</item>
+        <item>Office Supplies</item>
+    </string-array>
 
     <string-array name="conditions">
-        <item>Mới</item>
-        <item>New</item> <item>Như mới</item>
-        <item>Like New</item> <item>Đã qua sử dụng</item>
-        <item>Used</item> </string-array>
+        <item>New</item>
+        <item>Like New</item>
+        <item>Used</item>
+    </string-array>
 
     <string-array name="item_statuses_array">
         <item>Available</item>
@@ -22,7 +29,7 @@
     </string-array>
 
     <string-array name="search_categories">
-        <item>Tất cả danh mục</item> <item>Điện tử</item>
+        <item>All categories</item>
         <item>Electronics</item>
         <item>Sports &amp; Outdoors</item>
         <item>Home Decor</item>
@@ -37,25 +44,26 @@
         <item>Office Supplies</item>
     </string-array>
 
-    <string-array name="search_conditions">
-        <item>Tất cả tình trạng</item> <item>Mới</item>
-        <item>New</item>
-        <item>Như mới</item>
-        <item>Like New</item>
-        <item>Đã qua sử dụng</item>
-        <item>Used</item>
+    <string-array name="search_sort_options">
+        <item>Newest</item>
+        <item>Price: Low to High</item>
+        <item>Price: High to Low</item>
+        <item>Distance (Nearest)</item>
     </string-array>
 
-    <string-array name="search_sort_options">
-        <item>Mới nhất</item>
-        <item>Giá tăng dần</item>
-        <item>Giá giảm dần</item>
-        <item>Khoảng cách (gần nhất)</item>
+    <string-array name="search_conditions">
+        <item>All Conditions</item>
+        <item>New</item>
+        <item>Used</item>
+        <item>Like New</item>
+        <item>Good</item>
+        <item>Fair</item>
     </string-array>
 
     <string-array name="user_filter_options">
-        <item>Tất cả người dùng</item>
-        <item>Người dùng bị gắn cờ</item>
-        <item>Người dùng bị khóa</item>
+        <item>All users</item>
+        <item>Flagged users</item>
+        <item>Blocked users</item>
     </string-array>
+
 </resources>

@@ -22,7 +22,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
     private Context context;
     private List<Item> itemList;
-    private OnItemClickListener listener; // Thêm listener
+    private OnItemClickListener listener;
+    private int itemLayoutResId; // Add this line
 
     // Interface để xử lý sự kiện click vào item
     public interface OnItemClickListener {
@@ -34,9 +35,11 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         this.listener = listener;
     }
 
-    public ItemAdapter(Context context, List<Item> itemList) {
+    // Update constructor to accept layout resource id
+    public ItemAdapter(Context context, List<Item> itemList, int itemLayoutResId) {
         this.context = context;
         this.itemList = itemList;
+        this.itemLayoutResId = itemLayoutResId;
     }
 
     public void setItems(List<Item> newItems) {
@@ -47,7 +50,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     @NonNull
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_list_layout, parent, false);
+        View view = LayoutInflater.from(context).inflate(itemLayoutResId, parent, false); // Use dynamic layout
         return new ItemViewHolder(view);
     }
 
@@ -57,23 +60,24 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
         holder.tvTitle.setText(item.getTitle());
 
-        // Định dạng giá sản phẩm
+        // Format price in VND
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
         currencyFormat.setMaximumFractionDigits(0);
         String formattedPrice = currencyFormat.format(item.getPrice());
-        holder.tvPrice.setText("Giá: " + formattedPrice);
+        holder.tvPrice.setText(context.getString(R.string.item_price_format, formattedPrice));
 
-        // Lấy và đặt địa chỉ từ đối tượng Location
-        if (item.getLocation() != null && item.getLocation().getManual_address() != null) {
-            holder.tvLocation.setText("Vị trí: " + item.getLocation().getManual_address());
+        // Show distance if available, otherwise show "Unknown"
+        if (item.getDistanceToUser() >= 0) {
+            String distanceStr = String.format(Locale.getDefault(), "%.1f km", item.getDistanceToUser());
+            holder.tvLocation.setText(context.getString(R.string.item_distance_format, distanceStr));
         } else {
-            holder.tvLocation.setText("Vị trí: Không xác định");
+            holder.tvLocation.setText(context.getString(R.string.item_distance_unknown));
         }
 
-        // Tải ảnh sản phẩm bằng Glide
+        // Load product image with Glide
         if (item.getPhotos() != null && !item.getPhotos().isEmpty()) {
             Glide.with(context)
-                    .load(item.getPhotos().get(0)) // Tải ảnh đầu tiên từ danh sách photos
+                    .load(item.getPhotos().get(0))
                     .placeholder(R.drawable.img_placeholder)
                     .error(R.drawable.img_placeholder)
                     .centerCrop()
@@ -82,7 +86,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             holder.ivItemImage.setImageResource(R.drawable.img_placeholder);
         }
 
-        // Thêm OnClickListener cho item
         holder.itemView.setOnClickListener(v -> {
             if (listener != null && item.getId() != null) {
                 listener.onItemClick(item.getId());
@@ -106,7 +109,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             ivItemImage = itemView.findViewById(R.id.iv_item_image);
             tvTitle = itemView.findViewById(R.id.tv_item_title);
             tvPrice = itemView.findViewById(R.id.tv_item_price);
-            tvLocation = itemView.findViewById(R.id.tv_item_location);
+            // Đổi id thành tv_item_distance nếu layout đã đổi, hoặc giữ tv_item_location nếu chưa đổi id
+            tvLocation = itemView.findViewById(R.id.tv_item_distance);
         }
     }
 }

@@ -60,8 +60,8 @@ public class TransactionHistoryFragment extends Fragment implements
     private String currentUserId;
     private NavController navController;
 
-    private String currentTab = "active";
-    private String currentSortOrder = "newest_to_oldest";
+    private String currentTab = "active"; // Default tab
+    private String currentSortOrder = "newest_to_oldest"; // Default sort order
 
     public TransactionHistoryFragment() {
         // Required empty public constructor
@@ -70,7 +70,15 @@ public class TransactionHistoryFragment extends Fragment implements
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        currentUserId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+        // Ensure current user is not null before accessing UID
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        } else {
+            // Handle case where user is not logged in, e.g., redirect to login
+            Log.e(TAG, "No current user found. Cannot load transactions.");
+            // You might want to navigate to a login screen here
+            // navController.navigate(R.id.action_global_loginFragment);
+        }
         transactionsRef = FirebaseDatabase.getInstance().getReference("transactions");
 
         allTransactions = new ArrayList<>();
@@ -87,7 +95,6 @@ public class TransactionHistoryFragment extends Fragment implements
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Đảm bảo NavController được khởi tạo ở đây
         navController = Navigation.findNavController(view);
         Log.d(TAG, "onViewCreated: NavController initialized.");
 
@@ -107,14 +114,16 @@ public class TransactionHistoryFragment extends Fragment implements
     }
 
     private void setupRecyclerView() {
+        if (!isAdded()) return; // Ensure fragment is attached
         transactionAdapter = new TransactionAdapter(requireContext(), currentDisplayedTransactions, this);
         rvTransactions.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvTransactions.setAdapter(transactionAdapter);
     }
 
     private void setupTabLayout() {
-        tabLayout.addTab(tabLayout.newTab().setText("Active"));
-        tabLayout.addTab(tabLayout.newTab().setText("Archived"));
+        if (!isAdded()) return; // Ensure fragment is attached
+        tabLayout.addTab(tabLayout.newTab().setText(getString(R.string.tab_active)));
+        tabLayout.addTab(tabLayout.newTab().setText(getString(R.string.tab_archived)));
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -140,13 +149,30 @@ public class TransactionHistoryFragment extends Fragment implements
     }
 
     private void setupListeners() {
-        ivBackButton.setOnClickListener(v -> navController.navigateUp());
+        ivBackButton.setOnClickListener(v -> {
+            if (navController != null) {
+                navController.navigateUp();
+            } else {
+                Log.e(TAG, "NavController is null, cannot navigate up.");
+            }
+        });
         ivSortButton.setOnClickListener(v -> {
             showSortOptionsDialog();
         });
     }
 
     private void fetchAllTransactions() {
+        if (currentUserId == null) {
+            Log.e(TAG, "Current user ID is null. Cannot fetch transactions.");
+            if (isAdded()) {
+                Toast.makeText(requireContext(), getString(R.string.toast_error_no_user_id), Toast.LENGTH_LONG).show();
+            }
+            tvNoTransactions.setText(getString(R.string.no_transactions_message)); // Display no transactions message
+            tvNoTransactions.setVisibility(View.VISIBLE);
+            rvTransactions.setVisibility(View.GONE);
+            return;
+        }
+
         if (transactionsRef != null && transactionsValueEventListener != null) {
             transactionsRef.removeEventListener(transactionsValueEventListener);
         }
@@ -180,7 +206,10 @@ public class TransactionHistoryFragment extends Fragment implements
                     return;
                 }
                 Log.e(TAG, "Failed to load transactions: " + error.getMessage());
-                Toast.makeText(requireContext(), "Lỗi khi tải giao dịch: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.toast_error_loading_transactions, error.getMessage()), Toast.LENGTH_SHORT).show();
+                tvNoTransactions.setText(getString(R.string.no_transactions_message)); // Display no transactions message on error
+                tvNoTransactions.setVisibility(View.VISIBLE);
+                rvTransactions.setVisibility(View.GONE);
             }
         };
 
@@ -241,7 +270,7 @@ public class TransactionHistoryFragment extends Fragment implements
                         return date2.compareTo(date1);
                 }
             } catch (ParseException e) {
-                Log.e(TAG, "Lỗi parse timestamp khi sort transaction: " + e.getMessage());
+                Log.e(TAG, "Error parsing timestamp when sorting transaction: " + e.getMessage());
                 return 0;
             }
         });
@@ -253,7 +282,12 @@ public class TransactionHistoryFragment extends Fragment implements
             return;
         }
 
-        final CharSequence[] options = {"Mới nhất đến cũ nhất", "Cũ nhất đến mới nhất", "Giá: Thấp đến cao", "Giá: Cao đến thấp"};
+        final CharSequence[] options = {
+                getString(R.string.sort_newest_to_oldest),
+                getString(R.string.sort_oldest_to_newest),
+                getString(R.string.sort_price_low_to_high),
+                getString(R.string.sort_price_high_to_low)
+        };
         int checkedItem = 0;
 
         switch (currentSortOrder) {
@@ -272,7 +306,7 @@ public class TransactionHistoryFragment extends Fragment implements
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Sắp xếp giao dịch");
+        builder.setTitle(R.string.dialog_title_sort_transactions);
         builder.setSingleChoiceItems(options, checkedItem, (dialog, which) -> {
             switch (which) {
                 case 0:
@@ -292,7 +326,7 @@ public class TransactionHistoryFragment extends Fragment implements
             applySorting();
             filterAndDisplayTransactions();
         });
-        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
+        builder.setNegativeButton(R.string.button_cancel, (dialog, which) -> dialog.cancel());
         builder.show();
     }
 
@@ -300,7 +334,7 @@ public class TransactionHistoryFragment extends Fragment implements
     public void onTransactionClick(Transaction transaction) {
         if (isAdded()) {
             Log.d(TAG, "onTransactionClick: Transaction clicked: " + transaction.getItem_id());
-            Toast.makeText(requireContext(), "Đã nhấn vào chi tiết giao dịch: " + transaction.getItem_id(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), getString(R.string.toast_transaction_details_clicked, transaction.getItem_id()), Toast.LENGTH_SHORT).show();
             // Điều hướng đến màn hình chi tiết giao dịch ở đây nếu bạn có một Fragment cho nó
             // Ví dụ: Bundle bundle = new Bundle();
             // bundle.putString("transactionId", transaction.getTransaction_id());
@@ -321,7 +355,7 @@ public class TransactionHistoryFragment extends Fragment implements
                 navController.navigate(R.id.action_transactionHistoryFragment_to_ratingReviewFragment, bundle);
             } else {
                 Log.e(TAG, "onArrowClickForRating: NavController is null!");
-                Toast.makeText(requireContext(), "Lỗi: Không thể điều hướng. NavController không khả dụng.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.toast_error_cannot_navigate_nav_controller_null), Toast.LENGTH_SHORT).show();
             }
         } else {
             Log.e(TAG, "onArrowClickForRating: Fragment is not added, cannot navigate.");
@@ -335,5 +369,15 @@ public class TransactionHistoryFragment extends Fragment implements
             transactionsRef.removeEventListener(transactionsValueEventListener);
             Log.d(TAG, "Transaction history Firebase listener removed.");
         }
+        // Nullify view references to prevent memory leaks
+        tabLayout = null;
+        rvTransactions = null;
+        tvNoTransactions = null;
+        ivBackButton = null;
+        ivSortButton = null;
+        transactionAdapter = null; // Adapter might hold context, so nullify it
+        allTransactions = null; // Clear list references
+        currentDisplayedTransactions = null; // Clear list references
+        navController = null; // Nullify navController
     }
 }

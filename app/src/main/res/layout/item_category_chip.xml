@@ -18,7 +18,7 @@
     android:paddingTop="8dp"
     android:paddingEnd="16dp"
     android:paddingBottom="8dp"
-    android:text="Tên Danh mục"
+    android:text="@string/category_name_placeholder"
     android:textColor="@color/gray"
     android:textSize="14sp" />
 

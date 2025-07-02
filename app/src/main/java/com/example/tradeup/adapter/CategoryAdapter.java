@@ -18,6 +18,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     private Context context;
     private List<String> categoryList;
     private OnCategoryClickListener listener;
+    private String selectedCategory;
 
     public interface OnCategoryClickListener {
         void onCategoryClick(String category);
@@ -38,6 +39,11 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         notifyDataSetChanged();
     }
 
+    public void setSelectedCategory(String category) {
+        this.selectedCategory = category;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public CategoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -51,9 +57,18 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         String category = categoryList.get(position);
         holder.tvCategoryName.setText(category);
 
+        // Highlight selected category
+        holder.itemView.setSelected(category.equals(selectedCategory));
+
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
+                String previousSelected = selectedCategory;
+                selectedCategory = category;
                 listener.onCategoryClick(category);
+
+                // Update the views
+                notifyItemChanged(categoryList.indexOf(previousSelected));
+                notifyItemChanged(position);
             }
         });
     }

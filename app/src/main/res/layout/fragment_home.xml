@@ -4,42 +4,48 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     tools:context=".fragment.HomeFragment">
 
+    <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_home"
         android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/white"
+        android:background="@android:color/white"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:titleTextColor="@android:color/white">
+        app:titleTextColor="@android:color/white"
+        app:contentInsetStartWithNavigation="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:paddingEnd="16dp"> <!-- Add padding to the end for notification icon -->
 
             <ImageView
                 android:id="@+id/iv_logo_home"
-                android:layout_width="150dp"
-                android:layout_height="48dp"
-                android:contentDescription="Logo"
-                android:src="@drawable/logo_tradeup" />
+                android:layout_width="120dp"
+                android:layout_height="36dp"
+                android:contentDescription="@string/logo_content_desc"
+                android:src="@drawable/logo_tradeup"
+                android:layout_marginStart="8dp" />
 
+            <!-- Flexible space to push notification icon to the right -->
             <View
-                android:layout_width="185dp"
-                android:layout_height="match_parent">
-            </View>
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
 
             <ImageView
                 android:id="@+id/iv_notification_bell_home"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:contentDescription="Notifications"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/notifications_content_desc"
                 android:padding="8dp"
                 android:src="@drawable/ic_notification"
                 app:tint="@color/orange_bold" />
@@ -58,28 +64,55 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/white"
             android:padding="16dp">
 
-            <TextView
-                android:id="@+id/tvWelcomeMessage"
+            <!-- Welcome Message Card -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Chào mừng đến với TradeUp!"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:fontFamily="@font/montserrat_bold"
-                android:textColor="@android:color/black"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                android:backgroundTint="@color/orange_skin"> <!-- Sử dụng màu cam nhạt -->
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_orange_yellow_gradient"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tvWelcomeMessage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/welcome_message"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/montserrat_bold"
+                        android:textColor="@color/orange_skin"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/discover_message"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/montserrat_medium"
+                        android:textColor="@color/yellow_light"
+                        android:alpha="0.8" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+
+            <!-- Browse by Category Section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Duyệt theo danh mục"
+                android:text="@string/browse_by_category"
                 android:fontFamily="@font/montserrat_bold"
-                android:textSize="18sp"
+                android:textSize="20sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"
+                android:textColor="@color/orange_bold"
                 android:layout_marginBottom="8dp" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -87,16 +120,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="24dp" /> <!-- Increased margin -->
 
+            <!-- Items Near You Section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Sản phẩm gần bạn"
+                android:text="@string/items_near_you"
                 android:fontFamily="@font/montserrat_bold"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"
+                android:textColor="@color/orange_bold"
                 android:layout_marginBottom="8dp" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -104,16 +138,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="24dp" /> <!-- Increased margin -->
 
+            <!-- Popular Items Section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Đang được quan tâm"
+                android:text="@string/popular_items"
                 android:fontFamily="@font/montserrat_bold"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"
+                android:textColor="@color/orange_bold"
                 android:layout_marginBottom="8dp" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -121,16 +156,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="24dp" /> <!-- Increased margin -->
 
+            <!-- Personalized Items Section (or Filtered Items) -->
             <TextView
+                android:id="@+id/tvPersonalizedItemsTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Dành riêng cho bạn"
+                android:text="@string/personalized_for_you"
                 android:fontFamily="@font/montserrat_bold"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"
+                android:textColor="@color/orange_bold"
                 android:layout_marginBottom="8dp" />
 
             <androidx.recyclerview.widget.RecyclerView

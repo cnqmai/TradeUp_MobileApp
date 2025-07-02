@@ -24,7 +24,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.widget.TextView; // Thêm import này cho TextView nếu thiếu
+import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -56,11 +56,11 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import org.json.JSONObject; // For Cloudinary response parsing
-import org.apache.commons.io.IOUtils; // For converting InputStream to byte array
+import org.json.JSONObject;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
-import java.io.InputStream; // For image upload
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,9 +70,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
-import android.location.Location; // Đảm bảo đây là android.location.Location
+import android.location.Location;
 
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.CurrentLocationRequest;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.tasks.CancellationTokenSource;
@@ -84,25 +83,23 @@ public class AddItemFragment extends Fragment {
     private TextInputEditText etTitle, etDescription, etPrice, etLocation, etItemBehavior, etTags;
     private Spinner spinnerCategory, spinnerCondition;
     private Button btnGetLocationGps, btnPreviewItem, btnSubmitItem;
-    private ImageView ivAddImage;
+    private LinearLayout llAddImagePlaceholder; // Changed from ImageView to LinearLayout
     private LinearLayout llImagePreviews;
-    // Thêm TextView cho hiển thị địa chỉ nếu bạn có tvLocationDisplay
-    // private TextView tvLocationDisplay;
 
     // Helpers
     private FirebaseHelper firebaseHelper;
     private NavController navController;
-    private OkHttpClient okHttpClient; // For Cloudinary upload
+    private OkHttpClient okHttpClient;
 
     // Image handling
     private List<Uri> selectedImageUris = new ArrayList<>();
-    private Uri cameraImageUri; // For camera capture
+    private Uri cameraImageUri;
     private static final int MAX_IMAGES = 10;
     private FusedLocationProviderClient fusedLocationClient;
 
     private static final String TAG = "AddItemFragment";
 
-    // Biến để lưu trữ tọa độ GPS (quan trọng để truyền vào model Item)
+    // Biến để lưu trữ tọa độ GPS
     private double currentLat = 0.0;
     private double currentLng = 0.0;
 
@@ -124,7 +121,7 @@ public class AddItemFragment extends Fragment {
         super.onCreate(savedInstanceState);
         firebaseHelper = new FirebaseHelper();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
-        okHttpClient = new OkHttpClient(); // Initialize OkHttpClient
+        okHttpClient = new OkHttpClient();
         setupActivityResultLaunchers();
     }
 
@@ -142,13 +139,14 @@ public class AddItemFragment extends Fragment {
         initViews(view);
         setupSpinners();
         setupListeners();
+        updateImagePreviews(); // Call this to initially show the add image placeholder
     }
 
     private void initViews(View view) {
         etTitle = view.findViewById(R.id.et_title);
         etDescription = view.findViewById(R.id.et_description);
         etPrice = view.findViewById(R.id.et_price);
-        etLocation = view.findViewById(R.id.et_location); // TextField for location
+        etLocation = view.findViewById(R.id.et_location);
         etItemBehavior = view.findViewById(R.id.et_item_behavior);
         etTags = view.findViewById(R.id.et_tags);
 
@@ -159,10 +157,8 @@ public class AddItemFragment extends Fragment {
         btnPreviewItem = view.findViewById(R.id.btn_preview_item);
         btnSubmitItem = view.findViewById(R.id.btn_submit_item);
 
-        ivAddImage = view.findViewById(R.id.iv_add_image);
+        llAddImagePlaceholder = view.findViewById(R.id.ll_add_image_placeholder); // Changed ID
         llImagePreviews = view.findViewById(R.id.ll_image_previews);
-
-        // tvLocationDisplay = view.findViewById(R.id.tv_location_display); // Nếu có
     }
 
     private void setupSpinners() {
@@ -179,8 +175,7 @@ public class AddItemFragment extends Fragment {
 
     private void setupListeners() {
         btnGetLocationGps.setOnClickListener(v -> requestLocationPermission());
-        ivAddImage.setOnClickListener(v -> showImagePickerDialog());
-        // CẬP NHẬT LISTENER CHO NÚT XEM TRƯỚC
+        llAddImagePlaceholder.setOnClickListener(v -> showImagePickerDialog()); // Changed listener
         btnPreviewItem.setOnClickListener(v -> {
             if (validateInputs()) {
                 previewItem();
@@ -325,14 +320,12 @@ public class AddItemFragment extends Fragment {
             return;
         }
 
-        // --- MÃ ĐÃ THAY ĐỔI: SỬ DỤNG CurrentLocationRequest ---
         CurrentLocationRequest currentLocationRequest = new CurrentLocationRequest.Builder()
-                .setPriority(Priority.PRIORITY_HIGH_ACCURACY) // Yêu cầu độ chính xác cao nhất
-                .setDurationMillis(30000) // Thời gian chờ tối đa cho yêu cầu (30 giây)
-                // .setMaxUpdates(1) // KHÔNG CẦN DÒNG NÀY cho CurrentLocationRequest vì nó luôn chỉ là một lần cập nhật
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                .setDurationMillis(30000)
                 .build();
 
-        fusedLocationClient.getCurrentLocation(currentLocationRequest, new CancellationTokenSource().getToken()) // Gửi yêu cầu lấy vị trí hiện tại
+        fusedLocationClient.getCurrentLocation(currentLocationRequest, new CancellationTokenSource().getToken())
                 .addOnSuccessListener(requireActivity(), location -> {
                     if (location != null) {
                         Log.d(TAG, "getCurrentLocation successful: Lat=" + location.getLatitude() + ", Lng=" + location.getLongitude());
@@ -354,10 +347,8 @@ public class AddItemFragment extends Fragment {
             return;
         }
 
-        // --- DÒNG LOG NÀY RẤT QUAN TRỌNG: HIỂN THỊ TỌA ĐỘ THÔ ĐƯỢC CUNG CẤP BỞI FUSED LOCATION PROVIDER ---
         Log.d("EditItemFragment", "Raw GPS Location received: Lat=" + location.getLatitude() + ", Lng=" + location.getLongitude());
 
-        // Sử dụng Locale("vi", "VN") để cố gắng lấy địa chỉ cụ thể cho Việt Nam
         Geocoder geocoder = new Geocoder(requireContext(), new Locale("vi", "VN"));
         try {
             List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
@@ -369,7 +360,6 @@ public class AddItemFragment extends Fragment {
                 this.currentLat = location.getLatitude();
                 this.currentLng = location.getLongitude();
 
-                // GỠ LỖI: LOG ĐỊA CHỈ ĐƯỢC CHUYỂN ĐỔI TỪ GPS
                 Log.d("AddItemFragment", "Geocoded address (from GPS): " + fullAddress);
 
             } else {
@@ -419,6 +409,8 @@ public class AddItemFragment extends Fragment {
 
     private void updateImagePreviews() {
         llImagePreviews.removeAllViews(); // Clear existing views
+
+        // Add dynamically selected image previews
         for (int i = 0; i < selectedImageUris.size(); i++) {
             Uri uri = selectedImageUris.get(i);
             ImageView imageView = new ImageView(requireContext());
@@ -428,7 +420,7 @@ public class AddItemFragment extends Fragment {
             params.setMargins(0, 0, (int) getResources().getDimension(R.dimen.image_preview_margin), 0);
             imageView.setLayoutParams(params);
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            imageView.setBackgroundResource(R.drawable.border_image_preview);
+            imageView.setBackgroundResource(R.drawable.border_image_preview); // Make sure this drawable exists
             imageView.setPadding(2, 2, 2, 2);
 
             Glide.with(this)
@@ -444,9 +436,35 @@ public class AddItemFragment extends Fragment {
             });
             llImagePreviews.addView(imageView);
         }
-        // Show add image icon if less than MAX_IMAGES
-        ivAddImage.setVisibility(selectedImageUris.size() < MAX_IMAGES ? View.VISIBLE : View.GONE);
+
+        // Add the llAddImagePlaceholder if less than MAX_IMAGES
+        if (selectedImageUris.size() < MAX_IMAGES) {
+            // Ensure llAddImagePlaceholder is added back if it was removed
+            if (llAddImagePlaceholder.getParent() == null) {
+                // This part might need adjustment based on your XML structure.
+                // If llAddImagePlaceholder is directly inside llImagePreviews in XML,
+                // you might need to add it back to llImagePreviews.
+                // If it's a separate element in XML, then its visibility is enough.
+                // Assuming llAddImagePlaceholder is a direct child of llImagePreviews
+                // and you removed all views with removeAllViews().
+                // The current XML structure has ll_add_image_placeholder inside ll_image_previews
+                // which is inside a HorizontalScrollView.
+                // So, we need to add it back to llImagePreviews if it's not there.
+                // However, the XML provided has ll_add_image_placeholder as a direct child
+                // of ll_image_previews. So, removeAllViews() will remove it.
+                // We need to re-add it.
+
+                // To avoid re-creating the placeholder view,
+                // we can just manage its visibility or ensure it's always the last child.
+                // Let's re-add it if it's not present.
+                llImagePreviews.addView(llAddImagePlaceholder);
+            }
+            llAddImagePlaceholder.setVisibility(View.VISIBLE);
+        } else {
+            llAddImagePlaceholder.setVisibility(View.GONE);
+        }
     }
+
 
     private void showDeleteImageDialog(int index) {
         new AlertDialog.Builder(requireContext())
@@ -460,7 +478,6 @@ public class AddItemFragment extends Fragment {
                 .show();
     }
 
-    // --- Using Cloudinary for image uploads ---
     private void uploadImagesAndSubmitItem() {
         if (selectedImageUris.isEmpty()) {
             submitItem(new ArrayList<>());
@@ -482,7 +499,7 @@ public class AddItemFragment extends Fragment {
                 if (inputStream == null) {
                     Toast.makeText(getContext(), "Không thể mở luồng đầu vào từ URI ảnh.", Toast.LENGTH_SHORT).show();
                     uploadFailed[0] = true;
-                    return; // Stop processing if stream is null
+                    return;
                 }
 
                 byte[] imageBytes = IOUtils.toByteArray(inputStream);
@@ -496,8 +513,8 @@ public class AddItemFragment extends Fragment {
                 String fileExtension = getFileExtensionFromMimeType(mimeType);
                 String fileName = "item_image_" + UUID.randomUUID().toString() + fileExtension;
 
-                String cloudName = "dp6tzdsyt"; // Your Cloudinary Cloud Name
-                String uploadPreset = "TradeUp"; // Your Cloudinary Unsigned Upload Preset
+                String cloudName = "dp6tzdsyt";
+                String uploadPreset = "TradeUp";
 
                 RequestBody requestBody = new MultipartBody.Builder()
                         .setType(MultipartBody.FORM)
@@ -599,7 +616,6 @@ public class AddItemFragment extends Fragment {
         }
     }
 
-    // THÊM PHƯƠNG THỨC NÀY ĐỂ XEM TRƯỚC TIN ĐĂNG
     private void previewItem() {
         String title = Objects.requireNonNull(etTitle.getText()).toString().trim();
         String description = Objects.requireNonNull(etDescription.getText()).toString().trim();
@@ -613,31 +629,11 @@ public class AddItemFragment extends Fragment {
             tags = etTags.getText().toString().trim().split("\\s*,\\s*");
         }
 
-        // Tạo mảng URL ảnh tạm thời hoặc upload lên Cloudinary để có URL thật
-        // Vì đây là xem trước, chúng ta có thể đơn giản hóa bằng cách
-        // chỉ hiển thị ảnh đã chọn từ URI local nếu không muốn upload tạm.
-        // Tuy nhiên, vì bạn đã có logic upload Cloudinary,
-        // để xem trước chính xác ảnh sẽ trông như thế nào sau khi upload,
-        // bạn có thể thực hiện một quá trình upload tương tự nhưng không lưu vào Firebase.
-        // Để đơn giản cho mục đích xem trước, tôi sẽ giả định rằng bạn có thể truyền
-        // URI local và xử lý hiển thị nó trong PreviewItemFragment.
-        // Nếu bạn muốn xem ảnh đã được tải lên Cloudinary, bạn sẽ cần
-        // gọi `uploadImagesToCloudinaryForPreview` trước.
-        // Hiện tại, tôi sẽ lấy các URI đã chọn và giả định chúng có thể được hiển thị
-        // trong PreviewItemFragment (ví dụ, nếu ảnh đã được lưu vào cache của Glide,
-        // hoặc nếu bạn có thể tải chúng từ URI local).
-        // Nếu bạn muốn upload lên Cloudinary trước khi xem trước, bạn sẽ cần thêm
-        // logic upload vào đây và chờ đợi nó hoàn thành.
-        // Để không làm phức tạp luồng "Xem trước", tôi sẽ truyền trực tiếp các URI
-        // và để PreviewItemFragment xử lý việc tải chúng.
-
-        // Chuyển đổi Uri thành String để truyền qua Bundle
         String[] imageUrls = new String[selectedImageUris.size()];
         for (int i = 0; i < selectedImageUris.size(); i++) {
             imageUrls[i] = selectedImageUris.get(i).toString();
         }
 
-        // Sử dụng Safe Args để truyền dữ liệu
         AddItemFragmentDirections.ActionAddItemFragmentToPreviewItemFragment action =
                 AddItemFragmentDirections.actionAddItemFragmentToPreviewItemFragment(
                         title,
@@ -652,7 +648,6 @@ public class AddItemFragment extends Fragment {
                 );
         navController.navigate(action);
     }
-
 
     private void submitItem(List<String> uploadedImageUrls) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -704,12 +699,12 @@ public class AddItemFragment extends Fragment {
                 itemLocation,
                 uploadedImageUrls,
                 itemBehavior.isEmpty() ? null : itemBehavior,
-                tagsList.isEmpty() ? null : tagsList, // Sử dụng tagsList
+                tagsList.isEmpty() ? null : tagsList,
                 currentTime,
                 currentTime,
-                0L, // rating_sum khởi tạo là 0
-                0L, // rating_count khởi tạo là 0
-                0.0 // average_rating khởi tạo là 0.0
+                0L,
+                0L,
+                0.0
         );
 
         firebaseHelper.addItem(itemId, newItem, new FirebaseHelper.DbWriteCallback() {

@@ -47,7 +47,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="4.5"
+                android:text="@string/rating_value"
                 android:textColor="@color/black"
                 android:textSize="20sp" />
 
@@ -69,7 +69,7 @@
                 android:id="@+id/tv_total_transactions"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tổng giao dịch: 0"
+                android:text="@string/total_transactions"
                 android:textColor="@android:color/black"
                 android:textSize="14sp"/>
 
@@ -153,6 +153,7 @@
                     android:textColor="@android:color/black" />
             </LinearLayout>
 
+            <!-- Account Management Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -326,7 +327,7 @@
                         <ImageView
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:contentDescription="Transaction History Icon"
+                            android:contentDescription="@string/transaction_history_icon"
                             android:src="@drawable/ic_transaction_history"
                             app:tint="@color/orange_bold" />
                     </FrameLayout>
@@ -377,7 +378,7 @@
                         <ImageView
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:contentDescription="Admin Dashboard Icon"
+                            android:contentDescription="@string/admin_dashboard_icon"
                             android:src="@drawable/ic_admin_dashboard"
                             app:tint="@color/orange_bold" />
                     </FrameLayout>
@@ -386,7 +387,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Admin Dashboard"
+                        android:text="@string/admin_dashboard"
                         android:textColor="@color/black"
                         android:textSize="16sp" />
 
@@ -434,7 +435,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/account_management"
-                        android:textColor="@color/red_bold"
+                        android:textColor="@color/orange_bold"
                         android:textSize="16sp" />
 
                     <ImageView
@@ -446,123 +447,363 @@
 
             </LinearLayout>
 
-            <!-- NEW: History & Activity Section -->
+            <!-- History & Activity Section - Re-designed -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="8dp"
-                app:cardElevation="4dp"
                 android:layout_marginTop="20dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="0dp"
+                    android:backgroundTint="@color/yellow_slight"
+                    android:background="@drawable/bg_card_rounded">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Lịch sử &amp; Hoạt động"
+                        android:text="@string/history_activity"
                         android:textStyle="bold"
                         android:textSize="18sp"
                         android:textColor="@android:color/black"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginStart="8dp"
                         android:layout_marginBottom="12dp" />
 
-                    <Button
+                    <!-- Saved Items Row -->
+                    <LinearLayout
                         android:id="@+id/btn_saved_items"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Mặt hàng đã lưu"
-                        android:drawableStart="@drawable/ic_bookmark"
-                        android:drawablePadding="8dp"
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        style="@style/Widget.AppCompat.Button.Borderless"
-                        android:textColor="@android:color/black"
-                        android:layout_marginBottom="8dp"/>
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingVertical="12dp"
+                        android:paddingHorizontal="2dp">
 
-                    <Button
+                        <FrameLayout
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginEnd="12dp"
+                            android:background="@drawable/bg_circle_icon"
+                            android:padding="6dp">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@string/saved_items_icon"
+                                android:src="@drawable/ic_bookmark"
+                                app:tint="@color/orange_bold" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/saved_items"
+                            android:textColor="@android:color/black"
+                            android:textSize="16sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_arrow_right"
+                            app:tint="@color/gray" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#DADADA" />
+
+                    <!-- Offer History Row -->
+                    <LinearLayout
                         android:id="@+id/btn_offer_history"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Lịch sử đề nghị"
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        style="@style/Widget.AppCompat.Button.Borderless"
-                        android:textColor="@android:color/black"
-                        android:layout_marginBottom="8dp"/>
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingVertical="12dp"
+                        android:paddingHorizontal="2dp">
 
-                    <Button
+                        <FrameLayout
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginEnd="12dp"
+                            android:background="@drawable/bg_circle_icon"
+                            android:padding="6dp">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@string/offer_history_icon"
+                                android:src="@drawable/ic_offer_history"
+                                app:tint="@color/orange_bold" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/offer_history"
+                            android:textColor="@android:color/black"
+                            android:textSize="16sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_arrow_right"
+                            app:tint="@color/gray" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#DADADA" />
+
+                    <!-- Purchase History Row -->
+                    <LinearLayout
                         android:id="@+id/btn_purchase_history"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Lịch sử mua hàng"
-                        android:drawableStart="@drawable/ic_shopping_bag"
-                        android:drawablePadding="8dp"
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        style="@style/Widget.AppCompat.Button.Borderless"
-                        android:textColor="@android:color/black"
-                        android:layout_marginBottom="8dp"/>
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingVertical="12dp"
+                        android:paddingHorizontal="2dp">
 
-                    <Button
+                        <FrameLayout
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginEnd="12dp"
+                            android:background="@drawable/bg_circle_icon"
+                            android:padding="6dp">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@string/purchase_history_icon"
+                                android:src="@drawable/ic_shopping_bag"
+                                app:tint="@color/orange_bold" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/purchase_history"
+                            android:textColor="@android:color/black"
+                            android:textSize="16sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_arrow_right"
+                            app:tint="@color/gray" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#DADADA" />
+
+                    <!-- Sales History Row -->
+                    <LinearLayout
                         android:id="@+id/btn_sales_history"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Lịch sử bán hàng"
-                        android:drawableStart="@drawable/ic_sell"
-                        android:drawablePadding="8dp"
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        style="@style/Widget.AppCompat.Button.Borderless"
-                        android:textColor="@android:color/black"
-                        android:layout_marginBottom="8dp"/>
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingVertical="12dp"
+                        android:paddingHorizontal="2dp">
 
-                    <!-- NEW: Payment History Button -->
-                    <Button
+                        <FrameLayout
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginEnd="12dp"
+                            android:background="@drawable/bg_circle_icon"
+                            android:padding="6dp">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@string/sales_history_icon"
+                                android:src="@drawable/ic_sell_history"
+                                app:tint="@color/orange_bold" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/sales_history"
+                            android:textColor="@android:color/black"
+                            android:textSize="16sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_arrow_right"
+                            app:tint="@color/gray" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#DADADA" />
+
+                    <!-- Payment History Row -->
+                    <LinearLayout
                         android:id="@+id/btn_payment_history"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Lịch sử thanh toán"
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        style="@style/Widget.AppCompat.Button.Borderless"
-                        android:textColor="@android:color/black"
-                        android:layout_marginBottom="8dp"/>
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingVertical="12dp"
+                        android:paddingHorizontal="2dp">
 
-                    <!-- NEW: Payment Methods Button -->
-                    <Button
+                        <FrameLayout
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginEnd="12dp"
+                            android:background="@drawable/bg_circle_icon"
+                            android:padding="6dp">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@string/payment_history_icon"
+                                android:src="@drawable/ic_payment_history"
+                                app:tint="@color/orange_bold" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/payment_history"
+                            android:textColor="@android:color/black"
+                            android:textSize="16sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_arrow_right"
+                            app:tint="@color/gray" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#DADADA" />
+
+                    <!-- Payment Methods Row -->
+                    <LinearLayout
                         android:id="@+id/btn_payment_methods"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Phương thức thanh toán"
-                        android:drawableStart="@drawable/ic_credit_card"
-                        android:drawablePadding="8dp"
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        style="@style/Widget.AppCompat.Button.Borderless"
-                        android:textColor="@android:color/black"
-                        android:layout_marginBottom="8dp"/>
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingVertical="12dp"
+                        android:paddingHorizontal="2dp">
 
-                    <Button
+                        <FrameLayout
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginEnd="12dp"
+                            android:background="@drawable/bg_circle_icon"
+                            android:padding="6dp">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@string/payment_methods_icon"
+                                android:src="@drawable/ic_payment_method"
+                                app:tint="@color/orange_bold" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/payment_methods_section_title"
+                            android:textColor="@android:color/black"
+                            android:textSize="16sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_arrow_right"
+                            app:tint="@color/gray" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#DADADA" />
+
+                    <!-- Item Analytics Row -->
+                    <LinearLayout
                         android:id="@+id/btn_item_analytics"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Phân tích tin đăng của tôi"
-                        android:drawableStart="@drawable/ic_analytics"
-                        android:drawablePadding="8dp"
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        style="@style/Widget.AppCompat.Button.Borderless"
-                        android:textColor="@android:color/black"/>
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingVertical="12dp"
+                        android:paddingHorizontal="2dp">
+
+                        <FrameLayout
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginEnd="12dp"
+                            android:background="@drawable/bg_circle_icon"
+                            android:padding="6dp">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@string/item_analytics_icon"
+                                android:src="@drawable/ic_analytics"
+                                app:tint="@color/orange_bold" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/item_analytics"
+                            android:textColor="@android:color/black"
+                            android:textSize="16sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_arrow_right"
+                            app:tint="@color/gray" />
+                    </LinearLayout>
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

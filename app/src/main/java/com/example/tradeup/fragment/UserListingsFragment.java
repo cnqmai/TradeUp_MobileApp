@@ -24,15 +24,14 @@ import com.bumptech.glide.Glide;
 import com.example.tradeup.R;
 import com.example.tradeup.activity.LoginActivity;
 import com.example.tradeup.model.Item;
-import com.example.tradeup.model.User; // NEW: Import User model to get display name
+import com.example.tradeup.model.User;
 import com.example.tradeup.utils.FirebaseHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot; // NEW: For Firebase data fetching
-import com.google.firebase.database.DatabaseError; // NEW: For Firebase data fetching
-import com.google.firebase.database.FirebaseDatabase; // NEW: For Firebase data fetching
-import com.google.firebase.database.ValueEventListener; // NEW: For Firebase data fetching
-import com.google.firebase.database.Query; // NEW: For Firebase query
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -49,20 +48,18 @@ public class UserListingsFragment extends Fragment {
     private static final String TAG = "UserListingsFragment";
 
     private RecyclerView recyclerView;
-    private UserItemsAdapter adapter; // Đổi tên adapter để rõ ràng hơn
+    private UserItemsAdapter adapter;
     private TextView textNoItems;
-    private TextView tvUserNameListings; // NEW: TextView để hiển thị tên người dùng
-    private ImageView ivBackButton; // NEW: Nút quay lại
+    private TextView tvUserNameListings;
+    private ImageView ivBackButton;
     private FirebaseHelper firebaseHelper;
     private List<Item> items = new ArrayList<>();
     private NavController navController;
-    private String targetUserId; // ID của người dùng mà chúng ta đang xem tin đăng của họ
-    private String currentUserId; // ID của người dùng hiện tại (để ẩn nút chỉnh sửa nếu xem tin đăng của mình)
+    private String targetUserId;
+    private String currentUserId;
 
-    // Interface để Adapter/ViewHolder có thể gọi lại Fragment
     public interface OnItemActionCallback {
         void onItemClick(Item item);
-        // Không cần onEditClick hay onItemDeleted ở đây vì đây là tin đăng của người khác
     }
 
     @Nullable
@@ -71,10 +68,10 @@ public class UserListingsFragment extends Fragment {
         Log.d(TAG, "onCreateView called");
         View view = inflater.inflate(R.layout.fragment_user_listings, container, false);
 
-        recyclerView = view.findViewById(R.id.recycler_view_user_items); // Cập nhật ID
-        textNoItems = view.findViewById(R.id.text_no_items_user_listings); // Cập nhật ID
-        tvUserNameListings = view.findViewById(R.id.tv_user_name_listings); // Cập nhật ID
-        ivBackButton = view.findViewById(R.id.iv_back_button_user_listings); // Cập nhật ID
+        recyclerView = view.findViewById(R.id.recycler_view_user_items);
+        textNoItems = view.findViewById(R.id.text_no_items_user_listings);
+        tvUserNameListings = view.findViewById(R.id.tv_user_name_listings);
+        ivBackButton = view.findViewById(R.id.iv_back_button_user_listings);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -85,25 +82,21 @@ public class UserListingsFragment extends Fragment {
         if (currentUser != null) {
             currentUserId = currentUser.getUid();
         } else {
-            currentUserId = null; // Người dùng chưa đăng nhập
+            currentUserId = null;
         }
 
-        // Lấy targetUserId từ arguments
         if (getArguments() != null) {
             targetUserId = getArguments().getString("userId");
             Log.d(TAG, "Received targetUserId: " + targetUserId);
         } else {
             Log.e(TAG, "No userId received in arguments for UserListingsFragment!");
-            Toast.makeText(getContext(), "Lỗi: Không tìm thấy ID người dùng.", Toast.LENGTH_SHORT).show();
-            // Điều hướng quay lại nếu không có userId
-            if (navController != null) { // Kiểm tra navController trước khi sử dụng
+            Toast.makeText(getContext(), "Error: User ID not found.", Toast.LENGTH_SHORT).show();
+            if (navController != null) {
                 navController.navigateUp();
             }
             return view;
         }
 
-        // Khởi tạo adapter và gán cho RecyclerView ngay lập tức
-        // Truyền currentUserId vào adapter để nó biết có nên hiển thị các nút chỉnh sửa/xóa hay không
         adapter = new UserItemsAdapter(items, firebaseHelper, currentUserId, new OnItemActionCallback() {
             @Override
             public void onItemClick(Item item) {
@@ -137,7 +130,6 @@ public class UserListingsFragment extends Fragment {
             }
         });
 
-        // Tải tên người dùng và các mặt hàng
         loadUserNameAndItems(targetUserId);
     }
 
@@ -145,7 +137,7 @@ public class UserListingsFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume called. Reloading items to ensure fresh data.");
-        // Không cần loadMyItems() ở đây, loadUserItems() sẽ được gọi trong loadUserNameAndItems()
+        // loadUserItems() is called within loadUserNameAndItems()
     }
 
     @Override
@@ -165,14 +157,13 @@ public class UserListingsFragment extends Fragment {
         Log.d(TAG, "loadUserNameAndItems() called for user: " + userId);
         if (userId == null) {
             Log.w(TAG, "Target User ID is null, cannot load user name and items.");
-            Toast.makeText(getContext(), "Lỗi: Không tìm thấy ID người dùng.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Error: User ID not found.", Toast.LENGTH_SHORT).show();
             if (navController != null) {
                 navController.navigateUp();
             }
             return;
         }
 
-        // Tải tên người dùng
         FirebaseDatabase.getInstance().getReference("users").child(userId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -180,11 +171,10 @@ public class UserListingsFragment extends Fragment {
                         if (isAdded()) {
                             User user = snapshot.getValue(User.class);
                             if (user != null && user.getDisplay_name() != null) {
-                                tvUserNameListings.setText("Tin đăng của " + user.getDisplay_name());
+                                tvUserNameListings.setText(getString(R.string.user_listings_title, user.getDisplay_name()));
                             } else {
-                                tvUserNameListings.setText("Tin đăng của Người dùng");
+                                tvUserNameListings.setText(R.string.user_listings_default_title);
                             }
-                            // Sau khi tải tên, tải các mặt hàng
                             loadUserItems(userId);
                         }
                     }
@@ -193,20 +183,19 @@ public class UserListingsFragment extends Fragment {
                     public void onCancelled(@NonNull DatabaseError error) {
                         if (isAdded()) {
                             Log.e(TAG, "Failed to load user name: " + error.getMessage());
-                            tvUserNameListings.setText("Tin đăng của Người dùng");
-                            Toast.makeText(getContext(), "Lỗi khi tải tên người dùng.", Toast.LENGTH_SHORT).show();
-                            loadUserItems(userId); // Vẫn cố gắng tải mặt hàng ngay cả khi tên lỗi
+                            tvUserNameListings.setText(R.string.user_listings_default_title);
+                            Toast.makeText(getContext(), "Error loading user name.", Toast.LENGTH_SHORT).show();
+                            loadUserItems(userId);
                         }
                     }
                 });
     }
 
-
     private void loadUserItems(String userId) {
         Log.d(TAG, "loadUserItems() called for user ID: " + userId);
         if (userId == null) {
             Log.w(TAG, "User ID is null, cannot load items.");
-            Toast.makeText(getContext(), "Không tìm thấy ID người dùng để tải tin đăng.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "User ID not found to load listings.", Toast.LENGTH_SHORT).show();
             textNoItems.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
             return;
@@ -215,7 +204,7 @@ public class UserListingsFragment extends Fragment {
         firebaseHelper.getUserItems(userId, new FirebaseHelper.DbReadCallback<List<Item>>() {
             @Override
             public void onSuccess(List<Item> fetchedItems) {
-                if (!isAdded()) return; // Đảm bảo fragment vẫn được attach
+                if (!isAdded()) return;
 
                 Log.d(TAG, "getUserItems onSuccess. Fetched " + (fetchedItems != null ? fetchedItems.size() : 0) + " items.");
                 items.clear();
@@ -237,22 +226,20 @@ public class UserListingsFragment extends Fragment {
 
             @Override
             public void onFailure(String errorMessage) {
-                if (!isAdded()) return; // Đảm bảo fragment vẫn được attach
+                if (!isAdded()) return;
                 Log.e(TAG, "getUserItems onFailure: " + errorMessage);
-                Toast.makeText(getContext(), "Lỗi khi tải tin đăng của người dùng: " + errorMessage, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Error loading user listings: " + errorMessage, Toast.LENGTH_SHORT).show();
                 textNoItems.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.GONE);
             }
         });
     }
 
-    // --- Static Inner Adapter Class (Adapted from MyItemsAdapter) ---
-    // Đổi tên từ MyItemsAdapter sang UserItemsAdapter để rõ ràng hơn
     private static class UserItemsAdapter extends RecyclerView.Adapter<UserItemsAdapter.ItemViewHolder> {
         private List<Item> items;
         private FirebaseHelper firebaseHelper;
         private OnItemActionCallback callback;
-        private String currentUserId; // Để biết người dùng hiện tại có phải chủ sở hữu item không
+        private String currentUserId;
 
         public UserItemsAdapter(List<Item> items, FirebaseHelper firebaseHelper, String currentUserId, OnItemActionCallback callback) {
             this.items = items;
@@ -266,9 +253,8 @@ public class UserListingsFragment extends Fragment {
         @Override
         public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             Log.d(TAG, "onCreateViewHolder called.");
-            // Sử dụng layout item_card_view của bạn
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_card_view, parent, false);
-            return new ItemViewHolder(view, firebaseHelper, callback, currentUserId);
+            return new ItemViewHolder(view, firebaseHelper, callback); // Không truyền itemsList hay currentUserId vào ViewHolder nữa
         }
 
         @Override
@@ -283,33 +269,35 @@ public class UserListingsFragment extends Fragment {
             return items.size();
         }
 
-        // --- Static ViewHolder Class (Adapted from MyItemsAdapter.ItemViewHolder) ---
         static class ItemViewHolder extends RecyclerView.ViewHolder {
             ImageView ivItemImage;
-            TextView tvItemTitle, tvItemPrice, tvItemStatus, tvItemAnalytics;
-            // Removed btnEditItem, btnDeleteItem, btnChangeStatus as they are not needed for other users' listings
-            // Button btnEditItem, btnDeleteItem, btnChangeStatus; // Removed
+            TextView tvItemTitle, tvItemPrice, tvItemStatus;
+            // Removed tvItemAnalytics, added individual TextViews for analytics
+            TextView tvItemViews, tvItemChats, tvItemOffers;
+
+            // Removed action buttons as they are not needed for other users' listings
+            // Button btnEditItem, btnDeleteItem, btnChangeStatus;
 
             private FirebaseHelper firebaseHelper;
             private OnItemActionCallback callback;
-            private String currentUserId; // Để so sánh với ownerId của item
+            // Removed itemsList and currentUserId from ViewHolder as they are not used for actions here
 
-            public ItemViewHolder(@NonNull View itemView, FirebaseHelper firebaseHelper, OnItemActionCallback callback, String currentUserId) {
+            public ItemViewHolder(@NonNull View itemView, FirebaseHelper firebaseHelper, OnItemActionCallback callback) {
                 super(itemView);
                 this.firebaseHelper = firebaseHelper;
                 this.callback = callback;
-                this.currentUserId = currentUserId; // Nhận currentUserId
-                Log.d(TAG, "ItemViewHolder initialized.");
 
                 ivItemImage = itemView.findViewById(R.id.iv_item_image);
                 tvItemTitle = itemView.findViewById(R.id.tv_item_title);
                 tvItemPrice = itemView.findViewById(R.id.tv_item_price);
                 tvItemStatus = itemView.findViewById(R.id.tv_item_status);
-                tvItemAnalytics = itemView.findViewById(R.id.tv_item_analytics);
+                // Initialize new analytics TextViews
+                tvItemViews = itemView.findViewById(R.id.tv_item_views);
+                tvItemChats = itemView.findViewById(R.id.tv_item_chats);
+                tvItemOffers = itemView.findViewById(R.id.tv_item_offers);
 
-                // Ẩn các nút chỉnh sửa/xóa/thay đổi trạng thái nếu chúng tồn tại trong item_card_view
-                // và người dùng hiện tại không phải là chủ sở hữu của tin đăng.
-                // Nếu các nút này không có trong item_card_view, bạn có thể bỏ qua phần này.
+                // Hide action buttons if they exist in item_card_view.xml
+                // These buttons are for the owner's listings, not for viewing others' listings.
                 Button btnEditItem = itemView.findViewById(R.id.btn_edit_item);
                 Button btnDeleteItem = itemView.findViewById(R.id.btn_delete_item);
                 Button btnChangeStatus = itemView.findViewById(R.id.btn_change_status);
@@ -317,6 +305,8 @@ public class UserListingsFragment extends Fragment {
                 if (btnEditItem != null) btnEditItem.setVisibility(View.GONE);
                 if (btnDeleteItem != null) btnDeleteItem.setVisibility(View.GONE);
                 if (btnChangeStatus != null) btnChangeStatus.setVisibility(View.GONE);
+
+                Log.d(TAG, "ItemViewHolder initialized.");
             }
 
             public void bind(Item item) {
@@ -325,9 +315,9 @@ public class UserListingsFragment extends Fragment {
 
                 NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
                 currencyFormatter.setMaximumFractionDigits(0);
-                tvItemPrice.setText("Giá: " + currencyFormatter.format(item.getPrice()));
+                tvItemPrice.setText(currencyFormatter.format(item.getPrice()));
 
-                tvItemStatus.setText("Trạng thái: " + item.getStatus());
+                tvItemStatus.setText(item.getStatus());
 
                 if (item.getPhotos() != null && !item.getPhotos().isEmpty()) {
                     Object firstPhoto = item.getPhotos().get(0);
@@ -357,37 +347,36 @@ public class UserListingsFragment extends Fragment {
                     public void onSuccess(Map<String, Object> analyticsData) {
                         Log.d(TAG, "getItemAnalytics onSuccess for item: " + item.getId() + ". Data: " + analyticsData);
                         long views = 0;
-                        if (analyticsData.containsKey("views") && analyticsData.get("views") instanceof Long) {
-                            views = (Long) analyticsData.get("views");
-                        } else if (analyticsData.containsKey("views") && analyticsData.get("views") instanceof Number) {
+                        if (analyticsData != null && analyticsData.containsKey("views") && analyticsData.get("views") instanceof Number) {
                             views = ((Number) analyticsData.get("views")).longValue();
                         }
 
                         long chatsStarted = 0;
-                        if (analyticsData.containsKey("chats_started") && analyticsData.get("chats_started") instanceof Long) {
-                            chatsStarted = (Long) analyticsData.get("chats_started");
-                        } else if (analyticsData.containsKey("chats_started") && analyticsData.get("chats_started") instanceof Number) {
+                        if (analyticsData != null && analyticsData.containsKey("chats_started") && analyticsData.get("chats_started") instanceof Number) {
                             chatsStarted = ((Number) analyticsData.get("chats_started")).longValue();
                         }
 
                         long offersMade = 0;
-                        if (analyticsData.containsKey("offers_made") && analyticsData.get("offers_made") instanceof Long) {
-                            offersMade = (Long) analyticsData.get("offers_made");
-                        } else if (analyticsData.containsKey("offers_made") && analyticsData.get("offers_made") instanceof Number) {
+                        if (analyticsData != null && analyticsData.containsKey("offers_made") && analyticsData.get("offers_made") instanceof Number) {
                             offersMade = ((Number) analyticsData.get("offers_made")).longValue();
                         }
 
-                        tvItemAnalytics.setText(String.format("Lượt xem: %d | Chats: %d | Đề nghị: %d", views, chatsStarted, offersMade));
+                        // Set text for individual analytics TextViews
+                        tvItemViews.setText(String.valueOf(views));
+                        tvItemChats.setText(String.valueOf(chatsStarted));
+                        tvItemOffers.setText(String.valueOf(offersMade));
                     }
 
                     @Override
                     public void onFailure(String errorMessage) {
                         Log.e(TAG, "getItemAnalytics onFailure for item " + item.getId() + ": " + errorMessage);
-                        tvItemAnalytics.setText("Lượt xem: N/A | Tương tác: N/A");
+                        // Set default text for individual analytics TextViews on failure
+                        tvItemViews.setText("N/A");
+                        tvItemChats.setText("N/A");
+                        tvItemOffers.setText("N/A");
                     }
                 });
 
-                // Chỉ thiết lập OnClickListener cho itemView, không phải các nút chỉnh sửa/xóa
                 itemView.setOnClickListener(v -> {
                     Log.d(TAG, "ItemView clicked for item: " + item.getId());
                     if (callback != null) {
@@ -395,10 +384,6 @@ public class UserListingsFragment extends Fragment {
                     }
                 });
             }
-            // Các phương thức showDeleteConfirmationDialog, performDeleteItem, showChangeStatusDialog, updateItemStatus
-            // không cần thiết ở đây vì chúng liên quan đến chỉnh sửa/xóa tin đăng của chính mình.
-            // Nếu bạn muốn giữ chúng cho mục đích khác (ví dụ: admin có thể chỉnh sửa tin đăng của người khác),
-            // bạn sẽ cần logic kiểm tra quyền. Tuy nhiên, với mục đích hiển thị tin đăng của người khác, chúng ta sẽ loại bỏ chúng.
         }
     }
 }

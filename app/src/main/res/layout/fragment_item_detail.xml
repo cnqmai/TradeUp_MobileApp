@@ -4,15 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F8F8"
+    android:background="@color/orange_skin"
     tools:context=".fragment.ItemDetailFragment">
 
-    <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_item_detail"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@android:color/white"
+        android:background="@color/white"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
@@ -26,33 +25,36 @@
             android:layout_height="48dp"
             android:padding="14dp"
             android:src="@drawable/ic_arrow_back"
-            android:contentDescription="Back Button"
-            app:tint="@android:color/black" />
+            app:tint="@color/gray" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Chi tiết tin đăng"
-            android:textColor="@android:color/black"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_gravity="center" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
 
-        <!-- Report Button -->
+        <ImageView
+            android:id="@+id/iv_share_button_item_detail"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="12dp"
+            android:src="@drawable/ic_share"
+            android:contentDescription="@string/content_description_share_item"
+            android:layout_gravity="end"
+            app:tint="@color/orange_bold" />
+
         <ImageView
             android:id="@+id/iv_report_button_item_detail"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:padding="8dp"
-            android:src="@drawable/ic_report"
-            android:contentDescription="Report Item"
+            android:padding="12dp"
+            android:src="@drawable/ic_flag_filled"
+            android:contentDescription="@string/content_description_report_item"
             android:layout_gravity="end"
-            android:layout_marginEnd="16dp"
-            app:tint="@android:color/black" />
+            android:layout_marginEnd="8dp"
+            app:tint="@color/orange_bold" />
 
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- Your existing ScrollView content -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -65,165 +67,426 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingBottom="16dp"
+            android:background="@color/orange_skin">
 
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/vp_item_images"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
-                android:layout_marginBottom="16dp"/>
+                android:background="@android:color/white">
 
-            <TextView
-                android:id="@+id/tv_detail_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Tên Sản Phẩm Chi Tiết"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"/>
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/vp_item_images"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
 
-            <TextView
-                android:id="@+id/tv_detail_price"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Giá: 1.500.000 VNĐ"
-                android:textSize="20sp"
-                android:textColor="?attr/colorPrimary"
-                android:layout_marginBottom="12dp"/>
-
-            <TextView
-                android:id="@+id/tv_detail_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Mô tả chi tiết về sản phẩm, bao gồm các thông tin kỹ thuật, tình trạng, và lý do bán."
-                android:textSize="16sp"
-                android:layout_marginBottom="12dp"/>
-
-            <TextView
-                android:id="@+id/tv_detail_category"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Danh mục: Điện tử"
-                android:textSize="14sp"
-                android:layout_marginBottom="4dp"/>
-
-            <TextView
-                android:id="@+id/tv_detail_condition"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Tình trạng: Như mới"
-                android:textSize="14sp"
-                android:layout_marginBottom="4dp"/>
-
-            <TextView
-                android:id="@+id/tv_detail_location"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Vị trí: Quận 1, TP. Hồ Chí Minh"
-                android:textSize="14sp"
-                android:layout_marginBottom="4dp"/>
-
-            <TextView
-                android:id="@+id/tv_detail_item_behavior"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Hành vi mặt hàng: Có thể thương lượng"
-                android:textSize="14sp"
-                android:layout_marginBottom="4dp"/>
-
-            <TextView
-                android:id="@+id/tv_detail_tags"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Tags: laptop, gaming, mỏng nhẹ"
-                android:textSize="14sp"
-                android:layout_marginBottom="4dp"/>
-
-            <TextView
-                android:id="@+id/tv_detail_status"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Trạng thái: Có sẵn"
-                android:textSize="14sp"
-                android:textStyle="italic"
-                android:layout_marginBottom="16dp"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="4dp">
+                android:orientation="vertical"
+                android:background="@android:color/white"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:id="@+id/tv_detail_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/item_detail_title_example"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black" />
+
+                    <TextView
+                        android:id="@+id/tv_detail_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/item_detail_status_available"
+                        android:background="@drawable/bg_card_gradient"
+                        android:textColor="@android:color/white"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
                 <TextView
-                    android:id="@+id/tv_detail_item_average_rating"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tv_detail_price"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Đánh giá SP: N/A"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:text="@string/item_detail_price_example"
+                    android:textSize="20sp"
+                    android:textColor="@color/orange_bold"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
 
-                <TextView
-                    android:id="@+id/tv_detail_item_rating_count"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="(0 lượt)"
-                    android:textSize="14sp"
-                    android:layout_marginStart="4dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="8dp">
+
+                    <TextView
+                        android:id="@+id/tv_detail_item_average_rating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/rating_value"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray"
+                        android:layout_marginEnd="4dp" />
+
+                    <ImageView
+                        android:layout_width="17dp"
+                        android:layout_height="17dp"
+                        android:src="@drawable/ic_star">
+                    </ImageView>
+
+                    <TextView
+                        android:id="@+id/tv_detail_item_rating_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:text="@string/rating_count"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:id="@+id/tv_detail_views_count"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/item_detail_views_count"
+                        tools:text="Views: 158"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray"
+                        android:textStyle="italic" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_category"
+                        android:contentDescription="@string/content_description_category_icon"
+                        app:tint="@color/gray"
+                        android:layout_marginEnd="4dp" />
+
+                    <TextView
+                        android:id="@+id/tv_detail_category"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/item_detail_category_electronics"
+                        android:layout_marginVertical="10dp"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray"
+                        android:layout_marginEnd="16dp" />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_location_pin"
+                        android:contentDescription="@string/content_description_location_icon"
+                        app:tint="@color/gray"
+                        android:layout_marginEnd="4dp" />
+
+                    <TextView
+                        android:id="@+id/tv_detail_location"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/item_detail_location"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray" />
+
+                </LinearLayout>
             </LinearLayout>
-            <TextView
-                android:id="@+id/tv_detail_views_count"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Lượt xem: 0"
-                android:textSize="14sp"
-                android:textStyle="italic"
-                android:layout_marginBottom="16dp" />
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Thông tin người bán:"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"/>
+                android:orientation="vertical"
+                android:background="@android:color/white"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp">
 
-            <TextView
-                android:id="@+id/tv_detail_seller_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Người bán: John Doe"
-                android:textSize="14sp"
-                android:layout_marginBottom="4dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/item_detail_specs_title"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:layout_marginBottom="12dp"/>
 
-            <TextView
-                android:id="@+id/tv_detail_seller_rating"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Đánh giá: 4.8/5.0"
-                android:textSize="14sp"
-                android:layout_marginBottom="16dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/item_detail_condition_label"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray" />
+                    <TextView
+                        android:id="@+id/tv_detail_condition"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/item_detail_condition_new"
+                        android:textSize="14sp"
+                        android:textColor="@android:color/black"
+                        android:gravity="end" />
+                </LinearLayout>
 
-            <Button
-                android:id="@+id/btn_detail_chat_seller"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Trò chuyện với người bán"
-                android:layout_marginBottom="8dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/item_detail_transaction_method_label"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray" />
+                    <TextView
+                        android:id="@+id/tv_detail_item_behavior"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/item_detail_transaction_method_negotiable"
+                        android:textSize="14sp"
+                        android:textColor="@android:color/black"
+                        android:gravity="end" />
+                </LinearLayout>
 
-            <Button
-                android:id="@+id/btn_detail_make_offer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Gửi đề nghị"
-                android:layout_marginBottom="8dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/item_detail_tags_label"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray" />
+                    <TextView
+                        android:id="@+id/tv_detail_tags"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/item_detail_tags_example"
+                        android:textSize="14sp"
+                        android:textColor="@android:color/black"
+                        android:gravity="end" />
+                </LinearLayout>
 
-            <Button
-                android:id="@+id/btn_detail_add_to_favorites"
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Thêm vào mục yêu thích"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                android:orientation="vertical"
+                android:background="@android:color/white"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/item_detail_seller_info_title"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:layout_marginBottom="12dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/iv_seller_profile_picture"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/img_profile_placeholder"
+                        android:layout_marginEnd="12dp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_detail_seller_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/item_detail_seller_name_example"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/black" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <RatingBar
+                                android:id="@+id/sellerRatingBar"
+                                style="?android:attr/ratingBarStyleSmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:numStars="5"
+                                android:rating="4.5"
+                                android:stepSize="0.5"
+                                android:theme="@style/RatingBarYellow" />
+
+                            <TextView
+                                android:id="@+id/tv_detail_seller_rating"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                tools:text="4.5/5.0"
+                                android:textSize="14sp"
+                                android:textColor="@color/gray"
+                                android:layout_marginStart="4dp" />
+
+                            <TextView
+                                android:id="@+id/tv_detail_seller_rating_count"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                tools:text="(10 reviews)"
+                                android:textSize="14sp"
+                                android:textColor="@color/gray"
+                                android:layout_marginStart="4dp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@android:color/white"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/item_detail_description_title"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:layout_marginBottom="12dp"/>
+
+                <TextView
+                    android:id="@+id/tv_detail_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/item_detail_description_example"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/black"
+                    android:layout_marginBottom="8dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@android:color/white"
+                android:padding="16dp">
+
+                <Button
+                    android:id="@+id/btn_detail_chat_seller"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_chat_seller"
+                    android:backgroundTint="@color/green_bold"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    android:paddingVertical="12dp"
+                    app:cornerRadius="8dp"
+                    android:layout_marginBottom="8dp"/>
+
+                <Button
+                    android:id="@+id/btn_detail_make_offer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_make_offer"
+                    android:backgroundTint="@color/orange_bold"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    android:paddingVertical="12dp"
+                    app:cornerRadius="8dp"
+                    android:layout_marginBottom="8dp"/>
+
+                <Button
+                    android:id="@+id/btn_detail_add_to_favorites"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_add_to_favorites"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:textColor="@color/orange_bold"
+                    app:strokeColor="@color/orange_bold"
+                    app:cornerRadius="8dp"
+                    android:textSize="16sp"
+                    android:paddingVertical="12dp"/>
+
+                <Button
+                    android:id="@+id/btn_detail_buy_now"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_buy_now"
+                    android:backgroundTint="@color/green_bold"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    android:paddingVertical="12dp"
+                    app:cornerRadius="8dp"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone" /> </LinearLayout>
 
         </LinearLayout>
     </ScrollView>

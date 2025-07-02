@@ -54,8 +54,6 @@ public class SearchFragment extends Fragment {
 
     private NavController navController;
 
-    // Nên lưu trữ vị trí hiện tại của người dùng (từ GPS hoặc nhập tay)
-    // Các biến này sẽ được cập nhật khi lấy GPS hoặc khi địa chỉ tùy chỉnh được nhập
     private double currentLat = 0.0;
     private double currentLng = 0.0;
 
@@ -70,12 +68,9 @@ public class SearchFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         itemsRef = FirebaseDatabase.getInstance().getReference("items");
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
-        // Khởi tạo vị trí mặc định ban đầu (có thể là vị trí trung tâm thành phố nếu không có GPS)
-        // hoặc để 0,0 và chỉ cập nhật khi có GPS/nhập tay.
-        // Tùy thuộc vào FR của bạn: nếu muốn ưu tiên gần người dùng, bạn cần vị trí mặc định hợp lý.
-        // Để cho đơn giản trong ví dụ này, chúng ta sẽ dựa vào GPS hoặc nhập thủ công.
-        // Nếu không có cả 2, currentLat/Lng sẽ là 0.0 và khoảng cách sẽ không được tính.
+        if (getActivity() != null) {
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        }
     }
 
     @Nullable
@@ -95,8 +90,17 @@ public class SearchFragment extends Fragment {
         setupRecyclerView();
         setupListeners();
 
-        // Ban đầu, cố gắng lấy vị trí GPS để hiển thị
-        requestLocationPermission(); // Cố gắng lấy vị trí ngay khi fragment được tạo
+        // Initial location request, which will trigger performSearch() on success
+        requestLocationPermission();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume called. Performing search.");
+        // Ensure search is performed when fragment becomes active,
+        // in case initial location request failed or user navigated back.
+        performSearch();
     }
 
     private void initViews(View view) {
@@ -118,15 +122,15 @@ public class SearchFragment extends Fragment {
     }
 
     private void setupSpinners() {
+        if (!isAdded()) return;
         spinnerSearchCategory.setAdapter(ArrayAdapter.createFromResource(requireContext(), R.array.search_categories, android.R.layout.simple_spinner_item));
         spinnerSearchCondition.setAdapter(ArrayAdapter.createFromResource(requireContext(), R.array.search_conditions, android.R.layout.simple_spinner_item));
         spinnerSortOption.setAdapter(ArrayAdapter.createFromResource(requireContext(), R.array.search_sort_options, android.R.layout.simple_spinner_item));
 
-        // Listener cho spinner sắp xếp để tự động thực hiện tìm kiếm lại
         spinnerSortOption.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                performSearch(); // Gọi tìm kiếm lại khi tùy chọn sắp xếp thay đổi
+                performSearch();
             }
 
             @Override
@@ -137,8 +141,9 @@ public class SearchFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
+        if (!isAdded()) return;
         rvSearchResults.setLayoutManager(new GridLayoutManager(requireContext(), 2));
-        itemAdapter = new ItemAdapter(requireContext(), itemList);
+        itemAdapter = new ItemAdapter(requireContext(), itemList, R.layout.item_list_vertical);
         rvSearchResults.setAdapter(itemAdapter);
         rvSearchResults.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
@@ -176,34 +181,40 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        // Listener cho etLocation để cập nhật vị trí tìm kiếm khi người dùng nhập tay
         etLocation.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void afterTextChanged(Editable s) {
-                // Khi người dùng nhập tay vào etLocation, cập nhật currentLat/Lng từ địa chỉ đó
                 updateLocationFromAddressInput(s.toString());
                 searchHandler.removeCallbacks(searchRunnable);
                 searchRunnable = () -> performSearch();
-                searchHandler.postDelayed(searchRunnable, 500); // Có thể tăng delay để Geocoder có thời gian phản hồi
+                searchHandler.postDelayed(searchRunnable, 500);
             }
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
         });
     }
 
     private void requestLocationPermission() {
+        if (!isAdded()) return;
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             getCurrentAccurateLocation();
         } else {
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) getCurrentAccurateLocation();
-                else Toast.makeText(requireContext(), "Bạn cần cấp quyền vị trí để sử dụng chức năng này.", Toast.LENGTH_SHORT).show();
+                if (isAdded()) {
+                    if (isGranted) getCurrentAccurateLocation();
+                    else Toast.makeText(requireContext(), getString(R.string.permission_location_required), Toast.LENGTH_SHORT).show();
+                }
             }).launch(Manifest.permission.ACCESS_FINE_LOCATION);
         }
     }
 
     private void getCurrentAccurateLocation() {
+        if (!isAdded()) return;
+        if (fusedLocationClient == null) {
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+        }
+
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(requireContext(), "Thiếu quyền vị trí để lấy vị trí hiện tại.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), getString(R.string.permission_location_missing), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -212,89 +223,119 @@ public class SearchFragment extends Fragment {
                 .setDurationMillis(30000)
                 .build();
 
-        tvCurrentLocation.setText("Vị trí hiện tại: đang lấy GPS..."); // Cập nhật trạng thái
+        tvCurrentLocation.setText(getString(R.string.current_location_loading));
         fusedLocationClient.getCurrentLocation(currentLocationRequest, new CancellationTokenSource().getToken())
                 .addOnSuccessListener(requireActivity(), location -> {
-                    if (location != null) {
-                        currentLat = location.getLatitude();
-                        currentLng = location.getLongitude();
-                        getAddressFromLocation(location);
-                        Log.d("SearchFragment", "getCurrentLocation successful: Lat=" + location.getLatitude() + ", Lng=" + location.getLongitude());
-                        performSearch(); // Tự động tìm kiếm lại sau khi lấy được vị trí GPS
-                    } else {
-                        Log.w("SearchFragment", "getCurrentLocation returned null location.");
-                        tvCurrentLocation.setText("Vị trí hiện tại: không xác định."); // Cập nhật trạng thái
-                        Toast.makeText(requireContext(), "Không thể lấy vị trí hiện tại. Đảm bảo GPS đã bật và thử lại.", Toast.LENGTH_SHORT).show();
+                    if (isAdded()) {
+                        if (location != null) {
+                            currentLat = location.getLatitude();
+                            currentLng = location.getLongitude();
+                            getAddressFromLocation(location);
+                            Log.d("SearchFragment", "getCurrentLocation successful: Lat=" + location.getLatitude() + ", Lng=" + location.getLongitude());
+                            performSearch();
+                        } else {
+                            Log.w("SearchFragment", "getCurrentLocation returned null location.");
+                            tvCurrentLocation.setText(getString(R.string.current_location_unknown));
+                            Toast.makeText(requireContext(), getString(R.string.cannot_get_current_location), Toast.LENGTH_SHORT).show();
+                        }
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("SearchFragment", "Failed to get current location: " + e.getMessage());
-                    tvCurrentLocation.setText("Vị trí hiện tại: lỗi GPS."); // Cập nhật trạng thái
-                    Toast.makeText(requireContext(), "Lỗi khi lấy vị trí hiện tại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    if (isAdded()) {
+                        Log.e("SearchFragment", "Failed to get current location: " + e.getMessage());
+                        tvCurrentLocation.setText(getString(R.string.current_location_gps_error));
+                        Toast.makeText(requireContext(), getString(R.string.error_getting_current_location, e.getMessage()), Toast.LENGTH_SHORT).show();
+                    }
                 });
     }
 
     private void updateLocationFromAddressInput(String addressText) {
+        if (!isAdded()) return;
         if (addressText.isEmpty()) {
-            // Nếu người dùng xóa địa chỉ, có thể reset vị trí hoặc không làm gì
-            currentLat = 0.0; // Reset về 0 hoặc một giá trị mặc định không hợp lệ
+            currentLat = 0.0;
             currentLng = 0.0;
-            tvCurrentLocation.setText("Vị trí hiện tại: chưa xác định.");
+            tvCurrentLocation.setText(getString(R.string.current_location_not_set));
             return;
         }
 
         Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
         try {
             List<Address> addresses = geocoder.getFromLocationName(addressText, 1);
-            if (addresses != null && !addresses.isEmpty()) {
-                Address firstAddress = addresses.get(0);
-                currentLat = firstAddress.getLatitude();
-                currentLng = firstAddress.getLongitude();
-                tvCurrentLocation.setText("Vị trí tìm kiếm: " + addressText);
-                Log.d(TAG, "Vị trí cập nhật từ nhập tay: Lat=" + currentLat + ", Lng=" + currentLng);
-            } else {
-                tvCurrentLocation.setText("Vị trí tìm kiếm: Không tìm thấy địa chỉ.");
-                currentLat = 0.0; // Nếu không tìm thấy, reset để không tính khoảng cách
-                currentLng = 0.0;
+            if (isAdded()) {
+                if (addresses != null && !addresses.isEmpty()) {
+                    Address firstAddress = addresses.get(0);
+                    currentLat = firstAddress.getLatitude();
+                    currentLng = firstAddress.getLongitude();
+                    tvCurrentLocation.setText(getString(R.string.search_location, addressText));
+                    Log.d(TAG, "Location updated from manual input: Lat=" + currentLat + ", Lng=" + currentLng);
+                } else {
+                    tvCurrentLocation.setText(getString(R.string.search_location_not_found));
+                    currentLat = 0.0;
+                    currentLng = 0.0;
+                }
             }
         } catch (IOException e) {
-            Log.e(TAG, "Lỗi khi lấy tọa độ từ địa chỉ nhập tay: " + e.getMessage());
-            tvCurrentLocation.setText("Vị trí tìm kiếm: Lỗi Geocoder.");
-            currentLat = 0.0;
-            currentLng = 0.0;
+            if (isAdded()) {
+                Log.e(TAG, "Error getting coordinates from manual address: " + e.getMessage());
+                tvCurrentLocation.setText(getString(R.string.search_location_geocoder_error));
+                currentLat = 0.0;
+                currentLng = 0.0;
+            }
         }
     }
 
     private void getAddressFromLocation(Location location) {
+        if (!isAdded()) return;
         Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
         try {
             List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-            if (addresses != null && !addresses.isEmpty()) {
-                String address = addresses.get(0).getAddressLine(0);
-                etLocation.setText(address);
-                tvCurrentLocation.setText("Vị trí hiện tại: " + address);
-            } else {
-                String coords = String.format(Locale.getDefault(), "Lat: %.6f, Lng: %.6f", location.getLatitude(), location.getLongitude());
-                etLocation.setText(coords);
-                tvCurrentLocation.setText("Vị trí hiện tại: " + coords + " (Không tìm thấy địa chỉ)");
-                Toast.makeText(requireContext(), "Không tìm thấy địa chỉ cho vị trí này, hiển thị tọa độ.", Toast.LENGTH_SHORT).show();
+            if (isAdded()) {
+                if (addresses != null && !addresses.isEmpty()) {
+                    String address = addresses.get(0).getAddressLine(0);
+                    etLocation.setText(address);
+                    tvCurrentLocation.setText(getString(R.string.current_location, address));
+                } else {
+                    String coords = String.format(Locale.getDefault(), "Lat: %.6f, Lng: %.6f", location.getLatitude(), location.getLongitude());
+                    etLocation.setText(coords);
+                    tvCurrentLocation.setText(getString(R.string.current_location_coords_not_found, coords));
+                    Toast.makeText(requireContext(), getString(R.string.address_not_found_for_location), Toast.LENGTH_SHORT).show();
+                }
             }
         } catch (IOException e) {
-            Log.e("Geocoder", "Lỗi lấy địa chỉ từ GPS", e);
-            String coords = String.format(Locale.getDefault(), "Lat: %.6f, Lng: %.6f", location.getLatitude(), location.getLongitude());
-            etLocation.setText(coords);
-            tvCurrentLocation.setText("Vị trí hiện tại: " + coords + " (Lỗi Geocoder)");
-            Toast.makeText(requireContext(), "Lỗi khi lấy địa chỉ từ GPS, hiển thị tọa độ. Vui lòng kiểm tra kết nối mạng.", Toast.LENGTH_LONG).show();
+            if (isAdded()) {
+                Log.e("Geocoder", "Error getting address from GPS", e);
+                String coords = String.format(Locale.getDefault(), "Lat: %.6f, Lng: %.6f", location.getLatitude(), location.getLongitude());
+                etLocation.setText(coords);
+                tvCurrentLocation.setText(getString(R.string.current_location_coords_geocoder_error, coords));
+                Toast.makeText(requireContext(), getString(R.string.error_getting_address_from_gps), Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    // Helper method to translate Vietnamese conditions to English for comparison
+    private String getEnglishCondition(String firebaseCondition) {
+        if (firebaseCondition == null) return null;
+        String lowerCaseCondition = firebaseCondition.toLowerCase(Locale.ROOT);
+        switch (lowerCaseCondition) {
+            case "mới": return "new";
+            case "đã sử dụng": return "used";
+            case "như mới": return "like new";
+            case "tốt": return "good"; // Added mapping for "Tốt"
+            case "khá": return "fair"; // Added mapping for "Khá"
+            // Add more mappings if your Firebase has other Vietnamese conditions
+            default: return lowerCaseCondition; // Return as is if no specific mapping
         }
     }
 
     private void performSearch() {
-        if (!isAdded()) return; // Early exit if fragment is detached
+        if (!isAdded()) return;
+
+        Log.d(TAG, "performSearch: starting search...");
 
         String keyword = Objects.requireNonNull(etSearchKeyword.getText()).toString().trim().toLowerCase();
         String selectedCategory = spinnerSearchCategory.getSelectedItem().toString();
-        String selectedCondition = spinnerSearchCondition.getSelectedItem().toString();
-        String selectedSort = spinnerSortOption.getSelectedItem().toString(); // Lấy tùy chọn sắp xếp
+        String selectedCondition = spinnerSearchCondition.getSelectedItem().toString().trim(); // Trim selected condition
+        String selectedSort = spinnerSortOption.getSelectedItem().toString();
 
         long min = -1, max = -1;
         double dist = -1;
@@ -304,23 +345,42 @@ public class SearchFragment extends Fragment {
             if (!etMaxPrice.getText().toString().trim().isEmpty()) max = Long.parseLong(etMaxPrice.getText().toString().trim());
             if (!etSearchDistance.getText().toString().trim().isEmpty()) dist = Double.parseDouble(etSearchDistance.getText().toString().trim());
         } catch (NumberFormatException e) {
-            Toast.makeText(requireContext(), "Vui lòng nhập giá/khoảng cách hợp lệ.", Toast.LENGTH_SHORT).show();
+            if (isAdded()) {
+                Toast.makeText(requireContext(), getString(R.string.invalid_price_distance), Toast.LENGTH_SHORT).show();
+            }
             return;
         }
 
         final long finalMin = min;
         final long finalMax = max;
         final double finalDist = dist;
-        final double searchLat = currentLat; // Sử dụng vị trí đã được cập nhật
-        final double searchLng = currentLng; // Sử dụng vị trí đã được cập nhật
+        final double searchLat = currentLat;
+        final double searchLng = currentLng;
 
-        Query query = selectedCategory.equals("Tất cả danh mục") ? itemsRef : itemsRef.orderByChild("category").equalTo(selectedCategory);
+        String allCategories = getString(R.string.all_categories);
+        String allConditions = getString(R.string.all_conditions).trim(); // Get and trim the string resource for "All Conditions"
+        Log.d(TAG, "performSearch: allConditions string from resources (trimmed) = '" + allConditions + "'");
+        Log.d(TAG, "performSearch: selectedCondition from spinner (trimmed) = '" + selectedCondition + "'");
+
+
+        boolean hasSearchOrigin = (searchLat != 0.0 || searchLng != 0.0);
+        if (finalDist != -1 && !hasSearchOrigin) {
+            if (isAdded()) {
+                Toast.makeText(requireContext(), getString(R.string.toast_location_required_for_distance_filter), Toast.LENGTH_LONG).show();
+            }
+            itemList.clear();
+            itemAdapter.setItems(itemList);
+            return;
+        }
+
+        Query query = selectedCategory.equals(allCategories) ? itemsRef : itemsRef.orderByChild("category").equalTo(selectedCategory);
 
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (!isAdded()) return; // Check if fragment is still added
+                if (!isAdded()) return;
 
+                Log.d(TAG, "onDataChange: snapshot size = " + snapshot.getChildrenCount());
                 itemList.clear();
                 List<Item> filtered = new ArrayList<>();
 
@@ -329,70 +389,102 @@ public class SearchFragment extends Fragment {
                     if (item == null) continue;
 
                     item.setId(snap.getKey());
+                    Log.d(TAG, "onDataChange: processing item " + item.getTitle());
 
                     boolean matchKeyword = keyword.isEmpty() ||
                             (item.getTitle() != null && item.getTitle().toLowerCase().contains(keyword)) ||
                             (item.getDescription() != null && item.getDescription().toLowerCase().contains(keyword));
 
-                    boolean matchCondition = selectedCondition.equals("Tất cả tình trạng") ||
-                            (item.getCondition() != null && item.getCondition().equals(selectedCondition));
+                    boolean matchCondition;
+                    // Use equalsIgnoreCase and ensure both are trimmed for robust comparison
+                    if (selectedCondition.equalsIgnoreCase(allConditions)) {
+                        matchCondition = true; // If "All Conditions" is selected, always match
+                    } else {
+                        // Translate item's condition to English for comparison
+                        String itemConditionEnglish = getEnglishCondition(item.getCondition());
+                        // Compare translated item condition with selected spinner condition (both lowercased)
+                        matchCondition = (itemConditionEnglish != null && itemConditionEnglish.equals(selectedCondition.toLowerCase(Locale.ROOT)));
+                    }
+
+                    // Log the values for debugging condition filter
+                    Log.d(TAG, "Item: " + item.getTitle() + " | Item Condition (Firebase): '" + (item.getCondition() != null ? item.getCondition() : "null") +
+                            "' | Item Condition (English): '" + (getEnglishCondition(item.getCondition()) != null ? getEnglishCondition(item.getCondition()) : "null") +
+                            "' | Selected Condition (Spinner): '" + selectedCondition + "' | Match Condition: " + matchCondition);
+
 
                     boolean matchPrice = item.getPrice() != null &&
                             (finalMin == -1 || item.getPrice() >= finalMin) &&
                             (finalMax == -1 || item.getPrice() <= finalMax);
 
                     boolean matchDistance = true;
-                    // Chỉ tính khoảng cách nếu có vị trí tìm kiếm hợp lệ (không phải 0,0) và khoảng cách tìm kiếm được chỉ định
-                    if (finalDist != -1 && item.getLocation() != null && item.getLocation().getLat() != null && item.getLocation().getLng() != null
-                            && (searchLat != 0.0 || searchLng != 0.0)) { // Kiểm tra vị trí tìm kiếm hợp lệ
+                    item.setDistanceToUser(-1);
+
+                    boolean itemHasLocation = (item.getLocation() != null && item.getLocation().getLat() != null && item.getLocation().getLng() != null);
+
+                    if (itemHasLocation && hasSearchOrigin) {
                         float[] result = new float[1];
                         Location.distanceBetween(searchLat, searchLng, item.getLocation().getLat(), item.getLocation().getLng(), result);
-                        float km = result[0] / 1000;
-                        matchDistance = km <= finalDist;
-                        item.setDistanceToUser(km); // Set distance for sorting
-                    } else {
-                        item.setDistanceToUser(Double.MAX_VALUE); // Đặt khoảng cách rất lớn nếu không tính được, để không ưu tiên khi sắp xếp theo khoảng cách
+                        double km = result[0] / 1000.0;
+                        item.setDistanceToUser(km);
+                        if (finalDist != -1) {
+                            matchDistance = km <= finalDist;
+                        }
+                    } else if (finalDist != -1) {
+                        matchDistance = false;
                     }
+
+                    Log.d(TAG, "Item: " + item.getTitle() + ", Keyword: " + matchKeyword + ", Condition: " + matchCondition +
+                            ", Price: " + matchPrice + ", Distance: " + matchDistance + " (ItemHasLoc: " + itemHasLocation +
+                            ", HasSearchOrigin: " + hasSearchOrigin + ", FinalDist: " + finalDist + ", ItemDist: " + item.getDistanceToUser() + ")");
 
 
                     if (matchKeyword && matchCondition && matchPrice && matchDistance) {
                         filtered.add(item);
+                        Log.d(TAG, "Item ADDED to filtered list: " + item.getTitle()); // New log for added items
+                    } else {
+                        Log.d(TAG, "Item NOT ADDED to filtered list: " + item.getTitle() +
+                                " (Keyword: " + matchKeyword + ", Condition: " + matchCondition +
+                                ", Price: " + matchPrice + ", Distance: " + matchDistance + ")"); // New log for not added items
                     }
                 }
 
-                // Sắp xếp lại danh sách đã lọc dựa trên tùy chọn từ spinner
+                // Sort by selected option
                 switch (selectedSort) {
-                    case "Mới nhất":
+                    case "Newest":
                         filtered.sort((a, b) -> {
                             if (a.getCreated_at() == null || b.getCreated_at() == null) return 0;
                             return b.getCreated_at().compareTo(a.getCreated_at());
                         });
                         break;
-                    case "Giá tăng dần":
+                    case "Price: Low to High":
                         filtered.sort(Comparator.comparingLong(item -> item.getPrice() != null ? item.getPrice() : 0L));
                         break;
-                    case "Giá giảm dần":
+                    case "Price: High to Low":
                         filtered.sort((a, b) -> {
                             Long priceA = a.getPrice() != null ? a.getPrice() : 0L;
                             Long priceB = b.getPrice() != null ? b.getPrice() : 0L;
                             return Long.compare(priceB, priceA);
                         });
                         break;
-                    case "Khoảng cách (gần nhất)": // THÊM CASE NÀY
-                        // Sắp xếp các mục theo khoảng cách đã tính toán (nhỏ nhất trước)
-                        filtered.sort(Comparator.comparingDouble(Item::getDistanceToUser));
+                    case "Distance (Nearest)":
+                        filtered.sort(Comparator.comparingDouble(item -> {
+                            double d = item.getDistanceToUser();
+                            return d >= 0 ? d : Double.MAX_VALUE;
+                        }));
                         break;
                 }
 
                 itemList.addAll(filtered);
                 itemAdapter.setItems(itemList);
-                Toast.makeText(requireContext(), "Tìm thấy " + itemList.size() + " mặt hàng.", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "onDataChange: final itemList size = " + itemList.size());
+                Log.d(TAG, "onDataChange: adapter notified of changes");
+                Toast.makeText(requireContext(), getString(R.string.found_items, itemList.size()), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                if (isAdded()) { // Check if fragment is still added
-                    Toast.makeText(requireContext(), "Lỗi: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                if (isAdded()) {
+                    Toast.makeText(requireContext(), getString(R.string.error_firebase_data_cancelled, error.getMessage()), Toast.LENGTH_SHORT).show();
                 }
             }
         });

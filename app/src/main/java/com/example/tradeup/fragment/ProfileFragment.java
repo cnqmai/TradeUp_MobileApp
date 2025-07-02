@@ -72,13 +72,13 @@ public class ProfileFragment extends Fragment {
     private CircleImageView imageProfile; // Changed to CircleImageView
     private RatingBar ratingBar;
     private LinearLayout rowEditProfile, rowChangePhoto, rowMyListings, rowTransactionHistory, rowAccountManagement, rowLogout;
-    private LinearLayout rowAdminDashboard; // NEW: Admin Dashboard row
-    private View dividerAdminDashboard; // NEW: Divider for Admin Dashboard
+    private LinearLayout rowAdminDashboard;
+    private View dividerAdminDashboard;
 
-    // NEW: Buttons for history and analytics
-    private Button btnSavedItems, btnOfferHistory, btnPurchaseHistory, btnSalesHistory, btnItemAnalytics;
-    private Button btnPaymentHistory; // NEW: Payment History Button
-    private Button btnPaymentMethods; // NEW: Payment Methods Button
+    // Change Button types to LinearLayout
+    private LinearLayout rowSavedItems, rowOfferHistory, rowPurchaseHistory, rowSalesHistory, rowItemAnalytics;
+    private LinearLayout rowPaymentHistory;
+    private LinearLayout rowPaymentMethods;
 
 
     private String targetUserId; // For viewing other users' profiles
@@ -173,13 +173,13 @@ public class ProfileFragment extends Fragment {
         dividerAdminDashboard = view.findViewById(R.id.divider_admin_dashboard);
 
         // NEW: Initialize history and analytics buttons
-        btnSavedItems = view.findViewById(R.id.btn_saved_items);
-        btnOfferHistory = view.findViewById(R.id.btn_offer_history);
-        btnPurchaseHistory = view.findViewById(R.id.btn_purchase_history);
-        btnSalesHistory = view.findViewById(R.id.btn_sales_history);
-        btnItemAnalytics = view.findViewById(R.id.btn_item_analytics);
-        btnPaymentHistory = view.findViewById(R.id.btn_payment_history); // NEW: Initialize Payment History Button
-        btnPaymentMethods = view.findViewById(R.id.btn_payment_methods); // NEW: Initialize Payment Methods Button
+        rowSavedItems = view.findViewById(R.id.btn_saved_items);
+        rowOfferHistory = view.findViewById(R.id.btn_offer_history);
+        rowPurchaseHistory = view.findViewById(R.id.btn_purchase_history);
+        rowSalesHistory = view.findViewById(R.id.btn_sales_history);
+        rowItemAnalytics = view.findViewById(R.id.btn_item_analytics);
+        rowPaymentHistory = view.findViewById(R.id.btn_payment_history); // NEW: Initialize Payment History Button
+        rowPaymentMethods = view.findViewById(R.id.btn_payment_methods); // NEW: Initialize Payment Methods Button
 
 
         // Get targetUserId if viewing another user's profile
@@ -204,13 +204,13 @@ public class ProfileFragment extends Fragment {
             dividerAdminDashboard.setVisibility(View.GONE);
 
             // NEW: Hide history/analytics buttons if viewing another user's profile
-            btnSavedItems.setVisibility(View.GONE);
-            btnOfferHistory.setVisibility(View.GONE);
-            btnPurchaseHistory.setVisibility(View.GONE);
-            btnSalesHistory.setVisibility(View.GONE);
-            btnItemAnalytics.setVisibility(View.GONE);
-            btnPaymentHistory.setVisibility(View.GONE); // NEW: Hide Payment History Button
-            btnPaymentMethods.setVisibility(View.GONE); // NEW: Hide Payment Methods Button
+            rowSavedItems.setVisibility(View.GONE);
+            rowOfferHistory.setVisibility(View.GONE);
+            rowPurchaseHistory.setVisibility(View.GONE);
+            rowSalesHistory.setVisibility(View.GONE);
+            rowItemAnalytics.setVisibility(View.GONE);
+            rowPaymentHistory.setVisibility(View.GONE); // NEW: Hide Payment History Button
+            rowPaymentMethods.setVisibility(View.GONE); // NEW: Hide Payment Methods Button
         }
 
         setupListeners(); // Setup listeners after initViews
@@ -319,7 +319,9 @@ public class ProfileFragment extends Fragment {
                         textEmail.setText("N/A");
                         ratingBar.setRating(0.0f);
                         textRatingValue.setText("0.0 / 5");
-                        if (tvTotalTransactions != null) tvTotalTransactions.setText("Tổng giao dịch: 0");
+                        if (tvTotalTransactions != null) {
+                            tvTotalTransactions.setText("Tổng giao dịch: 0");
+                        }
                         if (isAdded()) {
                             Glide.with(requireContext())
                                     .load(R.drawable.img_profile_placeholder)
@@ -445,45 +447,43 @@ public class ProfileFragment extends Fragment {
         });
 
         // NEW: Listeners for history and analytics buttons
-        btnSavedItems.setOnClickListener(v -> {
+        rowSavedItems.setOnClickListener(v -> {
             if (navController != null) {
                 navController.navigate(R.id.action_profileFragment_to_savedItemsFragment);
             }
         });
 
-        btnOfferHistory.setOnClickListener(v -> {
+        rowOfferHistory.setOnClickListener(v -> {
             if (navController != null) {
                 navController.navigate(R.id.action_profileFragment_to_offerHistoryFragment);
             }
         });
 
-        btnPurchaseHistory.setOnClickListener(v -> {
+        rowPurchaseHistory.setOnClickListener(v -> {
             if (navController != null) {
                 navController.navigate(R.id.action_profileFragment_to_purchaseHistoryFragment);
             }
         });
 
-        btnSalesHistory.setOnClickListener(v -> {
+        rowSalesHistory.setOnClickListener(v -> {
             if (navController != null) {
                 navController.navigate(R.id.action_profileFragment_to_salesHistoryFragment);
             }
         });
 
-        // NEW: Payment History Button Listener
-        btnPaymentHistory.setOnClickListener(v -> {
+        rowPaymentHistory.setOnClickListener(v -> {
             if (navController != null) {
                 navController.navigate(R.id.action_profileFragment_to_paymentHistoryFragment);
             }
         });
 
-        // NEW: Payment Methods Button Listener
-        btnPaymentMethods.setOnClickListener(v -> {
+        rowPaymentMethods.setOnClickListener(v -> {
             if (navController != null) {
                 navController.navigate(R.id.action_profileFragment_to_paymentMethodsFragment);
             }
         });
 
-        btnItemAnalytics.setOnClickListener(v -> {
+        rowItemAnalytics.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Vui lòng chọn tin đăng để xem phân tích.", Toast.LENGTH_SHORT).show();
             if (navController != null) {
                 navController.navigate(R.id.action_profileFragment_to_myItemsFragment);
@@ -844,3 +844,4 @@ public class ProfileFragment extends Fragment {
         }
     }
 }
+

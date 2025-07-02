@@ -91,7 +91,7 @@ public class PreviewItemFragment extends Fragment {
             tvCategory.setText(category);
             tvCondition.setText(condition);
             tvLocation.setText(location);
-            tvItemBehavior.setText(itemBehavior.isEmpty() ? "Không có" : itemBehavior);
+            tvItemBehavior.setText(itemBehavior.isEmpty() ? getString(R.string.no_item_behavior) : itemBehavior);
 
             if (tagsArray != null && tagsArray.length > 0) {
                 StringBuilder tagsSb = new StringBuilder();
@@ -100,7 +100,7 @@ public class PreviewItemFragment extends Fragment {
                 }
                 tvTags.setText(tagsSb.toString().trim());
             } else {
-                tvTags.setText("Không có thẻ");
+                tvTags.setText(R.string.no_tags);
             }
 
             // Setup Image Slider

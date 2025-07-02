@@ -2,11 +2,11 @@
 <resources>
     <string name="app_name">TradeUp</string>
 
-    // FR 1.1
+    <!-- FR 1.1 -->
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="confirm_password">Confirm password</string>
-    <string name="toggle_password_visibility">View or hide password</string>
+    <string name="toggle_password_visibility">Show or hide password</string>
     <string name="remember_pass">Remember password</string>
     <string name="forgot_pass">Forgot password</string>
     <string name="login">Log in</string>
@@ -25,7 +25,7 @@
     <string name="back_to_login">Back to Login</string>
 
     <string name="verify_email">Verify Your Email Address</string>
-    <string name="verify_instruction">We sent a verification mail to</string>
+    <string name="verify_instruction">We sent a verification email to</string>
     <string name="email_account">cnqmai@gmail.com</string>
     <string name="change_email">Want to change your email address?</string>
     <string name="change">Change</string>
@@ -50,7 +50,7 @@
     <string name="password_length_error">Password must be at least 6 characters long.</string>
     <string name="passwords_not_match">Passwords do not match.</string>
     <string name="invalid_email">Invalid email address.</string>
-    <string name="login_failed">Login Failed</string>
+    <string name="login_failed">Login failed</string>
 
     <string name="hello_blank_fragment">Hello</string>
     <string name="cart">Cart</string>
@@ -61,7 +61,7 @@
     <string name="notification">Notification</string>
     <string name="profile">Profile</string>
 
-    // FR 1.2
+    <!-- FR 1.2 -->
     <string name="profile_picture">Profile Picture</string>
     <string name="sample_name">John Doe</string>
     <string name="sample_bio">Hello! I specialize in selling used electronics and gadgets...</string>
@@ -85,9 +85,9 @@
     <string name="cancel_button">Cancel</string>
     <string name="account_remains_deactivated">Account remains deactivated.</string>
     <string name="account_reactivated_success">Account reactivated successfully!</string>
-    <string name="failed_to_reactivate_account">Failed to reactivate account: </string>
+    <string name="failed_to_reactivate_account">Failed to reactivate account:</string>
 
-    <string name="go_to_details">Go to detail</string>
+    <string name="go_to_details">Go to details</string>
 
     <string name="first_name_hint">First Name</string>
     <string name="last_name_hint">Last Name</string>
@@ -95,35 +95,320 @@
     <string name="contact_info_hint">E.g., phone number, social media link</string>
     <string name="save_profile">Save Profile</string>
 
-    // FR Chat
+    <!-- FR Chat -->
     <string name="default_notification_channel_id" translatable="false">tradeup_channel</string>
-    <string name="default_notification_channel_name" translatable="true">Thông báo TradeUp</string>
+    <string name="default_notification_channel_name" translatable="true">TradeUp Notifications</string>
 
-    <!-- New strings for Payment Methods UI -->
-    <string name="payment_methods_section_title">Phương thức Thanh toán</string>
-    <string name="credit_debit_cards">Thẻ tín dụng/thẻ ghi nợ</string>
-    <string name="add_manage_cards">Thêm hoặc quản lý thẻ của bạn</string>
-    <string name="add_card">Thêm thẻ</string>
-    <string name="upi_wallets">UPI &amp; Ví</string>
-    <string name="instant_payments">Thực hiện thanh toán tức thì</string>
-    <string name="link_upi">Liên kết UPI</string>
-    <string name="your_saved_cards">Thẻ đã lưu của bạn</string>
-    <string name="no_saved_cards">Bạn chưa có thẻ nào được lưu.</string>
-    <string name="recent_transactions">Giao dịch gần đây</string>
-    <string name="no_recent_transactions">Bạn chưa có giao dịch gần đây nào.</string>
-    <string name="secure_payment_section_title">Thanh toán an toàn</string>
-    <string name="hold_payment">Giữ Thanh toán</string>
-    <string name="payment_held_securely">Khoản thanh toán của bạn sẽ được giữ an toàn.</string>
-    <string name="ship_item">Vận chuyển mặt hàng</string>
-    <string name="seller_ships_item">Người bán vận chuyển mặt hàng.</string>
-    <string name="delivery_inspection">Giao hàng &amp; Kiểm tra</string>
-    <string name="receive_approve_item">Bạn nhận và duyệt mặt hàng.</string>
-    <string name="release_payment">Giải ngân Thanh toán</string>
-    <string name="payment_released_to_seller">Khoản thanh toán được giải ngân cho người bán.</string>
-    <string name="proceed_to_payment">Tiến hành Thanh toán</string>
-    <string name="transaction_id">Mã giao dịch</string>
-    <string name="payment_status">Trạng thái</string>
-    <string name="payment_date">Ngày</string>
-    <string name="escrow_status">Ký quỹ</string>
-    <string name="no_payments_yet">Bạn chưa có giao dịch thanh toán nào.</string>
+    <string name="payment_methods_section_title">Payment Methods</string>
+    <string name="credit_debit_cards">Credit/Debit Cards</string>
+    <string name="add_manage_cards">Add or manage your cards</string>
+    <string name="add_card">Add card</string>
+    <string name="upi_wallets">UPI &amp; Wallets</string>
+    <string name="instant_payments">Make instant payments</string>
+    <string name="link_upi">Link UPI</string>
+    <string name="your_saved_cards">Your saved cards</string>
+    <string name="no_saved_cards">You have no saved cards.</string>
+    <string name="recent_transactions">Recent transactions</string>
+    <string name="no_recent_transactions">You have no recent transactions.</string>
+    <string name="secure_payment_section_title">Secure Payment</string>
+    <string name="hold_payment">Hold Payment</string>
+    <string name="payment_held_securely">Your payment will be held securely.</string>
+    <string name="ship_item">Ship item</string>
+    <string name="seller_ships_item">Seller ships the item.</string>
+    <string name="delivery_inspection">Delivery &amp; Inspection</string>
+    <string name="receive_approve_item">You receive and approve the item.</string>
+    <string name="release_payment">Release Payment</string>
+    <string name="payment_released_to_seller">Payment is released to the seller.</string>
+    <string name="proceed_to_payment">Proceed to Payment</string>
+    <string name="transaction_id">Transaction ID</string>
+    <string name="payment_status">Status</string>
+    <string name="payment_date">Date</string>
+    <string name="escrow_status">Escrow</string>
+    <string name="no_payments_yet">You have no payment transactions yet.</string>
+
+    <!-- Home fragment -->
+    <string name="logo_content_desc">Logo</string>
+    <string name="notifications_content_desc">Notifications</string>
+    <string name="welcome_message">Welcome to TradeUp!</string>
+    <string name="browse_by_category">Browse by category</string>
+    <string name="items_near_you">Items near you</string>
+    <string name="popular_items">Popular items</string>
+    <string name="personalized_for_you">Personalized for you</string>
+    <string name="discover_message">Discover unique items and sell what you no longer need!</string>
+
+
+    <!-- Item list layout -->
+    <string name="product_image_content_desc">Product image</string>
+    <string name="item_title_placeholder">Item title</string>
+    <string name="item_price_placeholder">Price: --</string>
+    <string name="item_distance_placeholder">Distance: -- km</string>
+    <string name="item_location_placeholder">Location: Unknown</string>
+    <string name="category_name_placeholder">Category Name</string>
+
+    <!-- ItemAdapter & Distance display -->
+    <string name="item_price_format">Price: %1$s</string>
+    <string name="item_distance_format">Distance: %1$s</string>
+    <string name="item_distance_unknown">Distance: Unknown</string>
+
+    <!-- Profile Text -->
+    <string name="total_transactions">Total transactions: 0</string>
+    <string name="history_activity">History &amp; Activity</string>
+    <string name="saved_items">Saved Items</string>
+    <string name="offer_history">Offer History</string>
+    <string name="purchase_history">Purchase History</string>
+    <string name="sales_history">Sales History</string>
+    <string name="payment_history">Payment History</string>
+    <string name="admin_dashboard">Admin Dashboard</string>
+    <string name="item_analytics">My Listing Analytics</string>
+
+    <!-- Profile Content Descriptions -->
+    <string name="transaction_history_icon">Transaction History Icon</string>
+    <string name="admin_dashboard_icon">Admin Dashboard Icon</string>
+    <string name="saved_items_icon">Saved Items Icon</string>
+    <string name="offer_history_icon">Offer History Icon</string>
+    <string name="purchase_history_icon">Purchase History Icon</string>
+    <string name="sales_history_icon">Sales History Icon</string>
+    <string name="payment_history_icon">Payment History Icon</string>
+    <string name="payment_methods_icon">Payment Methods Icon</string>
+    <string name="item_analytics_icon">Item Analytics Icon</string>
+
+    <!-- Search Fragment -->
+    <string name="search_icon_content_desc">Search icon</string>
+    <string name="search_keyword_hint">Search keyword</string>
+    <string name="filter_icon_content_desc">Filter icon</string>
+    <string name="current_location_loading">Current location: loading...</string>
+    <string name="manual_location_hint">Enter location manually or use GPS</string>
+    <string name="get_gps_location">Get GPS location</string>
+    <string name="min_price_hint">Minimum price</string>
+    <string name="max_price_hint">Maximum price</string>
+    <string name="max_distance_hint">Maximum distance (km)</string>
+    <string name="perform_search">Search</string>
+
+    <!-- Search Fragment (additional for hardcoded texts) -->
+    <string name="current_location_label"></string>
+    <string name="all_categories">All categories</string>
+    <string name="all_conditions">All conditions</string>
+    <string name="price_range">Price range</string>
+    <string name="max_distance_label">Maximum distance (km)</string>
+    <string name="sort_label">Sort</string>
+    <string name="invalid_price_distance">Please enter a valid price/distance.</string>
+    <string name="found_items">Found %1$d items.</string>
+    <string name="error_firebase_data_cancelled">Firebase data operation cancelled: %1$s</string>
+    <string name="toast_location_required_for_distance_filter">Please provide a location to filter by distance.</string>
+
+    <!-- Location & SearchFragment related -->
+    <string name="permission_location_required">Location permission is required to get your current location.</string>
+    <string name="permission_location_missing">Location permission not granted.</string>
+    <string name="current_location_unknown">Current location: unknown.</string>
+    <string name="cannot_get_current_location">Cannot get current location.</string>
+    <string name="current_location_gps_error">Error getting current location from GPS.</string>
+    <string name="error_getting_current_location">Error getting current location: %1$s</string>
+    <string name="current_location_not_set">Current location not set.</string>
+    <string name="search_location">Search location: %1$s</string>
+    <string name="search_location_not_found">Location not found for the entered address.</string>
+    <string name="search_location_geocoder_error">Error getting coordinates from address.</string>
+    <string name="current_location">Current location: %1$s</string>
+    <string name="current_location_coords_not_found">Coordinates: %1$s (address not found)</string>
+    <string name="address_not_found_for_location">Address not found for this location.</string>
+    <string name="current_location_coords_geocoder_error">Coordinates: %1$s (geocoder error)</string>
+    <string name="error_getting_address_from_gps">Error getting address from GPS.</string>
+
+    <!-- HomeFragment Toast Messages -->
+    <string name="failed_to_load_trending_items">Unable to load trending items.</string>
+    <string name="failed_to_load_categories">Unable to load categories.</string>
+    <string name="no_location_permission">The app does not have location permission.</string>
+    <string name="cannot_get_current_location_with_reason">Unable to get current location: %1$s</string>
+    <string name="failed_to_load_items_near_you">Unable to load items near you.</string>
+    <string name="no_browsing_history">No browsing history found for personalization.</string>
+    <string name="failed_to_load_browsing_history">Failed to load browsing history.</string>
+    <string name="location_permission_denied">Location permission denied. Cannot display items near you.</string>
+
+    <string name="items_in_category">Items in %s</string>
+    <string name="no_items_in_category">No items found in %s category</string>
+    <string name="error_loading_category_items">Error loading items: %s</string>
+
+    <!-- Rating strings -->
+    <string name="rating_count_format">(%d ratings)</string>
+    <string name="rating_zero">(0 ratings)</string>
+
+    <!-- Item Details -->
+    <string name="content_description_report_item">Report Item</string>
+    <string name="content_description_share_item">Share Item</string>
+    <string name="item_detail_status_available">Available</string>
+    <string name="rating_value">4.5</string>
+    <string name="rating_count">(10 ratings)</string>
+    <string name="item_detail_views_count">Views: %1$d</string>
+    <string name="content_description_category_icon">Category Icon</string>
+    <string name="item_detail_category_electronics">Electronics</string>
+    <string name="content_description_location_icon">Location Icon</string>
+    <string name="item_detail_location">District 1, Ho Chi Minh City</string>
+    <string name="item_detail_specs_title">Product Specifications</string>
+    <string name="item_detail_condition_label">Condition</string>
+    <string name="item_detail_condition_new">New</string>
+    <string name="item_detail_transaction_method_label">Transaction Method</string>
+    <string name="item_detail_transaction_method_negotiable">Negotiable</string>
+    <string name="item_detail_tags_label">Tags</string>
+    <string name="item_detail_tags_example">laptop, gaming, thin and light</string>
+    <string name="item_detail_seller_info_title">Seller Information</string>
+    <string name="item_detail_seller_rating_format">%1$.1f/5.0</string>
+    <string name="item_detail_seller_rating_count_format">(%1$d reviews)</string>
+    <string name="item_detail_description_title">Product Description</string>
+    <string name="item_detail_description_example">Selling Samsung Galaxy S22, 90% new, used for 1 year. Charger included.</string>
+    <string name="btn_chat_seller">Chat with Seller</string>
+    <string name="btn_make_offer">Make Offer</string>
+    <string name="btn_add_to_favorites">Add to Favorites</string>
+    <string name="btn_buy_now">Buy Now</string>
+    <string name="item_detail_title_example">Used Samsung Galaxy S22 Phone</string>
+    <string name="item_detail_price_example">8,500,000</string>
+    <string name="item_detail_seller_name_example">Mai Cao</string>
+
+    <string name="toast_item_id_not_found">Item ID not found.</string>
+    <string name="error_loading_item_details_empty_data">Failed to load item details: Empty data.</string>
+    <string name="error_loading_item_details">Error loading item details: %1$s</string>
+    <string name="price_format">%1$s</string>
+    <string name="category_format">%1$s</string>
+    <string name="condition_format">%1$s</string>
+    <string name="location_format">%1$s</string>
+    <string name="location_unknown">Unknown Location</string>
+    <string name="item_behavior_unspecified">Unspecified</string>
+    <string name="tags_format">%1$s</string>
+    <string name="tags_none">None</string>
+    <string name="item_rating_format">%1$.1f</string>
+    <string name="item_rating_na">N/A</string>
+    <string name="seller_name_format">%1$s</string>
+    <string name="seller_rating_format">%1$.1f/5.0</string>
+    <string name="seller_rating_na">N/A</string>
+    <string name="seller_unknown">Unknown Seller</string>
+    <string name="seller_load_error">Error Loading Seller</string> <string name="seller_rating_error">Rating: Error loading</string>
+    <string name="item_views">Views: %1$d</string>
+    <string name="item_views_zero">Views: 0</string> <string name="item_views_error">Views: Error loading</string>
+    <string name="cannot_record_user_view">Cannot record user view: missing userId, itemId or category.</string>
+    <string name="toast_login_to_chat">Please log in to chat.</string>
+    <string name="toast_seller_info_not_found">Seller information not found.</string>
+    <string name="toast_login_to_make_offer">Please log in to send an offer.</string>
+    <string name="toast_make_offer_missing_info">Cannot send offer: Missing item or seller information.</string>
+    <string name="toast_login_to_favorite">Please log in to add to favorites.</string>
+    <string name="toast_favorite_missing_item_id">Cannot add to favorites: Missing item ID.</string>
+    <string name="toast_chat_participants_invalid">Invalid chat participants: currentUserId or otherUserId is null/same.</string>
+    <string name="toast_cannot_start_chat">Cannot start chat.</string>
+    <string name="error_checking_chat">Error checking chat.</string>
+    <string name="error_creating_chat_id">Error: Cannot create chat ID.</string>
+    <string name="error_creating_new_chat">Error creating new chat.</string>
+    <string name="error_opening_chat">Error: Cannot open chat.</string>
+    <string name="new_chat_message">Start a new conversation!</string> <string name="dialog_title_make_offer">Send Offer Price</string>
+    <string name="hint_enter_offer_price">Enter your offer price (e.g., 1200000)</string>
+    <string name="button_send_offer">Send Offer</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="toast_enter_offer_price">Please enter an offer price.</string>
+    <string name="error_creating_offer_id">Error: Cannot create offer ID.</string>
+    <string name="toast_offer_sent_success">Offer sent successfully!</string>
+    <string name="notification_new_offer_title">New Offer!</string>
+    <string name="notification_new_offer_body">There\'s a new offer for your product \"%1$s\".</string>
+    <string name="cannot_create_notification_missing_data">Cannot create notification: Seller ID or Item data is missing.</string>
+    <string name="toast_offer_send_failed">Error sending offer: %1$s</string>
+    <string name="toast_removed_from_favorites">Removed from favorites.</string>
+    <string name="toast_error_removing_favorite">Error removing from favorites: %1$s</string>
+    <string name="toast_added_to_favorites">Added to favorites!</string>
+    <string name="toast_error_adding_favorite">Error adding to favorites: %1$s</string>
+    <string name="toast_error_checking_favorite">Error checking favorite: %1$s</string>
+    <string name="toast_cannot_report_own_item">You cannot report your own item.</string>
+    <string name="toast_cannot_report_now">Cannot report at this time. Please try again.</string>
+    <string name="report_dialog_title_item">Report Item</string>
+    <string name="report_dialog_title_user">Report User</string>
+    <string name="report_dialog_title_chat">Report Chat</string>
+    <string name="report_dialog_title_default">Report</string>
+    <string name="button_submit_report">Submit Report</string>
+    <string name="toast_select_report_reason">Please select a report reason.</string>
+    <string name="report_reason_other">Other (please describe)</string>
+    <string name="toast_describe_other_reason">Please describe the other reason.</string>
+    <string name="toast_report_sent_success">Your report has been submitted successfully.</string>
+    <string name="toast_error_sending_report">Error sending report: %1$s</string>
+    <string name="error_creating_report_id">Error: Cannot create report ID.</string>
+    <string name="anonymous_reporter">anonymous</string>
+
+    <!-- Add Item Screen Strings -->
+    <string name="add_new_item_title">Add New Item</string>
+    <string name="item_title_label">Item Title</string>
+    <string name="item_title_hint">Enter product title</string>
+    <string name="description_label">Detailed Description</string>
+    <string name="description_hint">Detailed description of your product</string>
+    <string name="price_label">Price</string>
+    <string name="price_hint">100,000</string>
+    <string name="category_label">Category</string>
+    <string name="condition_label">Condition</string>
+    <string name="location_label">Location</string>
+    <string name="location_hint">Enter address</string>
+    <string name="get_gps_location_button">Get GPS Location</string>
+    <string name="product_images_label">Product Images (max 10 images)</string>
+    <string name="add_image_content_desc">Add image</string>
+    <string name="tap_to_add_image">Tap to add image</string>
+    <string name="item_behavior_label">Item Behavior</string>
+    <string name="item_behavior_hint">e.g., exchangeable, fixed price</string>
+    <string name="tags_label">Additional Tags</string>
+    <string name="tags_hint">separated by commas</string>
+    <string name="preview_item_button">Preview Listing</string>
+    <string name="post_item_button">Post Listing</string>
+
+    <!-- Preview Item Fragment -->
+    <string name="no_item_behavior">None</string>
+    <string name="no_tags">No tags</string>
+    <string name="back_to_edit">Back to Edit</string>
+
+    <!-- My Items Fragment -->
+    <string name="my_listings_title">My Listings</string>
+    <string name="post_new_button">Post New</string>
+    <string name="no_listings_message">You don\'t have any listings yet. Create a new one!</string>
+    <string name="post_new_button_empty_state">Post New Listing</string>
+    <string name="toast_login_to_view_listings">You need to log in to view your listings.</string>
+    <string name="toast_error_loading_listings">Error loading your listings: %1$s</string>
+    <string name="dialog_title_delete_listing">Delete Listing</string>
+    <string name="dialog_message_delete_listing">Are you sure you want to delete this listing? This action cannot be undone.</string>
+    <string name="button_delete">Delete</string>
+    <string name="toast_error_item_id_not_found_delete">Item ID not found for deletion.</string>
+    <string name="toast_listing_deleted_success">Listing deleted successfully.</string>
+    <string name="toast_error_deleting_listing">Could not delete listing: %1$s</string>
+    <string name="dialog_title_change_status">Change Listing Status</string>
+    <string name="toast_error_item_id_not_found_status_update">Item ID not found to update status.</string>
+    <string name="toast_status_updated_success">Listing status updated to %1$s</string>
+    <string name="toast_error_updating_status">Could not update status: %1$s</string>
+
+    <!-- User Listings Fragment -->
+    <string name="user_listings_title">Listings by %1$s</string>
+    <string name="user_listings_default_title">User\'s Listings</string>
+    <string name="error_user_id_not_found">Error: User ID not found.</string>
+    <string name="error_loading_user_name">Error loading user name.</string>
+    <string name="user_id_not_found_to_load_listings">User ID not found to load listings.</string>
+    <string name="error_loading_user_listings">Error loading user listings: %1$s</string>
+    <string name="back_button_content_desc">Back button</string>
+    <string name="no_user_listings_message">This user has no listings yet.</string>
+
+    <!-- Item Card View Strings -->
+    <string name="item_image_content_desc">Item Image</string>
+    <string name="status_label">Status:</string>
+    <string name="status_available">Available</string>
+    <string name="status_sold">Sold</string>
+    <string name="views_label">Views:</string>
+    <string name="chats_label">Chats:</string>
+    <string name="offers_label">Offers:</string>
+    <string name="edit_button">Edit</string>
+    <string name="delete_button">Delete</string>
+    <string name="change_status_button">Change Status</string>
+
+    <!-- Transaction History Fragment Strings -->
+    <string name="transaction_history_title">Transaction History</string>
+    <string name="sort_button_content_desc">Sort button</string>
+    <string name="no_transactions_message">No transactions in this section.</string>
+    <string name="tab_active">Active</string>
+    <string name="tab_archived">Archived</string>
+    <string name="toast_error_no_user_id">No user logged in. Cannot load transactions.</string>
+    <string name="toast_error_loading_transactions">Error loading transactions: %1$s</string>
+    <string name="sort_newest_to_oldest">Newest to Oldest</string>
+    <string name="sort_oldest_to_newest">Oldest to Newest</string>
+    <string name="sort_price_low_to_high">Price: Low to High</string>
+    <string name="sort_price_high_to_low">Price: High to Low</string>
+    <string name="dialog_title_sort_transactions">Sort Transactions</string>
+    <string name="toast_transaction_details_clicked">Transaction details clicked: %1$s</string>
+    <string name="toast_error_cannot_navigate_nav_controller_null">Error: Cannot navigate. NavController not available.</string>
+    <string name="error_parsing_timestamp_sort">Error parsing timestamp when sorting transaction: %1$s</string>
+
 </resources>

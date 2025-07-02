@@ -23,6 +23,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
+import android.widget.RatingBar;
 
 import com.bumptech.glide.Glide;
 import com.example.tradeup.R;
@@ -52,13 +53,17 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.text.DecimalFormat;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ItemDetailFragment extends Fragment {
 
     private static final String TAG = "ItemDetailFragment";
 
     private TextView tvTitle, tvPrice, tvDescription, tvCategory, tvCondition, tvLocation,
-            tvItemBehavior, tvTags, tvStatus, tvSellerName, tvSellerRating, tvViewsCount;
+            tvItemBehavior, tvTags, tvStatus, tvSellerName, tvSellerRating, tvViewsCount,
+            tvSellerRatingCount;
 
     private TextView tvItemAverageRating;
     private TextView tvItemRatingCount;
@@ -68,6 +73,8 @@ public class ItemDetailFragment extends Fragment {
 
     private ImageView ivBackButton;
     private ImageView ivReportButton;
+    private RatingBar sellerRatingBar;
+    private CircleImageView ivSellerProfilePicture;
 
     private String itemId;
     private FirebaseHelper firebaseHelper;
@@ -108,16 +115,24 @@ public class ItemDetailFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView called.");
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_item_detail, container, false);
         initViews(view);
         setupListeners();
 
         // FIXED: Khởi tạo NavController ở đây, sau khi view đã được inflate
-        navController = Navigation.findNavController(view);
+        //navController = Navigation.findNavController(view);
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        // FIX: Lấy NavController ở đây, sau khi view đã được tạo và sẵn sàng
+        navController = Navigation.findNavController(view);
+        Log.d(TAG, "onViewCreated called. NavController initialized.");
     }
 
     @Override
@@ -128,7 +143,7 @@ public class ItemDetailFragment extends Fragment {
             loadItemDetails(itemId);
             updateItemViews(itemId);
         } else {
-            Toast.makeText(getContext(), "Không tìm thấy ID tin đăng.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.toast_item_id_not_found), Toast.LENGTH_SHORT).show();
             Log.e(TAG, "onResume: itemId is null, popping back stack.");
             if (getParentFragmentManager() != null && getParentFragmentManager().getBackStackEntryCount() > 0) {
                 getParentFragmentManager().popBackStack();
@@ -147,6 +162,9 @@ public class ItemDetailFragment extends Fragment {
         tvTags = view.findViewById(R.id.tv_detail_tags);
         tvStatus = view.findViewById(R.id.tv_detail_status);
         tvSellerName = view.findViewById(R.id.tv_detail_seller_name);
+        ivSellerProfilePicture = view.findViewById(R.id.iv_seller_profile_picture);
+        tvSellerRatingCount = view.findViewById(R.id.tv_detail_seller_rating_count);
+        sellerRatingBar = view.findViewById(R.id.sellerRatingBar);
         tvSellerRating = view.findViewById(R.id.tv_detail_seller_rating);
         tvViewsCount = view.findViewById(R.id.tv_detail_views_count);
 
@@ -165,23 +183,23 @@ public class ItemDetailFragment extends Fragment {
     private void setupListeners() {
         btnChatSeller.setOnClickListener(v -> {
             if (currentUserId == null) {
-                Toast.makeText(getContext(), "Vui lòng đăng nhập để trò chuyện.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.toast_login_to_chat), Toast.LENGTH_SHORT).show();
                 return;
             }
             if (sellerId != null && !sellerId.isEmpty()) {
                 startChatWithSeller(sellerId);
             } else {
-                Toast.makeText(getContext(), "Không thể tìm thấy thông tin người bán.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.toast_seller_info_not_found), Toast.LENGTH_SHORT).show();
             }
         });
 
         btnMakeOffer.setOnClickListener(v -> {
             if (currentUserId == null) {
-                Toast.makeText(getContext(), "Vui lòng đăng nhập để gửi đề nghị.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.toast_login_to_make_offer), Toast.LENGTH_SHORT).show();
                 return;
             }
             if (itemId == null || sellerId == null || sellerId.isEmpty()) {
-                Toast.makeText(getContext(), "Không thể gửi đề nghị: Thiếu thông tin tin đăng hoặc người bán.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.toast_make_offer_missing_info), Toast.LENGTH_SHORT).show();
                 return;
             }
             showMakeOfferDialog();
@@ -189,13 +207,13 @@ public class ItemDetailFragment extends Fragment {
 
         btnAddToFavorites.setOnClickListener(v -> {
             if (currentUserId == null) {
-                Toast.makeText(getContext(), "Vui lòng đăng nhập để thêm vào yêu thích.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.toast_login_to_favorite), Toast.LENGTH_SHORT).show();
                 return;
             }
             if (itemId != null && !itemId.isEmpty()) {
                 toggleFavorite(itemId);
             } else {
-                Toast.makeText(getContext(), "Không thể thêm vào yêu thích: Thiếu ID tin đăng.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.toast_favorite_missing_item_id), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -209,14 +227,14 @@ public class ItemDetailFragment extends Fragment {
         ivReportButton.setOnClickListener(v -> {
             if (isAdded() && currentItem != null && currentUserId != null) {
                 if (currentUserId.equals(currentItem.getUser_id())) {
-                    Toast.makeText(getContext(), "Bạn không thể báo cáo tin đăng của chính mình.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.toast_cannot_report_own_item), Toast.LENGTH_SHORT).show();
                 } else {
                     showReportDialog("item", currentItem.getId());
                 }
             } else {
                 Log.w(TAG, "Report button clicked but fragment not added, currentItem is null, or currentUserId is null.");
                 if (isAdded()) {
-                    Toast.makeText(getContext(), "Không thể báo cáo lúc này. Vui lòng thử lại.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.toast_cannot_report_now), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -225,7 +243,7 @@ public class ItemDetailFragment extends Fragment {
     private void startChatWithSeller(String otherUserId) {
         if (currentUserId == null || otherUserId == null || currentUserId.equals(otherUserId)) {
             Log.e(TAG, "Invalid chat participants: currentUserId or otherUserId is null/same.");
-            Toast.makeText(getContext(), "Không thể bắt đầu cuộc trò chuyện.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.toast_cannot_start_chat), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -257,7 +275,7 @@ public class ItemDetailFragment extends Fragment {
                         public void onCancelled(@NonNull DatabaseError databaseError) {
                             Log.e(TAG, "Error checking chat (query2): " + databaseError.getMessage());
                             if (isAdded()) {
-                                Toast.makeText(getContext(), "Lỗi khi kiểm tra cuộc trò chuyện.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), getString(R.string.error_checking_chat), Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
@@ -268,7 +286,7 @@ public class ItemDetailFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 Log.e(TAG, "Error checking chat (query1): " + databaseError.getMessage());
                 if (isAdded()) {
-                    Toast.makeText(getContext(), "Lỗi khi kiểm tra cuộc trò chuyện.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.error_checking_chat), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -292,7 +310,7 @@ public class ItemDetailFragment extends Fragment {
 
         if (newChatId == null) {
             if (isAdded()) {
-                Toast.makeText(getContext(), "Lỗi: Không thể tạo ID cuộc trò chuyện.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.error_creating_chat_id), Toast.LENGTH_SHORT).show();
             }
             return;
         }
@@ -300,7 +318,7 @@ public class ItemDetailFragment extends Fragment {
         Map<String, Object> chatData = new HashMap<>();
         chatData.put("user_1", currentUserId);
         chatData.put("user_2", otherUserId);
-        chatData.put("lastMessage", "Cuộc trò chuyện mới");
+        chatData.put("lastMessage", getString(R.string.new_chat_message)); // New string resource
         chatData.put("lastMessageTimestamp", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date()));
         chatData.put("blocked", false);
         chatData.put("reported", false);
@@ -313,7 +331,7 @@ public class ItemDetailFragment extends Fragment {
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to create new chat: " + e.getMessage());
                     if (isAdded()) {
-                        Toast.makeText(getContext(), "Lỗi khi tạo cuộc trò chuyện mới.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), getString(R.string.error_creating_new_chat), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -328,7 +346,7 @@ public class ItemDetailFragment extends Fragment {
         } else {
             Log.e(TAG, "NavController is null, cannot navigate to chat detail.");
             if (isAdded()) {
-                Toast.makeText(getContext(), "Lỗi: Không thể mở trò chuyện.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.error_opening_chat), Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -337,26 +355,26 @@ public class ItemDetailFragment extends Fragment {
         if (!isAdded()) return;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Gửi Đề nghị Giá");
+        builder.setTitle(getString(R.string.dialog_title_make_offer));
 
         final EditText input = new EditText(getContext());
-        input.setHint("Nhập giá đề nghị của bạn (ví dụ: 1200000)");
+        input.setHint(getString(R.string.hint_enter_offer_price));
         input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
         builder.setView(input);
 
-        builder.setPositiveButton("Gửi Đề nghị", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getString(R.string.button_send_offer), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String offerPriceStr = input.getText().toString().trim();
                 if (offerPriceStr.isEmpty()) {
-                    Toast.makeText(getContext(), "Vui lòng nhập giá đề nghị.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.toast_enter_offer_price), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 long offerPrice = Long.parseLong(offerPriceStr);
                 createOffer(offerPrice);
             }
         });
-        builder.setNegativeButton("Hủy", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getString(R.string.button_cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -372,7 +390,7 @@ public class ItemDetailFragment extends Fragment {
 
         if (offerId == null) {
             if (isAdded()) {
-                Toast.makeText(getContext(), "Lỗi: Không thể tạo ID đề nghị.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.error_creating_offer_id), Toast.LENGTH_SHORT).show();
             }
             return;
         }
@@ -386,7 +404,7 @@ public class ItemDetailFragment extends Fragment {
                 currentUserId,
                 sellerId,
                 offerPrice,
-                "pending",
+                "pending", // This is a status, might be better as an enum or string resource if localized
                 null,
                 timestamp,
                 timestamp
@@ -395,7 +413,7 @@ public class ItemDetailFragment extends Fragment {
         offersRef.child(offerId).setValue(offer)
                 .addOnSuccessListener(aVoid -> {
                     if (isAdded()) {
-                        Toast.makeText(getContext(), "Đề nghị đã được gửi thành công!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), getString(R.string.toast_offer_sent_success), Toast.LENGTH_SHORT).show();
                     }
                     Log.d(TAG, "Offer created: " + offerId);
 
@@ -406,9 +424,9 @@ public class ItemDetailFragment extends Fragment {
                         if (notificationId != null) {
                             Map<String, Object> notificationContent = new HashMap<>();
                             notificationContent.put("user_id", sellerId);
-                            notificationContent.put("title", "Đề nghị mới!");
-                            notificationContent.put("body", "Có đề nghị mới cho sản phẩm \"" + currentItem.getTitle() + "\" của bạn.");
-                            notificationContent.put("type", "new_offer");
+                            notificationContent.put("title", getString(R.string.notification_new_offer_title));
+                            notificationContent.put("body", getString(R.string.notification_new_offer_body, currentItem.getTitle()));
+                            notificationContent.put("type", "new_offer"); // This is a type, might be better as an enum or string resource if localized
                             notificationContent.put("related_id", offerId);
                             String isoTimestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date());
                             notificationContent.put("timestamp", isoTimestamp);
@@ -419,13 +437,13 @@ public class ItemDetailFragment extends Fragment {
                                     .addOnFailureListener(e -> Log.e(TAG, "Failed to create notification for seller: " + e.getMessage()));
                         }
                     } else {
-                        Log.w(TAG, "Cannot create notification: Seller ID or Item data is missing.");
+                        Log.w(TAG, getString(R.string.cannot_create_notification_missing_data));
                     }
 
                 })
                 .addOnFailureListener(e -> {
                     if (isAdded()) {
-                        Toast.makeText(getContext(), "Lỗi khi gửi đề nghị: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), getString(R.string.toast_offer_send_failed, e.getMessage()), Toast.LENGTH_SHORT).show();
                     }
                     Log.e(TAG, "Failed to create offer: " + e.getMessage());
                 });
@@ -434,7 +452,7 @@ public class ItemDetailFragment extends Fragment {
     private void toggleFavorite(String itemId) {
         if (currentUserId == null) {
             if (isAdded()) {
-                Toast.makeText(getContext(), "Vui lòng đăng nhập để thêm vào yêu thích.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.toast_login_to_favorite), Toast.LENGTH_SHORT).show();
             }
             return;
         }
@@ -453,13 +471,13 @@ public class ItemDetailFragment extends Fragment {
                     favoritesRef.removeValue()
                             .addOnSuccessListener(aVoid -> {
                                 if (isAdded()) {
-                                    Toast.makeText(getContext(), "Đã xóa khỏi mục yêu thích.", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), getString(R.string.toast_removed_from_favorites), Toast.LENGTH_SHORT).show();
                                 }
                                 Log.d(TAG, "Item " + itemId + " removed from favorites.");
                             })
                             .addOnFailureListener(e -> {
                                 if (isAdded()) {
-                                    Toast.makeText(getContext(), "Lỗi khi xóa khỏi yêu thích: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), getString(R.string.toast_error_removing_favorite, e.getMessage()), Toast.LENGTH_SHORT).show();
                                 }
                                 Log.e(TAG, "Failed to remove item " + itemId + " from favorites: " + e.getMessage());
                             });
@@ -467,13 +485,13 @@ public class ItemDetailFragment extends Fragment {
                     favoritesRef.setValue(true)
                             .addOnSuccessListener(aVoid -> {
                                 if (isAdded()) {
-                                    Toast.makeText(getContext(), "Đã thêm vào mục yêu thích!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), getString(R.string.toast_added_to_favorites), Toast.LENGTH_SHORT).show();
                                 }
                                 Log.d(TAG, "Item " + itemId + " added to favorites.");
                             })
                             .addOnFailureListener(e -> {
                                 if (isAdded()) {
-                                    Toast.makeText(getContext(), "Lỗi khi thêm vào yêu thích: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), getString(R.string.toast_error_adding_favorite, e.getMessage()), Toast.LENGTH_SHORT).show();
                                 }
                                 Log.e(TAG, "Failed to add item " + itemId + " to favorites: " + e.getMessage());
                             });
@@ -483,7 +501,7 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 if (isAdded()) {
-                    Toast.makeText(getContext(), "Lỗi kiểm tra yêu thích: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.toast_error_checking_favorite, error.getMessage()), Toast.LENGTH_SHORT).show();
                 }
                 Log.e(TAG, "Failed to check favorite status: " + error.getMessage());
             }
@@ -503,31 +521,30 @@ public class ItemDetailFragment extends Fragment {
                     tvTitle.setText(item.getTitle());
                     NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
                     currencyFormatter.setMaximumFractionDigits(0);
-                    tvPrice.setText("Giá: " + currencyFormatter.format(item.getPrice()));
+                    tvPrice.setText(getString(R.string.price_format, currencyFormatter.format(item.getPrice())));
                     tvDescription.setText(item.getDescription());
-                    tvCategory.setText("Danh mục: " + item.getCategory());
-                    tvCondition.setText("Tình trạng: " + item.getCondition());
+                    tvCategory.setText(getString(R.string.category_format, item.getCategory()));
+                    tvCondition.setText(getString(R.string.condition_format, item.getCondition()));
 
                     if (item.getLocation() != null) {
-                        tvLocation.setText("Vị trí: " + item.getLocation().getManual_address());
+                        tvLocation.setText(getString(R.string.location_format, item.getLocation().getManual_address()));
                     } else {
-                        tvLocation.setText("Vị trí: Không xác định");
+                        tvLocation.setText(R.string.location_unknown);
                     }
 
-                    tvItemBehavior.setText("Cách thức giao dịch: " + (item.getItem_behavior() != null ? item.getItem_behavior() : "Chưa xác định"));
+                    tvItemBehavior.setText(item.getItem_behavior() != null ? item.getItem_behavior() : getString(R.string.item_behavior_unspecified));
                     if (item.getTags() != null && !item.getTags().isEmpty()) {
-                        tvTags.setText("Tags: " + android.text.TextUtils.join(", ", item.getTags()));
+                        tvTags.setText(getString(R.string.tags_format, android.text.TextUtils.join(", ", item.getTags())));
                     } else {
-                        tvTags.setText("Tags: Không có");
+                        tvTags.setText(R.string.tags_none);
                     }
-                    tvStatus.setText("Trạng thái: " + item.getStatus());
 
                     if (item.getAverage_rating() != null && item.getRating_count() != null) {
-                        tvItemAverageRating.setText(String.format(Locale.getDefault(), "Đánh giá SP: %.1f/5.0", item.getAverage_rating()));
-                        tvItemRatingCount.setText(String.format(Locale.getDefault(), "(%d lượt)", item.getRating_count()));
+                        tvItemAverageRating.setText(getString(R.string.item_rating_format, item.getAverage_rating()));
+                        tvItemRatingCount.setText(getString(R.string.rating_count_format, item.getRating_count())); // New string resource
                     } else {
-                        tvItemAverageRating.setText("Đánh giá SP: N/A");
-                        tvItemRatingCount.setText("(0 lượt)");
+                        tvItemAverageRating.setText(R.string.item_rating_na);
+                        tvItemRatingCount.setText(getString(R.string.rating_count_format, 0));
                     }
 
                     sellerId = item.getUser_id();
@@ -548,7 +565,7 @@ public class ItemDetailFragment extends Fragment {
                     if (currentUserId != null && item.getCategory() != null) {
                         recordUserView(currentUserId, id, item.getCategory());
                     } else {
-                        Log.w(TAG, "Cannot record user view: currentUserId or item category is null.");
+                        Log.w(TAG, getString(R.string.cannot_record_user_view));
                     }
 
                     if (currentUserId != null && currentUserId.equals(sellerId)) {
@@ -566,7 +583,7 @@ public class ItemDetailFragment extends Fragment {
                 } else {
                     Log.w(TAG, "Item data is null for itemId: " + id);
                     if (isAdded()) {
-                        Toast.makeText(getContext(), "Không thể tải chi tiết tin đăng: Dữ liệu trống.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), getString(R.string.error_loading_item_details_empty_data), Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -574,7 +591,7 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onFailure(String errorMessage) {
                 if (isAdded()) {
-                    Toast.makeText(getContext(), "Lỗi tải chi tiết tin đăng: " + errorMessage, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.error_loading_item_details, errorMessage), Toast.LENGTH_SHORT).show();
                 }
                 Log.e(TAG, "Error loading item details: " + errorMessage);
             }
@@ -582,34 +599,67 @@ public class ItemDetailFragment extends Fragment {
     }
 
     private void loadSellerInfo(String userId) {
-        Log.d(TAG, "loadSellerInfo called for userId: " + userId);
+        Log.d(TAG, "loadSellerInfo called for sellerUid: " + userId);
         firebaseHelper.getUserProfile(userId, new FirebaseHelper.DbReadCallback<User>() {
             @Override
             public void onSuccess(User user) {
-                if (!isAdded()) return;
+                if (isAdded()) {
+                    if (user != null) {
+                        Log.d(TAG, "Seller info loaded: " + user.getDisplay_name());
+                        tvSellerName.setText(user.getDisplay_name());
 
-                if (user != null) {
-                    Log.d(TAG, "Seller info loaded: " + user.getDisplay_name());
-                    tvSellerName.setText("Người bán: " + user.getDisplay_name());
-                    Double averageRating = user.getAverage_rating();
-                    if (averageRating != null) {
-                        tvSellerRating.setText(String.format(Locale.getDefault(), "Đánh giá: %.1f/5.0", averageRating));
+                        String profilePictureUrl = user.getProfile_picture_url();
+                        Log.d(TAG, "Seller Profile Picture URL: " + (profilePictureUrl != null ? profilePictureUrl : "NULL"));
+
+                        if (profilePictureUrl != null && !profilePictureUrl.isEmpty()) {
+                            Glide.with(requireContext())
+                                    .load(profilePictureUrl)
+                                    .placeholder(R.drawable.img_profile_placeholder)
+                                    .error(R.drawable.img_error)
+                                    .into(ivSellerProfilePicture);
+                            Log.d(TAG, "Attempting to load image with Glide: " + profilePictureUrl);
+                        } else {
+                            ivSellerProfilePicture.setImageResource(R.drawable.img_profile_placeholder);
+                            Log.d(TAG, "Profile picture URL is null or empty, setting placeholder.");
+                        }
+
+                        if (user.getAverage_rating() != null) {
+                            float averageRating = user.getAverage_rating().floatValue();
+                            sellerRatingBar.setRating(averageRating);
+                            DecimalFormat df = new DecimalFormat("#.#");
+                            tvSellerRating.setText(df.format(averageRating) + "/5.0");
+
+                            String ratingCountText = (user.getRating_count() != null ? user.getRating_count() : 0) + " lượt";
+                            tvSellerRatingCount.setText("(" + ratingCountText + ")");
+                        } else {
+                            sellerRatingBar.setRating(0);
+                            tvSellerRating.setText("N/A");
+                            tvSellerRatingCount.setText("(0 lượt)");
+                        }
                     } else {
-                        tvSellerRating.setText("Đánh giá: N/A");
+                        Log.w(TAG, "Seller with ID " + userId + " not found.");
+                        tvSellerName.setText("Người bán không tồn tại");
+                        tvSellerRating.setText("N/A");
+                        tvSellerRatingCount.setText("(0 lượt)");
+                        sellerRatingBar.setRating(0);
+                        ivSellerProfilePicture.setImageResource(R.drawable.img_profile_placeholder);
                     }
                 } else {
-                    Log.w(TAG, "Seller data is null for userId: " + userId);
-                    tvSellerName.setText("Người bán: Không xác định");
-                    tvSellerRating.setText("Đánh giá: N/A");
+                    Log.w(TAG, "Fragment is not added when seller info loaded.");
                 }
             }
 
             @Override
-            public void onFailure(String errorMessage) {
-                if (!isAdded()) return;
-                Log.e(TAG, "Failed to load seller info: " + errorMessage);
-                tvSellerName.setText("Người bán: Lỗi tải");
-                tvSellerRating.setText("Đánh giá: Lỗi tải");
+            public void onFailure(String error) {
+                Log.e(TAG, "Error loading seller details: " + error);
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Lỗi khi tải thông tin người bán: " + error, Toast.LENGTH_SHORT).show();
+                }
+                tvSellerName.setText("Lỗi tải thông tin");
+                tvSellerRating.setText("N/A");
+                tvSellerRatingCount.setText("(0 lượt)");
+                sellerRatingBar.setRating(0);
+                ivSellerProfilePicture.setImageResource(R.drawable.img_profile_placeholder);
             }
         });
     }
@@ -634,10 +684,10 @@ public class ItemDetailFragment extends Fragment {
                                 views = ((Integer) viewsObj).longValue();
                             }
                             Log.d(TAG, "Updated views fetched: " + views);
-                            tvViewsCount.setText("Lượt xem: " + views);
+                            tvViewsCount.setText(getString(R.string.item_views, views));
                         } else {
                             Log.d(TAG, "Analytics data or views not found for item: " + id);
-                            tvViewsCount.setText("Lượt xem: 0");
+                            tvViewsCount.setText(R.string.item_views_zero); // New string resource
                         }
                     }
 
@@ -645,7 +695,7 @@ public class ItemDetailFragment extends Fragment {
                     public void onFailure(String errorMessage) {
                         if (!isAdded()) return;
                         Log.e(TAG, "Failed to fetch updated views for item " + id + ": " + errorMessage);
-                        tvViewsCount.setText("Lượt xem: Lỗi tải");
+                        tvViewsCount.setText(R.string.item_views_error);
                     }
                 });
             }
@@ -660,7 +710,7 @@ public class ItemDetailFragment extends Fragment {
 
     private void recordUserView(String userId, String itemId, String category) {
         if (userId == null || itemId == null || category == null || category.isEmpty()) {
-            Log.w(TAG, "Cannot record user view: missing userId, itemId or category.");
+            Log.w(TAG, getString(R.string.cannot_record_user_view));
             return;
         }
 
@@ -690,16 +740,16 @@ public class ItemDetailFragment extends Fragment {
         String title = "";
         switch (reportType) {
             case "item":
-                title = "Báo cáo tin đăng";
+                title = getString(R.string.report_dialog_title_item);
                 break;
             case "user":
-                title = "Báo cáo người dùng";
+                title = getString(R.string.report_dialog_title_user);
                 break;
             case "chat":
-                title = "Báo cáo trò chuyện";
+                title = getString(R.string.report_dialog_title_chat);
                 break;
             default:
-                title = "Báo cáo";
+                title = getString(R.string.report_dialog_title_default);
                 break;
         }
         tvTitle.setText(title);
@@ -712,7 +762,7 @@ public class ItemDetailFragment extends Fragment {
         btnSubmit.setOnClickListener(v -> {
             int selectedId = rgReasons.getCheckedRadioButtonId();
             if (selectedId == -1) {
-                Toast.makeText(getContext(), "Vui lòng chọn một lý do báo cáo.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.toast_select_report_reason), Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -720,12 +770,12 @@ public class ItemDetailFragment extends Fragment {
             String reason = selectedRadioButton.getText().toString();
             String comment = etComment.getText().toString().trim();
 
-            if (reason.equals("Khác (vui lòng mô tả)") && comment.isEmpty()) {
-                Toast.makeText(getContext(), "Vui lòng mô tả lý do khác.", Toast.LENGTH_SHORT).show();
+            if (reason.equals(getString(R.string.report_reason_other)) && comment.isEmpty()) {
+                Toast.makeText(getContext(), getString(R.string.toast_describe_other_reason), Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            String reporterId = currentUserId != null ? currentUserId : "anonymous";
+            String reporterId = currentUserId != null ? currentUserId : "anonymous"; // "anonymous" could also be a string resource
             Report report = new Report(reporterId, reportedObjectId, reportType, reason, comment);
 
             saveReportToFirebase(report);
@@ -746,19 +796,19 @@ public class ItemDetailFragment extends Fragment {
             reportsRef.child(reportId).setValue(report)
                     .addOnSuccessListener(aVoid -> {
                         if (isAdded()) {
-                            Toast.makeText(getContext(), "Báo cáo của bạn đã được gửi thành công.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), getString(R.string.toast_report_sent_success), Toast.LENGTH_LONG).show();
                             Log.d(TAG, "Report submitted: " + reportId + " for " + report.getReported_object_id());
                         }
                     })
                     .addOnFailureListener(e -> {
                         if (isAdded()) {
-                            Toast.makeText(getContext(), "Lỗi khi gửi báo cáo: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), getString(R.string.toast_error_sending_report, e.getMessage()), Toast.LENGTH_LONG).show();
                             Log.e(TAG, "Failed to submit report: " + e.getMessage());
                         }
                     });
         } else {
             if (isAdded()) {
-                Toast.makeText(getContext(), "Lỗi: Không thể tạo ID báo cáo.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.error_creating_report_id), Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -789,6 +839,9 @@ public class ItemDetailFragment extends Fragment {
         ivBackButton = null;
         ivReportButton = null;
         currentItem = null;
+        ivSellerProfilePicture = null;
+        tvSellerRatingCount = null;
+        sellerRatingBar = null;
     }
 
     private class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.SliderViewHolder> {
