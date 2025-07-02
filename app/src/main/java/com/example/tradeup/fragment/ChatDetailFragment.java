@@ -56,7 +56,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -85,7 +84,7 @@ public class ChatDetailFragment extends Fragment {
     private ImageView ivBackButton;
     private ImageView ivBlockChat, ivReportChat;
     private TextView tvOtherUserNameToolbar;
-    private CircleImageView ivOtherUserProfileToolbar;
+    private CircleImageView ivOtherUserProfileToolbar; // Ảnh đại diện người dùng khác
 
     private MessageAdapter messageAdapter;
     private List<Message> messageList;
@@ -99,15 +98,15 @@ public class ChatDetailFragment extends Fragment {
     private String chatId;
     private String otherUserId;
     private String otherUserName;
-    private String user1IdInChat; // Lưu trữ user_1 của chat
-    private String user2IdInChat; // Lưu trữ user_2 của chat
-    private Chat currentChat; // Khai báo biến để lưu trữ đối tượng Chat hiện tại
+    private String user1IdInChat; // Stores user_1 of the chat
+    private String user2IdInChat; // Stores user_2 of the chat
+    private Chat currentChat; // Declares variable to store current Chat object
     private NavController navController;
 
-    // ActivityResultLauncher cho việc chụp ảnh và chọn ảnh từ thư viện
+    // ActivityResultLauncher for taking photos and selecting images from the gallery
     private ActivityResultLauncher<Uri> takePictureLauncher;
     private ActivityResultLauncher<String> pickImageLauncher;
-    private Uri imageUri; // URI tạm thời để lưu ảnh chụp từ camera
+    private Uri imageUri; // Temporary URI to save images taken from the camera
     private Set<String> sensitiveWords;
     private OkHttpClient okHttpClient;
 
@@ -118,11 +117,11 @@ public class ChatDetailFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Lấy các đối số từ navigation
+        // Get arguments from navigation
         if (getArguments() != null) {
             chatId = getArguments().getString("chatId");
             otherUserId = getArguments().getString("otherUserId");
-            otherUserName = getArguments().getString("otherUserName"); // Lấy tên người dùng khác
+            otherUserName = getArguments().getString("otherUserName"); // Get other user's name
         }
 
         currentUserId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
@@ -131,18 +130,18 @@ public class ChatDetailFragment extends Fragment {
         okHttpClient = new OkHttpClient();
 
         if (chatId == null) {
-            // Nếu chatId chưa tồn tại, tìm hoặc tạo mới
+            // If chatId does not exist, find or create new
             findOrCreateChat();
         } else {
-            // Đã có chatId, thiết lập chatMessagesRef và load chi tiết chat
+            // If chatId exists, set up chatMessagesRef and load chat details
             chatMessagesRef = FirebaseDatabase.getInstance().getReference("messages").child(chatId);
-            // Khi mở chat, đặt unreadCount của mình về 0
-            // Chúng ta cần lấy thông tin user_1 và user_2 trước khi reset
-            // Và cũng cần lắng nghe chi tiết chat để cập nhật currentChat
-            loadChatDetails(); // Gọi hàm này để thiết lập listener cho chat details
+            // When opening chat, reset current user's unreadCount to 0
+            // We need to get user_1 and user_2 information before resetting
+            // And also need to listen for chat details to update currentChat
+            loadChatDetails(); // Call this function to set up listener for chat details
         }
 
-        // Khởi tạo các ActivityResultLauncher
+        // Initialize ActivityResultLaunchers
         takePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), result -> {
             if (result) {
                 if (imageUri != null) {
@@ -164,10 +163,10 @@ public class ChatDetailFragment extends Fragment {
         initializeSensitiveWords();
     }
 
-    // Phương thức mới để khởi tạo danh sách từ nhạy cảm
+    // New method to initialize the list of sensitive words
     private void initializeSensitiveWords() {
         sensitiveWords = new HashSet<>();
-        // Thêm các từ nhạy cảm của bạn vào đây (nên viết thường để kiểm tra không phân biệt chữ hoa/thường)
+        // Add your sensitive words here (should be lowercase for case-insensitive checking)
         sensitiveWords.add("địt");
         sensitiveWords.add("mày");
         sensitiveWords.add("đồ ngu");
@@ -180,9 +179,9 @@ public class ChatDetailFragment extends Fragment {
         sensitiveWords.add("lol");
         sensitiveWords.add("đcm");
         sensitiveWords.add("clm");
-        // Thêm nhiều từ khác tùy theo quy định ứng dụng của bạn
-        // Trong một ứng dụng thực tế, bạn có thể tải danh sách này từ Firebase Remote Config
-        // hoặc một nguồn từ xa để dễ dàng cập nhật mà không cần cập nhật ứng dụng.
+        // Add more words according to your application's regulations
+        // In a real application, you might load this list from Firebase Remote Config
+        // or a remote source for easy updates without app updates.
     }
 
     @Nullable
@@ -198,7 +197,7 @@ public class ChatDetailFragment extends Fragment {
         navController = Navigation.findNavController(view);
 
         progressDialog = new ProgressDialog(requireContext());
-        progressDialog.setMessage("Đang xử lý..."); // Tin nhắn mặc định
+        progressDialog.setMessage("Đang xử lý..."); // Default message
         progressDialog.setCancelable(false);
 
         initViews(view);
@@ -227,7 +226,7 @@ public class ChatDetailFragment extends Fragment {
         if (otherUserName != null && !otherUserName.isEmpty()) {
             tvOtherUserNameToolbar.setText(otherUserName);
         } else {
-            // Nếu không có tên, lấy từ Firebase
+            // If no name, get from Firebase
             usersRef.child(otherUserId).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -247,7 +246,7 @@ public class ChatDetailFragment extends Fragment {
             });
         }
 
-        // Nếu đã có otherUserName từ Bundle, thử load ảnh ngay lập tức
+        // If otherUserName is already available from Bundle, try loading the image immediately
         if (otherUserId != null) {
             usersRef.child(otherUserId).child("profile_picture_url").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -274,7 +273,7 @@ public class ChatDetailFragment extends Fragment {
         messageList = new ArrayList<>();
         messageAdapter = new MessageAdapter(requireContext(), messageList, otherUserId);
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
-        layoutManager.setStackFromEnd(true); // Để tin nhắn mới nhất hiển thị ở dưới cùng
+        layoutManager.setStackFromEnd(true); // To display the latest message at the bottom
         rvMessages.setLayoutManager(layoutManager);
         rvMessages.setAdapter(messageAdapter);
     }
@@ -287,11 +286,31 @@ public class ChatDetailFragment extends Fragment {
 
         ivBlockChat.setOnClickListener(v -> toggleBlockChat());
         ivReportChat.setOnClickListener(v -> toggleReportChat());
+
+        // NEW: Click listener for other user's profile picture in toolbar
+        ivOtherUserProfileToolbar.setOnClickListener(v -> {
+            if (otherUserId != null && !otherUserId.isEmpty() && navController != null) {
+                // Prevent navigating to own profile if it somehow gets clicked
+                if (currentUserId != null && currentUserId.equals(otherUserId)) {
+                    Toast.makeText(getContext(), "Đây là hồ sơ của bạn.", Toast.LENGTH_SHORT).show();
+                    // Optionally, navigate to the main ProfileFragment if you have one for own profile
+                    // navController.navigate(R.id.action_chatDetailFragment_to_profileFragment);
+                } else {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("userId", otherUserId);
+                    // Assuming you have an action in nav_graph.xml from chatDetailFragment to userProfileFragment
+                    navController.navigate(R.id.action_chatDetailFragment_to_userProfileFragment, bundle);
+                }
+            } else {
+                Toast.makeText(getContext(), "Không thể xem hồ sơ người dùng.", Toast.LENGTH_SHORT).show();
+                Log.w(TAG, "Cannot navigate to user profile: otherUserId is null or navController is null.");
+            }
+        });
     }
 
     private void findOrCreateChat() {
-        // Logic để tìm chat ID giữa currentUserId và otherUserId
-        // Nếu không tìm thấy, tạo chat mới
+        // Logic to find chat ID between currentUserId and otherUserId
+        // If not found, create new chat
         Query query1 = chatsRef.orderByChild("user_1").equalTo(currentUserId);
         query1.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -303,15 +322,15 @@ public class ChatDetailFragment extends Fragment {
                         chatId = chatSnapshot.getKey();
                         chatFound = true;
                         chatMessagesRef = FirebaseDatabase.getInstance().getReference("messages").child(chatId);
-                        user1IdInChat = chat.getUser_1(); // Lưu user_1
-                        user2IdInChat = chat.getUser_2(); // Lưu user_2
-                        loadChatDetails(); // Load chi tiết chat và đặt listener
-                        listenForMessages(); // Bắt đầu lắng nghe tin nhắn
+                        user1IdInChat = chat.getUser_1(); // Store user_1
+                        user2IdInChat = chat.getUser_2(); // Store user_2
+                        loadChatDetails(); // Load chat details and set listener
+                        listenForMessages(); // Start listening for messages
                         break;
                     }
                 }
                 if (!chatFound) {
-                    // Kiểm tra chiều ngược lại (otherUserId là user_1)
+                    // Check the other way around (otherUserId is user_1)
                     Query query2 = chatsRef.orderByChild("user_1").equalTo(otherUserId);
                     query2.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -323,10 +342,10 @@ public class ChatDetailFragment extends Fragment {
                                     chatId = chatSnapshot.getKey();
                                     chatFoundReverse = true;
                                     chatMessagesRef = FirebaseDatabase.getInstance().getReference("messages").child(chatId);
-                                    user1IdInChat = chat.getUser_1(); // Lưu user_1
-                                    user2IdInChat = chat.getUser_2(); // Lưu user_2
-                                    loadChatDetails(); // Load chi tiết chat và đặt listener
-                                    listenForMessages(); // Bắt đầu lắng nghe tin nhắn
+                                    user1IdInChat = chat.getUser_1(); // Store user_1
+                                    user2IdInChat = chat.getUser_2(); // Store user_2
+                                    loadChatDetails(); // Load chat details and set listener
+                                    listenForMessages(); // Start listening for messages
                                     break;
                                 }
                             }
@@ -353,25 +372,25 @@ public class ChatDetailFragment extends Fragment {
     }
 
     private void createNewChat() {
-        chatId = chatsRef.push().getKey(); // Tạo ID chat mới
+        chatId = chatsRef.push().getKey(); // Create new chat ID
         if (chatId == null) {
             Toast.makeText(requireContext(), "Không thể tạo ID cuộc trò chuyện.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Sử dụng constructor mặc định và sau đó set các giá trị
+        // Use default constructor and then set values
         Chat newChat = new Chat();
         newChat.setChatId(chatId);
-        newChat.setUser_1(currentUserId); // currentUserId là user_1
-        newChat.setUser_2(otherUserId); // otherUserId là user_2
-        newChat.setBlocked(false); // Mặc định là false
-        newChat.setReported(false); // Mặc định là false
+        newChat.setUser_1(currentUserId); // currentUserId is user_1
+        newChat.setUser_2(otherUserId); // otherUserId is user_2
+        newChat.setBlocked(false); // Default to false
+        newChat.setReported(false); // Default to false
         newChat.setLastMessage("Hãy bắt đầu cuộc trò chuyện!");
         newChat.setLastMessageTimestamp(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date()));
-        newChat.setUser1UnreadCount(0); // Khởi tạo số tin nhắn chưa đọc cho user_1 (currentUserId)
-        newChat.setUser2UnreadCount(0); // Khởi tạo số tin nhắn chưa đọc cho user_2 (otherUserId)
+        newChat.setUser1UnreadCount(0); // Initialize unread message count for user_1 (currentUserId)
+        newChat.setUser2UnreadCount(0); // Initialize unread message count for user_2 (otherUserId)
 
-        // Lưu trữ ID của user1 và user2 trong biến cục bộ
+        // Store user1 and user2 IDs in local variables
         user1IdInChat = currentUserId;
         user2IdInChat = otherUserId;
 
@@ -380,7 +399,7 @@ public class ChatDetailFragment extends Fragment {
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "New chat created: " + chatId);
                     chatMessagesRef = FirebaseDatabase.getInstance().getReference("messages").child(chatId);
-                    loadChatDetails(); // Load chi tiết chat và đặt listener
+                    loadChatDetails(); // Load chat details and set listener
                     listenForMessages();
                 })
                 .addOnFailureListener(e -> {
@@ -389,7 +408,7 @@ public class ChatDetailFragment extends Fragment {
                 });
     }
 
-    // Phương thức để lắng nghe chi tiết chat (bao gồm trạng thái chặn)
+    // Method to listen for chat details (including block status)
     private void loadChatDetails() {
         if (chatId == null) {
             Log.w(TAG, "chatId is null, cannot load chat details.");
@@ -398,12 +417,12 @@ public class ChatDetailFragment extends Fragment {
         chatsRef.child(chatId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                currentChat = snapshot.getValue(Chat.class); // Cập nhật biến currentChat
+                currentChat = snapshot.getValue(Chat.class); // Update currentChat variable
                 if (currentChat != null) {
                     user1IdInChat = currentChat.getUser_1();
                     user2IdInChat = currentChat.getUser_2();
-                    resetUnreadCountForCurrentUser(); // Reset khi mở chat
-                    updateChatHeader(currentChat); // Cập nhật UI toolbar (ví dụ icon chặn)
+                    resetUnreadCountForCurrentUser(); // Reset when opening chat
+                    updateChatHeader(currentChat); // Update UI toolbar (e.g., block icon)
                 }
             }
 
@@ -415,49 +434,49 @@ public class ChatDetailFragment extends Fragment {
         });
     }
 
-    // Phương thức mới để kiểm tra tin nhắn có chứa từ nhạy cảm hay không
+    // New method to check if a message contains sensitive words
     private boolean isMessageSensitive(String message) {
         if (message == null || message.trim().isEmpty()) {
             return false;
         }
-        // Chuyển tin nhắn về chữ thường để kiểm tra không phân biệt chữ hoa/thường
+        // Convert message to lowercase for case-insensitive checking
         String lowerCaseMessage = message.toLowerCase(Locale.getDefault());
-        // Tách tin nhắn thành các từ. Sử dụng regex để xử lý khoảng trắng và dấu câu.
-        // Ví dụ: "đồ.ngu" sẽ được tách thành "đồ", "ngu"
+        // Split message into words. Use regex to handle spaces and punctuation.
+        // Example: "đồ.ngu" will be split into "đồ", "ngu"
         String[] words = lowerCaseMessage.split("\\s+|\\p{Punct}");
 
         for (String word : words) {
-            // Loại bỏ khoảng trắng thừa ở đầu/cuối mỗi từ sau khi tách
+            // Remove leading/trailing whitespace from each word after splitting
             String cleanedWord = word.trim();
             if (sensitiveWords.contains(cleanedWord)) {
-                return true; // Tìm thấy từ nhạy cảm
+                return true; // Sensitive word found
             }
         }
-        return false; // Không tìm thấy từ nhạy cảm nào
+        return false; // No sensitive words found
     }
 
-    // Phương thức mới để hiển thị hộp thoại cảnh báo nội dung nhạy cảm
+    // New method to display sensitive content warning dialog
     private void showSensitiveContentWarning(String messageText, String type) {
         new AlertDialog.Builder(requireContext())
                 .setTitle("Cảnh báo nội dung nhạy cảm")
                 .setMessage("Tin nhắn của bạn có thể chứa từ ngữ không phù hợp. Bạn có muốn:")
                 .setPositiveButton("Gửi dù sao", (dialog, which) -> {
-                    // Người dùng chọn vẫn gửi, gọi phương thức gửi tin nhắn thực sự
+                    // User chooses to send anyway, call the actual send message method
                     actuallySendMessage(messageText, type);
                 })
                 .setNeutralButton("Chỉnh sửa", (dialog, which) -> {
-                    // Người dùng chọn chỉnh sửa, giữ nguyên văn bản trong EditText
-                    dialog.dismiss(); // Đóng hộp thoại
+                    // User chooses to edit, keep the text in EditText
+                    dialog.dismiss(); // Dismiss dialog
                 })
                 .setNegativeButton("Hủy", (dialog, which) -> {
-                    // Người dùng chọn hủy, xóa văn bản trong EditText
+                    // User chooses to cancel, clear the text in EditText
                     etMessageInput.setText("");
-                    dialog.dismiss(); // Đóng hộp thoại
+                    dialog.dismiss(); // Dismiss dialog
                 })
                 .show();
     }
     private void updateChatHeader(Chat chat) {
-        // Update block status UI (giữ nguyên hoặc đã có)
+        // Update block status UI (keep as is or already exists)
         if (chat.getBlocked() != null && chat.getBlocked()) {
             ivBlockChat.setImageResource(R.drawable.ic_lock);
             etMessageInput.setEnabled(false);
@@ -471,13 +490,13 @@ public class ChatDetailFragment extends Fragment {
             ivAttachImage.setEnabled(true);
         }
 
-        // Update report status UI (Phần mới cần thêm)
-        // Đảm bảo rằng bạn có các drawable tương ứng: ic_report và ic_report_off (hoặc icon bạn chọn)
+        // Update report status UI (New part to add)
+        // Make sure you have corresponding drawables: ic_report and ic_report_off (or your chosen icon)
         if (chat.getReported() != null && chat.getReported()) {
-            ivReportChat.setImageResource(R.drawable.ic_flag_filled); // Giả sử icon đã báo cáo
-            // Có thể thêm Toast nếu muốn hiển thị khi chat đã được báo cáo
+            ivReportChat.setImageResource(R.drawable.ic_flag_filled); // Assuming reported icon
+            // Can add Toast if you want to display when chat is reported
         } else {
-            ivReportChat.setImageResource(R.drawable.ic_flag_outline); // Giả sử icon chưa báo cáo / bỏ báo cáo
+            ivReportChat.setImageResource(R.drawable.ic_flag_outline); // Assuming not reported / unreport icon
         }
     }
 
@@ -492,22 +511,22 @@ public class ChatDetailFragment extends Fragment {
                         messageList.add(message);
                     }
                 }
-                // Sắp xếp danh sách tin nhắn theo timestamp
+                // Sort the message list by timestamp
                 Collections.sort(messageList, new Comparator<Message>() {
                     @Override
                     public int compare(Message m1, Message m2) {
-                        // So sánh timestamp. Giả sử timestamp là String theo định dạng ISO 8601
-                        // Nếu timestamp là Long (ServerValue.TIMESTAMP), thì so sánh trực tiếp
+                        // Compare timestamps. Assume timestamp is a String in ISO 8601 format
+                        // If timestamp is Long (ServerValue.TIMESTAMP), compare directly
                         if (m1.getTimestamp() == null || m2.getTimestamp() == null) {
-                            return 0; // Xử lý trường hợp null
+                            return 0; // Handle null cases
                         }
-                        // Nếu timestamp là String, bạn cần parse hoặc đảm bảo định dạng so sánh được
+                        // If timestamp is String, you need to parse or ensure comparable format
                         return m1.getTimestamp().compareTo(m2.getTimestamp());
                     }
                 });
 
                 messageAdapter.setMessages(messageList);
-                rvMessages.scrollToPosition(messageList.size() - 1); // Cuộn xuống cuối
+                rvMessages.scrollToPosition(messageList.size() - 1); // Scroll to the end
             }
 
             @Override
@@ -530,27 +549,27 @@ public class ChatDetailFragment extends Fragment {
             return;
         }
 
-        // Kiểm tra trạng thái chặn trước tiên
+        // Check block status first
         if (currentChat.getBlocked() != null && currentChat.getBlocked()) {
             Toast.makeText(requireContext(), "Cuộc trò chuyện này đã bị chặn. Bạn không thể gửi tin nhắn.", Toast.LENGTH_LONG).show();
             return;
         }
 
-        // Chỉ kiểm tra từ nhạy cảm đối với tin nhắn dạng văn bản
+        // Only check sensitive words for text messages
         if ("text".equals(type)) {
             if (isMessageSensitive(messageText)) {
-                // Nếu tin nhắn nhạy cảm, hiển thị cảnh báo và dừng lại
+                // If message is sensitive, show warning and stop
                 showSensitiveContentWarning(messageText, type);
-                return; // Quan trọng: dừng lại ở đây để đợi người dùng quyết định
+                return; // Important: stop here to wait for user decision
             }
         }
 
-        // Nếu không phải là tin nhắn văn bản, hoặc là văn bản nhưng không nhạy cảm, hoặc người dùng đã chọn "Gửi dù sao"
-        // thì tiếp tục gửi tin nhắn
+        // If not a text message, or it's text but not sensitive, or user chose "Send anyway"
+        // then proceed to send the message
         actuallySendMessage(messageText, type);
     }
 
-    // Phương thức mới chứa logic gửi tin nhắn thực sự
+    // New method containing the actual message sending logic
     private void actuallySendMessage(String messageText, String type) {
         String messageId = chatMessagesRef.push().getKey();
         String timestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date());
@@ -564,17 +583,15 @@ public class ChatDetailFragment extends Fragment {
             message.setText(messageText);
             message.setImageUrl(null);
         } else if ("image".equals(type)) {
-            // Lưu ý: Logic tải ảnh và gửi tin nhắn ảnh được xử lý riêng bởi uploadImageAndSendMessage
-            // Hàm này (actuallySendMessage) sẽ được gọi bởi sendImageMessage(String imageUrl) sau khi ảnh được tải lên.
-            // Do đó, biến messageText ở đây sẽ là imageUrl nếu type là "image".
-            // Đảm bảo rằng bạn truyền đúng imageUrl vào đây nếu hàm này được gọi từ sendImageMessage.
-            // Tuy nhiên, với cấu trúc hiện tại, sendMessage(String type) chỉ xử lý type="text"
-            // và uploadImageAndSendMessage xử lý type="image".
-            // Vậy, đoạn if ("image".equals(type)) { ... } có thể không cần thiết ở đây nếu hàm này chỉ gọi cho text.
-            // Nếu bạn muốn hàm này xử lý cả ảnh, bạn cần truyền imageUrl vào và đặt imageUrl cho message.
-            // Với code hiện tại, sendMessage("text") sẽ gọi hàm này. sendMessage("image") thì gọi uploadImageAndSendMessage.
-            // Để đơn giản, hãy giả định actuallySendMessage chỉ được gọi cho tin nhắn TEXT.
-            // Nếu bạn cần kiểm tra cả ảnh, logic phức tạp hơn (ví dụ, kiểm tra metadata ảnh hoặc dùng AI)
+            // Note: Image upload and image message sending logic is handled separately by uploadImageAndSendMessage
+            // This function (actuallySendMessage) will be called by sendImageMessage(String imageUrl) after the image is uploaded.
+            // Therefore, the messageText variable here will be imageUrl if type is "image".
+            // Make sure you pass the correct imageUrl here if this function is called from sendImageMessage.
+            // However, with the current structure, sendMessage(String type) only handles type="text"
+            // and uploadImageAndSendMessage handles type="image".
+            // So, the if ("image".equals(type)) { ... } block might not be necessary here if this function is only called for text.
+            // If you want this function to handle images as well, you need to pass imageUrl and set imageUrl for the message.
+            // With the current code, sendMessage("text") will call this function. sendMessage("image") calls uploadImageAndSendMessage.
             // For now, let's assume `type` will be "text" when this function is called after sensitivity check.
             // The image message flow is handled by `sendImageMessage`.
             message.setText(null); // Assuming type "image" is not handled directly here
@@ -586,8 +603,8 @@ public class ChatDetailFragment extends Fragment {
                     .addOnSuccessListener(aVoid -> {
                         Log.d(TAG, "Message sent: " + messageText);
                         etMessageInput.setText("");
-                        updateChatLastMessage(messageText); // Cập nhật tin nhắn cuối cùng trong chat list
-                        incrementUnreadCountForOtherUser(); // Tăng số tin nhắn chưa đọc cho người kia
+                        updateChatLastMessage(messageText); // Update last message in chat list
+                        incrementUnreadCountForOtherUser(); // Increment unread message count for the other user
                     })
                     .addOnFailureListener(e -> {
                         Log.e(TAG, "Failed to send message: " + e.getMessage());
@@ -596,11 +613,11 @@ public class ChatDetailFragment extends Fragment {
         }
     }
 
-    private void updateChatLastMessage(String lastMessage) { // Bỏ tham số timestampString
+    private void updateChatLastMessage(String lastMessage) { // Removed timestampString parameter
         if (chatId != null) {
             Map<String, Object> updates = new HashMap<>();
             updates.put("lastMessage", lastMessage);
-            // Luôn dùng SimpleDateFormat cho thời gian thực
+            // Always use SimpleDateFormat for real-time
             updates.put("lastMessageTimestamp", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date()));
             chatsRef.child(chatId).updateChildren(updates)
                     .addOnSuccessListener(aVoid -> Log.d(TAG, "Chat last message and timestamp updated."))
@@ -676,7 +693,7 @@ public class ChatDetailFragment extends Fragment {
     }
 
 
-    // Logic xử lý gửi ảnh
+    // Image sending logic
     private void showImagePickerDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("Chọn ảnh");
@@ -735,18 +752,18 @@ public class ChatDetailFragment extends Fragment {
             return;
         }
 
-        // Kiểm tra xem chatId và currentChat đã được khởi tạo chưa
+        // Check if chatId and currentChat are initialized
         if (chatId == null || currentChat == null) {
             Toast.makeText(requireContext(), "Chưa thể gửi tin nhắn. Đang tải cuộc trò chuyện...", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // --- BẮT ĐẦU LOGIC KIỂM TRA CHẶN ---
+        // --- START BLOCK CHECK LOGIC ---
         if (currentChat.getBlocked() != null && currentChat.getBlocked()) {
             Toast.makeText(requireContext(), "Cuộc trò chuyện này đã bị chặn. Bạn không thể gửi tin nhắn.", Toast.LENGTH_LONG).show();
-            return; // NGĂN CHẶN GỬI TIN NHẮN
+            return; // PREVENT SENDING MESSAGE
         }
-        // --- KẾT THÚC LOGIC KIỂM TRA CHẶN ---
+        // --- END BLOCK CHECK LOGIC ---
 
 
         progressDialog.setMessage("Đang tải ảnh...");
@@ -768,12 +785,12 @@ public class ChatDetailFragment extends Fragment {
                 mimeType = "application/octet-stream";
             }
 
-            // Sử dụng phương thức getFileExtensionFromMimeType mới (bạn sẽ thêm nó ở bước 5)
+            // Use the new getFileExtensionFromMimeType method (you'll add it in step 5)
             String fileExtension = getFileExtensionFromMimeType(mimeType);
             String fileName = "chat_image_" + UUID.randomUUID().toString() + fileExtension;
 
-            String cloudName = "dp6tzdsyt"; // Tên Cloudinary Cloud Name của bạn
-            String uploadPreset = "TradeUp"; // Tên Cloudinary Unsigned Upload Preset của bạn
+            String cloudName = "dp6tzdsyt"; // Your Cloudinary Cloud Name
+            String uploadPreset = "TradeUp"; // Your Cloudinary Unsigned Upload Preset
 
             RequestBody requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
@@ -799,7 +816,7 @@ public class ChatDetailFragment extends Fragment {
 
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                    // Đảm bảo dismiss dialog trước khi xử lý phản hồi
+                    // Ensure dialog is dismissed before processing response
                     progressDialog.dismiss();
                     if (!response.isSuccessful()) {
                         String errorBody = response.body() != null ? response.body().string() : "No error body";
@@ -814,7 +831,7 @@ public class ChatDetailFragment extends Fragment {
                     try {
                         JSONObject jsonObject = new JSONObject(json);
                         String imageUrl = jsonObject.getString("secure_url");
-                        requireActivity().runOnUiThread(() -> sendImageMessage(imageUrl)); // Gửi tin nhắn sau khi có URL ảnh
+                        requireActivity().runOnUiThread(() -> sendImageMessage(imageUrl)); // Send message after getting image URL
 
                     } catch (Exception e) {
                         requireActivity().runOnUiThread(() ->
@@ -834,7 +851,7 @@ public class ChatDetailFragment extends Fragment {
             Toast.makeText(getContext(), "Lỗi đọc ảnh: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
-    // Phương thức hỗ trợ để lấy phần mở rộng tệp từ kiểu MIME
+    // Helper method to get file extension from MIME type
     private String getFileExtensionFromMimeType(String mimeType) {
         if (mimeType == null) {
             return ".bin";
@@ -855,36 +872,36 @@ public class ChatDetailFragment extends Fragment {
     }
 
     private void sendImageMessage(String imageUrl) {
-        // Kiểm tra xem chatId và currentChat đã được khởi tạo chưa
+        // Check if chatId and currentChat are initialized
         if (chatId == null || currentChat == null) {
             Toast.makeText(requireContext(), "Chưa thể gửi tin nhắn. Đang tải cuộc trò chuyện...", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // --- BẮT ĐẦU LOGIC KIỂM TRA CHẶN ---
+        // --- START BLOCK CHECK LOGIC ---
         if (currentChat.getBlocked() != null && currentChat.getBlocked()) {
             Toast.makeText(requireContext(), "Cuộc trò chuyện này đã bị chặn. Bạn không thể gửi tin nhắn.", Toast.LENGTH_LONG).show();
-            return; // NGĂN CHẶN GỬI TIN NHẮN
+            return; // PREVENT SENDING MESSAGE
         }
-        // --- KẾT THÚC LOGIC KIỂM TRA CHẶN ---
+        // --- END BLOCK CHECK LOGIC ---
 
         String messageId = chatMessagesRef.push().getKey();
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date()); // Sử dụng SimpleDateFormat
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date()); // Use SimpleDateFormat
 
         Message message = new Message();
         message.setSender_id(currentUserId);
         message.setTimestamp(timestamp);
         message.setType("image");
         message.setImageUrl(imageUrl);
-        message.setText(null); // Không có text cho tin nhắn ảnh
+        message.setText(null); // No text for image message
 
         if (messageId != null) {
             chatMessagesRef.child(messageId).setValue(message)
                     .addOnSuccessListener(aVoid -> {
                         Log.d(TAG, "Image message sent: " + imageUrl);
-                        etMessageInput.setText(""); // Xóa input
-                        updateChatLastMessage("[Hình ảnh]"); // Cập nhật tin nhắn cuối cùng
-                        incrementUnreadCountForOtherUser(); // Cập nhật unread count cho người nhận
+                        etMessageInput.setText(""); // Clear input
+                        updateChatLastMessage("[Hình ảnh]"); // Update last message
+                        incrementUnreadCountForOtherUser(); // Update unread count for recipient
                     })
                     .addOnFailureListener(e -> {
                         Log.e(TAG, "Failed to send image message: " + e.getMessage());
@@ -922,7 +939,7 @@ public class ChatDetailFragment extends Fragment {
             });
     //endregion
 
-    // FR-4.1.3: Chức năng chặn/báo cáo
+    // FR-4.1.3: Block/Report function
     private void toggleBlockChat() {
         if (chatId == null) {
             Toast.makeText(requireContext(), "Cuộc trò chuyện chưa được tạo.", Toast.LENGTH_SHORT).show();
@@ -938,9 +955,9 @@ public class ChatDetailFragment extends Fragment {
                     chatsRef.child(chatId).child("blocked").setValue(!currentBlockedStatus)
                             .addOnSuccessListener(aVoid -> {
                                 Toast.makeText(requireContext(), !currentBlockedStatus ? "Cuộc trò chuyện đã bị chặn." : "Cuộc trò chuyện đã được bỏ chặn.", Toast.LENGTH_SHORT).show();
-                                // Cập nhật UI ngay lập tức sau khi chặn/bỏ chặn
-                                // Điều này sẽ kích hoạt listener trong loadChatDetails và cập nhật currentChat
-                                // và sau đó updateChatHeader sẽ được gọi.
+                                // Update UI immediately after blocking/unblocking
+                                // This will trigger the listener in loadChatDetails and update currentChat
+                                // and then updateChatHeader will be called.
                             })
                             .addOnFailureListener(e -> Toast.makeText(requireContext(), "Không thể cập nhật trạng thái chặn: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                 }
@@ -954,7 +971,7 @@ public class ChatDetailFragment extends Fragment {
         });
     }
 
-    // Phương thức mới để xử lý báo cáo và bỏ báo cáo
+    // New method to handle reporting and unreporting
     private void toggleReportChat() {
         if (chatId == null || currentChat == null) {
             Toast.makeText(requireContext(), "Cuộc trò chuyện chưa được tạo hoặc đang tải.", Toast.LENGTH_SHORT).show();
@@ -964,44 +981,58 @@ public class ChatDetailFragment extends Fragment {
         boolean currentReportedStatus = currentChat.getReported() != null ? currentChat.getReported() : false;
 
         if (currentReportedStatus) {
-            // Nếu đã báo cáo, thì bỏ báo cáo (không cần xác nhận)
-            updateReportStatus(false);
-            recordAdminLog("unreported_chat", chatId); // Ghi log hành động bỏ báo cáo
+            // If already reported, unreport (no confirmation needed)
+            updateReportStatus(false, null); // Pass null for reason when unreporting
+            recordAdminLog("unreported_chat", chatId, null); // Log unreport action
         } else {
-            // Nếu chưa báo cáo, hỏi xác nhận trước khi báo cáo
-            new AlertDialog.Builder(requireContext())
-                    .setTitle("Báo cáo cuộc trò chuyện")
-                    .setMessage("Bạn có chắc chắn muốn báo cáo cuộc trò chuyện này vì nội dung không phù hợp?")
-                    .setPositiveButton("Báo cáo", (dialog, which) -> {
-                        updateReportStatus(true);
-                        recordAdminLog("reported_chat", chatId); // Ghi log hành động báo cáo
-                    })
-                    .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
-                    .show();
+            // If not reported, ask for confirmation before reporting with reasons
+            final String[] reportReasons = {"Lừa đảo/gian lận", "Nội dung không phù hợp", "Spam"};
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle("Báo cáo cuộc trò chuyện vì:");
+            builder.setItems(reportReasons, (dialog, which) -> {
+                String selectedReason = reportReasons[which];
+                updateReportStatus(true, selectedReason); // Update status with selected reason
+                recordAdminLog("reported_chat", chatId, selectedReason); // Log report action with reason
+            });
+            builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
+            builder.show();
         }
     }
 
-    private void updateReportStatus(boolean newStatus) {
-        chatsRef.child(chatId).child("reported").setValue(newStatus)
+    private void updateReportStatus(boolean newStatus, @Nullable String reason) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("reported", newStatus);
+        if (newStatus) { // Only add reason if reporting
+            updates.put("reportReason", reason);
+            updates.put("reportTimestamp", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date()));
+        } else { // Clear reason and timestamp if unreporting
+            updates.put("reportReason", null);
+            updates.put("reportTimestamp", null);
+        }
+
+        chatsRef.child(chatId).updateChildren(updates)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(requireContext(), newStatus ? "Cuộc trò chuyện đã được báo cáo." : "Cuộc trò chuyện đã được bỏ báo cáo.", Toast.LENGTH_SHORT).show();
-                    // UI sẽ được cập nhật tự động qua loadChatDetails listener
+                    // UI will be updated automatically via loadChatDetails listener
                 })
                 .addOnFailureListener(e -> Toast.makeText(requireContext(), "Không thể cập nhật trạng thái báo cáo: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-    private void recordAdminLog(String action, String targetId) {
+    private void recordAdminLog(String action, String targetId, @Nullable String reason) {
         DatabaseReference adminLogsRef = FirebaseDatabase.getInstance().getReference("admin_logs");
         String logId = adminLogsRef.push().getKey();
         if (logId != null) {
             Map<String, Object> logEntry = new HashMap<>();
             logEntry.put("action", action);
-            logEntry.put("admin_id", currentUserId); // Lưu user_id của người báo cáo
+            logEntry.put("admin_id", currentUserId); // Store reporter's user_id
             logEntry.put("target_id", targetId);
-            // Sử dụng SimpleDateFormat cho timestamp kiểu String
+            if (reason != null) {
+                logEntry.put("reason", reason); // Store report reason
+            }
+            // Use SimpleDateFormat for String timestamp
             logEntry.put("timestamp", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date()));
             adminLogsRef.child(logId).setValue(logEntry)
-                    .addOnSuccessListener(aVoid -> Log.d(TAG, "Admin log recorded: " + action + " for " + targetId))
+                    .addOnSuccessListener(aVoid -> Log.d(TAG, "Admin log recorded: " + action + " for " + targetId + (reason != null ? " (Reason: " + reason + ")" : "")))
                     .addOnFailureListener(e -> Log.e(TAG, "Failed to record admin log: " + e.getMessage()));
         }
     }

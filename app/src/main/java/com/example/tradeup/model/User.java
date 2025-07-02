@@ -12,13 +12,10 @@ public class User {
     private String uid; // Trường UID của người dùng
     private String email;
     private Boolean is_email_verified; // Trạng thái xác minh email
-    // Password KHÔNG BAO GIỜ được lưu trữ trong cơ sở dữ liệu, ngay cả dưới dạng băm ở phía client.
-    // private String password; // Không bao gồm mật khẩu ở đây
     private String display_name; // Tên hiển thị của người dùng
     private String bio; // Tiểu sử người dùng
     private String contact_info; // Thông tin liên hệ
     private String profile_picture_url; // URL ảnh đại diện
-    // private Double rating; // Trường rating cũ, đã được thay thế bằng average_rating
     private Integer total_transactions; // Tổng số giao dịch thành công
     private String role; // Vai trò của người dùng (ví dụ: user, admin)
     private String account_status; // Trạng thái tài khoản (ví dụ: active, suspended, banned)
@@ -33,6 +30,8 @@ public class User {
     private Long rating_count; // Tổng số lượt đánh giá mà người dùng này đã nhận được
     private Double average_rating; // Xếp hạng trung bình (thay thế cho 'rating' cũ)
 
+    // NEW: Trường cho trạng thái bị khóa
+    private Boolean is_banned; // Trạng thái bị khóa của người dùng
 
     public User() {
         // Constructor mặc định cần thiết cho Firebase
@@ -43,7 +42,8 @@ public class User {
                 String profile_picture_url, Integer total_transactions, String role,
                 String account_status, Location location, String created_at, String updated_at,
                 String first_name, String last_name,
-                Long rating_sum, Long rating_count, Double average_rating) {
+                Long rating_sum, Long rating_count, Double average_rating,
+                Boolean is_banned) { // NEW: Added is_banned to constructor
         this.uid = uid;
         this.email = email;
         this.is_email_verified = is_email_verified;
@@ -62,6 +62,7 @@ public class User {
         this.rating_sum = rating_sum;
         this.rating_count = rating_count;
         this.average_rating = average_rating;
+        this.is_banned = is_banned; // NEW
     }
 
     // Constructor cho việc tạo User khi đăng ký lần đầu (ít thông tin hơn)
@@ -88,6 +89,7 @@ public class User {
         this.rating_sum = 0L;
         this.rating_count = 0L;
         this.average_rating = 0.0;
+        this.is_banned = false; // NEW: Mặc định không bị khóa khi tạo
     }
 
 
@@ -236,5 +238,14 @@ public class User {
 
     public void setAverage_rating(Double average_rating) {
         this.average_rating = average_rating;
+    }
+
+    // NEW: Getter and Setter for is_banned
+    public Boolean getIs_banned() {
+        return is_banned;
+    }
+
+    public void setIs_banned(Boolean is_banned) {
+        this.is_banned = is_banned;
     }
 }

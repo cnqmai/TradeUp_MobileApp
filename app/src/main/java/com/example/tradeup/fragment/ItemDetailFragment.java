@@ -1,6 +1,7 @@
 package com.example.tradeup.fragment;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,11 +26,14 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.example.tradeup.R;
-import com.example.tradeup.model.Item; // Đảm bảo import Item model
+import com.example.tradeup.model.Item;
 import com.example.tradeup.model.Offer;
+import com.example.tradeup.model.Report;
 import com.example.tradeup.model.User;
 import com.example.tradeup.utils.FirebaseHelper;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -45,6 +51,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class ItemDetailFragment extends Fragment {
 
@@ -53,19 +60,23 @@ public class ItemDetailFragment extends Fragment {
     private TextView tvTitle, tvPrice, tvDescription, tvCategory, tvCondition, tvLocation,
             tvItemBehavior, tvTags, tvStatus, tvSellerName, tvSellerRating, tvViewsCount;
 
-    // >>> THÊM CÁC TRƯỜNG TEXTVIEW MỚI CHO RATING CỦA SẢN PHẨM <<<
     private TextView tvItemAverageRating;
     private TextView tvItemRatingCount;
 
     private Button btnChatSeller, btnMakeOffer, btnAddToFavorites;
     private ViewPager2 vpItemImages;
 
+    private ImageView ivBackButton;
+    private ImageView ivReportButton;
+
     private String itemId;
     private FirebaseHelper firebaseHelper;
-
     private String sellerId;
-    private String currentUserId; // Để lưu trữ User ID hiện tại
-    private Item currentItem; // Biến mới để lưu trữ thông tin Item hiện tại
+    private String currentUserId;
+    private Item currentItem;
+
+    // Khai báo NavController ở cấp độ lớp
+    private NavController navController; // Đảm bảo dòng này tồn tại
 
     public ItemDetailFragment() {
         // Required empty public constructor
@@ -84,7 +95,8 @@ public class ItemDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate called.");
         firebaseHelper = new FirebaseHelper();
-        currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ? FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        currentUserId = firebaseUser != null ? firebaseUser.getUid() : null;
 
         if (getArguments() != null) {
             itemId = getArguments().getString("itemId");
@@ -100,6 +112,11 @@ public class ItemDetailFragment extends Fragment {
         Log.d(TAG, "onCreateView called.");
         View view = inflater.inflate(R.layout.fragment_item_detail, container, false);
         initViews(view);
+        setupListeners();
+
+        // FIXED: Khởi tạo NavController ở đây, sau khi view đã được inflate
+        navController = Navigation.findNavController(view);
+
         return view;
     }
 
@@ -133,16 +150,19 @@ public class ItemDetailFragment extends Fragment {
         tvSellerRating = view.findViewById(R.id.tv_detail_seller_rating);
         tvViewsCount = view.findViewById(R.id.tv_detail_views_count);
 
-        // >>> ÁNH XẠ CÁC TEXTVIEW MỚI CHO RATING CỦA SẢN PHẨM <<<
         tvItemAverageRating = view.findViewById(R.id.tv_detail_item_average_rating);
         tvItemRatingCount = view.findViewById(R.id.tv_detail_item_rating_count);
-
 
         btnChatSeller = view.findViewById(R.id.btn_detail_chat_seller);
         btnMakeOffer = view.findViewById(R.id.btn_detail_make_offer);
         btnAddToFavorites = view.findViewById(R.id.btn_detail_add_to_favorites);
         vpItemImages = view.findViewById(R.id.vp_item_images);
 
+        ivBackButton = view.findViewById(R.id.iv_back_button_item_detail);
+        ivReportButton = view.findViewById(R.id.iv_report_button_item_detail);
+    }
+
+    private void setupListeners() {
         btnChatSeller.setOnClickListener(v -> {
             if (currentUserId == null) {
                 Toast.makeText(getContext(), "Vui lòng đăng nhập để trò chuyện.", Toast.LENGTH_SHORT).show();
@@ -178,6 +198,28 @@ public class ItemDetailFragment extends Fragment {
                 Toast.makeText(getContext(), "Không thể thêm vào yêu thích: Thiếu ID tin đăng.", Toast.LENGTH_SHORT).show();
             }
         });
+
+        ivBackButton.setOnClickListener(v -> {
+            // FIXED: Kiểm tra navController trước khi sử dụng
+            if (navController != null) {
+                navController.navigateUp();
+            }
+        });
+
+        ivReportButton.setOnClickListener(v -> {
+            if (isAdded() && currentItem != null && currentUserId != null) {
+                if (currentUserId.equals(currentItem.getUser_id())) {
+                    Toast.makeText(getContext(), "Bạn không thể báo cáo tin đăng của chính mình.", Toast.LENGTH_SHORT).show();
+                } else {
+                    showReportDialog("item", currentItem.getId());
+                }
+            } else {
+                Log.w(TAG, "Report button clicked but fragment not added, currentItem is null, or currentUserId is null.");
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Không thể báo cáo lúc này. Vui lòng thử lại.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private void startChatWithSeller(String otherUserId) {
@@ -189,29 +231,24 @@ public class ItemDetailFragment extends Fragment {
 
         DatabaseReference chatsRef = FirebaseDatabase.getInstance().getReference("chats");
 
-        // Tìm kiếm cuộc trò chuyện hiện có
-        // Query cả hai trường hợp user_1 = currentUserId AND user_2 = otherUserId
-        // Hoặc user_1 = otherUserId AND user_2 = currentUserId
         Query query1 = chatsRef.orderByChild("user_1").equalTo(currentUserId);
         Query query2 = chatsRef.orderByChild("user_1").equalTo(otherUserId);
 
         query1.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String chatId = findExistingChat(dataSnapshot, otherUserId, "user_2"); // Kiểm tra user_2
+                String chatId = findExistingChat(dataSnapshot, otherUserId);
 
                 if (chatId != null) {
                     navigateToChatDetail(chatId, otherUserId);
                 } else {
-                    // Nếu không tìm thấy, thử với query2 (swap user_1 và user_2)
                     query2.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot2) {
-                            String chatId2 = findExistingChat(dataSnapshot2, otherUserId, "user_2"); // Kiểm tra user_2
+                            String chatId2 = findExistingChat(dataSnapshot2, otherUserId);
                             if (chatId2 != null) {
                                 navigateToChatDetail(chatId2, otherUserId);
                             } else {
-                                // Nếu vẫn không tìm thấy, tạo cuộc trò chuyện mới
                                 createNewChat(otherUserId);
                             }
                         }
@@ -219,7 +256,9 @@ public class ItemDetailFragment extends Fragment {
                         @Override
                         public void onCancelled(@NonNull DatabaseError databaseError) {
                             Log.e(TAG, "Error checking chat (query2): " + databaseError.getMessage());
-                            Toast.makeText(getContext(), "Lỗi khi kiểm tra cuộc trò chuyện.", Toast.LENGTH_SHORT).show();
+                            if (isAdded()) {
+                                Toast.makeText(getContext(), "Lỗi khi kiểm tra cuộc trò chuyện.", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
                 }
@@ -228,12 +267,14 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 Log.e(TAG, "Error checking chat (query1): " + databaseError.getMessage());
-                Toast.makeText(getContext(), "Lỗi khi kiểm tra cuộc trò chuyện.", Toast.LENGTH_SHORT).show();
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Lỗi khi kiểm tra cuộc trò chuyện.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
 
-    private String findExistingChat(DataSnapshot dataSnapshot, String targetUserId, String otherUserField) {
+    private String findExistingChat(DataSnapshot dataSnapshot, String targetUserId) {
         for (DataSnapshot chatSnapshot : dataSnapshot.getChildren()) {
             String user1 = chatSnapshot.child("user_1").getValue(String.class);
             String user2 = chatSnapshot.child("user_2").getValue(String.class);
@@ -250,21 +291,19 @@ public class ItemDetailFragment extends Fragment {
         String newChatId = chatsRef.push().getKey();
 
         if (newChatId == null) {
-            Toast.makeText(getContext(), "Lỗi: Không thể tạo ID đề nghị.", Toast.LENGTH_SHORT).show();
+            if (isAdded()) {
+                Toast.makeText(getContext(), "Lỗi: Không thể tạo ID cuộc trò chuyện.", Toast.LENGTH_SHORT).show();
+            }
             return;
         }
 
-        // Tạo một bản ghi chat cơ bản
         Map<String, Object> chatData = new HashMap<>();
         chatData.put("user_1", currentUserId);
         chatData.put("user_2", otherUserId);
-        chatData.put("lastMessage", "Cuộc trò chuyện mới"); // Tin nhắn mặc định
+        chatData.put("lastMessage", "Cuộc trò chuyện mới");
         chatData.put("lastMessageTimestamp", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date()));
         chatData.put("blocked", false);
         chatData.put("reported", false);
-        // Không cần thêm "messages": {} ở đây, Firebase tự động tạo khi có tin nhắn đầu tiên
-        // Nhưng bạn có thể thêm nó nếu muốn đảm bảo node con tồn tại ngay từ đầu:
-        // chatData.put("messages", new HashMap<>()); // Thêm node 'messages' trống ban đầu
 
         chatsRef.child(newChatId).setValue(chatData)
                 .addOnSuccessListener(aVoid -> {
@@ -273,19 +312,30 @@ public class ItemDetailFragment extends Fragment {
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to create new chat: " + e.getMessage());
-                    Toast.makeText(getContext(), "Lỗi khi tạo cuộc trò chuyện mới.", Toast.LENGTH_SHORT).show();
+                    if (isAdded()) {
+                        Toast.makeText(getContext(), "Lỗi khi tạo cuộc trò chuyện mới.", Toast.LENGTH_SHORT).show();
+                    }
                 });
     }
 
     private void navigateToChatDetail(String chatId, String otherUserId) {
         Bundle bundle = new Bundle();
         bundle.putString("chatId", chatId);
-        bundle.putString("otherUserId", otherUserId); // Truyền otherUserId để ChatDetailFragment có thể hiển thị tên người dùng
-        NavController navController = Navigation.findNavController(requireView());
-        navController.navigate(R.id.action_itemDetailFragment_to_chatDetailFragment, bundle);
+        bundle.putString("otherUserId", otherUserId);
+        // FIXED: Kiểm tra navController trước khi sử dụng
+        if (navController != null) {
+            navController.navigate(R.id.action_itemDetailFragment_to_chatDetailFragment, bundle);
+        } else {
+            Log.e(TAG, "NavController is null, cannot navigate to chat detail.");
+            if (isAdded()) {
+                Toast.makeText(getContext(), "Lỗi: Không thể mở trò chuyện.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void showMakeOfferDialog() {
+        if (!isAdded()) return;
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Gửi Đề nghị Giá");
 
@@ -318,10 +368,12 @@ public class ItemDetailFragment extends Fragment {
 
     private void createOffer(long offerPrice) {
         DatabaseReference offersRef = FirebaseDatabase.getInstance().getReference("offers");
-        String offerId = offersRef.push().getKey(); // Tạo ID duy nhất cho đề nghị
+        String offerId = offersRef.push().getKey();
 
         if (offerId == null) {
-            Toast.makeText(getContext(), "Lỗi: Không thể tạo ID đề nghị.", Toast.LENGTH_SHORT).show();
+            if (isAdded()) {
+                Toast.makeText(getContext(), "Lỗi: Không thể tạo ID đề nghị.", Toast.LENGTH_SHORT).show();
+            }
             return;
         }
 
@@ -331,36 +383,36 @@ public class ItemDetailFragment extends Fragment {
         Offer offer = new Offer(
                 offerId,
                 itemId,
-                currentUserId, // buyer_id
-                sellerId,      // seller_id
+                currentUserId,
+                sellerId,
                 offerPrice,
-                "pending",     // Trạng thái ban đầu
-                null,          // counter_price ban đầu là null
+                "pending",
+                null,
                 timestamp,
-                timestamp      // updated_at ban đầu giống created_at
+                timestamp
         );
 
         offersRef.child(offerId).setValue(offer)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "Đề nghị đã được gửi thành công!", Toast.LENGTH_SHORT).show();
+                    if (isAdded()) {
+                        Toast.makeText(getContext(), "Đề nghị đã được gửi thành công!", Toast.LENGTH_SHORT).show();
+                    }
                     Log.d(TAG, "Offer created: " + offerId);
 
-                    // >>> BẮT ĐẦU PHẦN THÊM MỚI: TẠO THÔNG BÁO CHO NGƯỜI BÁN <<<
                     if (sellerId != null && !sellerId.isEmpty() && currentItem != null) {
                         DatabaseReference notificationsRef = FirebaseDatabase.getInstance().getReference("notifications");
                         String notificationId = notificationsRef.push().getKey();
 
                         if (notificationId != null) {
                             Map<String, Object> notificationContent = new HashMap<>();
-                            notificationContent.put("user_id", sellerId); // ID của người nhận thông báo (người bán)
+                            notificationContent.put("user_id", sellerId);
                             notificationContent.put("title", "Đề nghị mới!");
                             notificationContent.put("body", "Có đề nghị mới cho sản phẩm \"" + currentItem.getTitle() + "\" của bạn.");
                             notificationContent.put("type", "new_offer");
-                            notificationContent.put("related_id", offerId); // ID của offer mới tạo
+                            notificationContent.put("related_id", offerId);
                             String isoTimestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date());
                             notificationContent.put("timestamp", isoTimestamp);
-                            // Timestamp từ server
-                            notificationContent.put("read", false); // Mặc định là chưa đọc
+                            notificationContent.put("read", false);
 
                             notificationsRef.child(notificationId).setValue(notificationContent)
                                     .addOnSuccessListener(aVoid1 -> Log.d(TAG, "Notification created for seller: " + sellerId))
@@ -369,16 +421,24 @@ public class ItemDetailFragment extends Fragment {
                     } else {
                         Log.w(TAG, "Cannot create notification: Seller ID or Item data is missing.");
                     }
-                    // >>> KẾT THÚC PHẦN THÊM MỚI <<<
 
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Lỗi khi gửi đề nghị: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    if (isAdded()) {
+                        Toast.makeText(getContext(), "Lỗi khi gửi đề nghị: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                     Log.e(TAG, "Failed to create offer: " + e.getMessage());
                 });
     }
 
     private void toggleFavorite(String itemId) {
+        if (currentUserId == null) {
+            if (isAdded()) {
+                Toast.makeText(getContext(), "Vui lòng đăng nhập để thêm vào yêu thích.", Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
+
         DatabaseReference favoritesRef = FirebaseDatabase.getInstance().getReference("users")
                 .child(currentUserId)
                 .child("favorites")
@@ -387,28 +447,34 @@ public class ItemDetailFragment extends Fragment {
         favoritesRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!isAdded()) return;
+
                 if (snapshot.exists()) {
-                    // Nếu đã có trong yêu thích, xóa đi
                     favoritesRef.removeValue()
                             .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(getContext(), "Đã xóa khỏi mục yêu thích.", Toast.LENGTH_SHORT).show();
+                                if (isAdded()) {
+                                    Toast.makeText(getContext(), "Đã xóa khỏi mục yêu thích.", Toast.LENGTH_SHORT).show();
+                                }
                                 Log.d(TAG, "Item " + itemId + " removed from favorites.");
-                                // Cập nhật UI của nút để thể hiện trạng thái (ví dụ: đổi icon)
                             })
                             .addOnFailureListener(e -> {
-                                Toast.makeText(getContext(), "Lỗi khi xóa khỏi yêu thích: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                if (isAdded()) {
+                                    Toast.makeText(getContext(), "Lỗi khi xóa khỏi yêu thích: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
                                 Log.e(TAG, "Failed to remove item " + itemId + " from favorites: " + e.getMessage());
                             });
                 } else {
-                    // Nếu chưa có, thêm vào
-                    favoritesRef.setValue(true) // Ghi đơn giản là true để đánh dấu có mặt
+                    favoritesRef.setValue(true)
                             .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(getContext(), "Đã thêm vào mục yêu thích!", Toast.LENGTH_SHORT).show();
+                                if (isAdded()) {
+                                    Toast.makeText(getContext(), "Đã thêm vào mục yêu thích!", Toast.LENGTH_SHORT).show();
+                                }
                                 Log.d(TAG, "Item " + itemId + " added to favorites.");
-                                // Cập nhật UI của nút để thể hiện trạng thái (ví dụ: đổi icon)
                             })
                             .addOnFailureListener(e -> {
-                                Toast.makeText(getContext(), "Lỗi khi thêm vào yêu thích: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                if (isAdded()) {
+                                    Toast.makeText(getContext(), "Lỗi khi thêm vào yêu thích: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
                                 Log.e(TAG, "Failed to add item " + itemId + " to favorites: " + e.getMessage());
                             });
                 }
@@ -416,7 +482,9 @@ public class ItemDetailFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Lỗi kiểm tra yêu thích: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Lỗi kiểm tra yêu thích: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
                 Log.e(TAG, "Failed to check favorite status: " + error.getMessage());
             }
         });
@@ -427,8 +495,10 @@ public class ItemDetailFragment extends Fragment {
         firebaseHelper.getItem(id, new FirebaseHelper.DbReadCallback<Item>() {
             @Override
             public void onSuccess(Item item) {
+                if (!isAdded()) return;
+
                 if (item != null) {
-                    currentItem = item; // Lưu item vào biến toàn cục mới
+                    currentItem = item;
                     Log.d(TAG, "Item data loaded successfully for itemId: " + id + ", title: " + item.getTitle());
                     tvTitle.setText(item.getTitle());
                     NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
@@ -452,7 +522,6 @@ public class ItemDetailFragment extends Fragment {
                     }
                     tvStatus.setText("Trạng thái: " + item.getStatus());
 
-                    // >>> THAY ĐỔI Ở ĐÂY: average_rating và rating_count <<<
                     if (item.getAverage_rating() != null && item.getRating_count() != null) {
                         tvItemAverageRating.setText(String.format(Locale.getDefault(), "Đánh giá SP: %.1f/5.0", item.getAverage_rating()));
                         tvItemRatingCount.setText(String.format(Locale.getDefault(), "(%d lượt)", item.getRating_count()));
@@ -461,7 +530,7 @@ public class ItemDetailFragment extends Fragment {
                         tvItemRatingCount.setText("(0 lượt)");
                     }
 
-                    sellerId = item.getUser_id(); // Seller ID được gán ở đây
+                    sellerId = item.getUser_id();
                     loadSellerInfo(sellerId);
 
                     if (item.getPhotos() != null && !item.getPhotos().isEmpty()) {
@@ -482,31 +551,31 @@ public class ItemDetailFragment extends Fragment {
                         Log.w(TAG, "Cannot record user view: currentUserId or item category is null.");
                     }
 
-                    // --- BỔ SUNG LOGIC HIỂN THỊ NÚT Ở ĐÂY ---
                     if (currentUserId != null && currentUserId.equals(sellerId)) {
-                        // Nếu người dùng hiện tại là người bán của tin đăng này
-                        btnChatSeller.setVisibility(View.GONE); // Ẩn nút Chat
-                        btnMakeOffer.setVisibility(View.GONE);  // Ẩn nút Make Offer
-                        btnAddToFavorites.setVisibility(View.GONE); // Người bán không thêm tin của mình vào yêu thích
+                        btnChatSeller.setVisibility(View.GONE);
+                        btnMakeOffer.setVisibility(View.GONE);
+                        btnAddToFavorites.setVisibility(View.GONE);
                         Log.d(TAG, "Current user is seller. Hiding chat, offer, and favorite buttons.");
                     } else {
-                        // Nếu không phải người bán, đảm bảo các nút hiển thị
                         btnChatSeller.setVisibility(View.VISIBLE);
                         btnMakeOffer.setVisibility(View.VISIBLE);
                         btnAddToFavorites.setVisibility(View.VISIBLE);
                         Log.d(TAG, "Current user is buyer. Showing chat, offer, and favorite buttons.");
                     }
-                    // --- KẾT THÚC BỔ SUNG ---
 
                 } else {
                     Log.w(TAG, "Item data is null for itemId: " + id);
-                    Toast.makeText(getContext(), "Không thể tải chi tiết tin đăng: Dữ liệu trống.", Toast.LENGTH_SHORT).show();
+                    if (isAdded()) {
+                        Toast.makeText(getContext(), "Không thể tải chi tiết tin đăng: Dữ liệu trống.", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
             @Override
             public void onFailure(String errorMessage) {
-                Toast.makeText(getContext(), "Lỗi tải chi tiết tin đăng: " + errorMessage, Toast.LENGTH_SHORT).show();
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Lỗi tải chi tiết tin đăng: " + errorMessage, Toast.LENGTH_SHORT).show();
+                }
                 Log.e(TAG, "Error loading item details: " + errorMessage);
             }
         });
@@ -517,10 +586,11 @@ public class ItemDetailFragment extends Fragment {
         firebaseHelper.getUserProfile(userId, new FirebaseHelper.DbReadCallback<User>() {
             @Override
             public void onSuccess(User user) {
+                if (!isAdded()) return;
+
                 if (user != null) {
                     Log.d(TAG, "Seller info loaded: " + user.getDisplay_name());
                     tvSellerName.setText("Người bán: " + user.getDisplay_name());
-                    // THAY ĐỔI TẠI ĐÂY: Dùng getAverage_rating() thay vì getRating()
                     Double averageRating = user.getAverage_rating();
                     if (averageRating != null) {
                         tvSellerRating.setText(String.format(Locale.getDefault(), "Đánh giá: %.1f/5.0", averageRating));
@@ -536,6 +606,7 @@ public class ItemDetailFragment extends Fragment {
 
             @Override
             public void onFailure(String errorMessage) {
+                if (!isAdded()) return;
                 Log.e(TAG, "Failed to load seller info: " + errorMessage);
                 tvSellerName.setText("Người bán: Lỗi tải");
                 tvSellerRating.setText("Đánh giá: Lỗi tải");
@@ -552,6 +623,8 @@ public class ItemDetailFragment extends Fragment {
                 firebaseHelper.getItemAnalytics(id, new FirebaseHelper.DbReadCallback<Map<String, Object>>() {
                     @Override
                     public void onSuccess(Map<String, Object> analyticsData) {
+                        if (!isAdded()) return;
+
                         if (analyticsData != null && analyticsData.containsKey("views")) {
                             long views = 0;
                             Object viewsObj = analyticsData.get("views");
@@ -570,6 +643,7 @@ public class ItemDetailFragment extends Fragment {
 
                     @Override
                     public void onFailure(String errorMessage) {
+                        if (!isAdded()) return;
                         Log.e(TAG, "Failed to fetch updated views for item " + id + ": " + errorMessage);
                         tvViewsCount.setText("Lượt xem: Lỗi tải");
                     }
@@ -578,46 +652,116 @@ public class ItemDetailFragment extends Fragment {
 
             @Override
             public void onFailure(String errorMessage) {
+                if (!isAdded()) return;
                 Log.e(TAG, "Failed to increment view count for item " + id + ": " + errorMessage);
             }
         });
     }
 
-    /**
-     * Ghi nhận lượt xem danh mục của người dùng vào node user_activity.
-     * Phương thức này sẽ được gọi mỗi khi người dùng xem chi tiết sản phẩm.
-     * @param userId ID của người dùng hiện tại.
-     * @param itemId ID của sản phẩm đang được xem.
-     * @param category Danh mục của sản phẩm đang được xem.
-     */
     private void recordUserView(String userId, String itemId, String category) {
         if (userId == null || itemId == null || category == null || category.isEmpty()) {
             Log.w(TAG, "Cannot record user view: missing userId, itemId or category.");
             return;
         }
 
-        // Tùy chọn: Bạn có thể di chuyển logic này vào FirebaseHelper để quản lý tập trung hơn
-        // Ví dụ: firebaseHelper.recordUserCategoryView(userId, category, new FirebaseHelper.DbWriteCallback() {...});
-
         FirebaseDatabase.getInstance().getReference("user_activity")
                 .child(userId)
                 .child("viewed_categories")
                 .child(category)
                 .child("last_viewed")
-                .setValue(ServerValue.TIMESTAMP) // Ghi lại thời gian xem gần nhất
+                .setValue(ServerValue.TIMESTAMP)
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "User category view recorded for: " + category))
                 .addOnFailureListener(e -> Log.e(TAG, "Failed to record user category view: " + e.getMessage()));
-
-        // Tùy chọn: Ghi nhận cả từng item đã xem nếu cần chi tiết hơn
-        // FirebaseDatabase.getInstance().getReference("user_activity")
-        //         .child(userId)
-        //         .child("viewed_items")
-        //         .child(itemId)
-        //         .setValue(Map.of("timestamp", ServerValue.TIMESTAMP, "category", category))
-        //         .addOnSuccessListener(aVoid -> Log.d(TAG, "User item view recorded for: " + itemId))
-        //         .addOnFailureListener(e -> Log.e(TAG, "Failed to record user item view: " + e.getMessage()));
     }
 
+    private void showReportDialog(String reportType, String reportedObjectId) {
+        if (!isAdded()) return;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_report_reason, null);
+        builder.setView(dialogView);
+
+        TextView tvTitle = dialogView.findViewById(R.id.tv_report_dialog_title);
+        RadioGroup rgReasons = dialogView.findViewById(R.id.rg_report_reasons);
+        TextInputEditText etComment = dialogView.findViewById(R.id.et_report_comment);
+        Button btnCancel = dialogView.findViewById(R.id.btn_cancel_report);
+        Button btnSubmit = dialogView.findViewById(R.id.btn_submit_report);
+
+        String title = "";
+        switch (reportType) {
+            case "item":
+                title = "Báo cáo tin đăng";
+                break;
+            case "user":
+                title = "Báo cáo người dùng";
+                break;
+            case "chat":
+                title = "Báo cáo trò chuyện";
+                break;
+            default:
+                title = "Báo cáo";
+                break;
+        }
+        tvTitle.setText(title);
+
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnSubmit.setOnClickListener(v -> {
+            int selectedId = rgReasons.getCheckedRadioButtonId();
+            if (selectedId == -1) {
+                Toast.makeText(getContext(), "Vui lòng chọn một lý do báo cáo.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            RadioButton selectedRadioButton = dialogView.findViewById(selectedId);
+            String reason = selectedRadioButton.getText().toString();
+            String comment = etComment.getText().toString().trim();
+
+            if (reason.equals("Khác (vui lòng mô tả)") && comment.isEmpty()) {
+                Toast.makeText(getContext(), "Vui lòng mô tả lý do khác.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String reporterId = currentUserId != null ? currentUserId : "anonymous";
+            Report report = new Report(reporterId, reportedObjectId, reportType, reason, comment);
+
+            saveReportToFirebase(report);
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    private void saveReportToFirebase(Report report) {
+        if (!isAdded()) return;
+
+        DatabaseReference reportsRef = FirebaseDatabase.getInstance().getReference("reports");
+        String reportId = reportsRef.push().getKey();
+
+        if (reportId != null) {
+            report.setReport_id(reportId);
+            reportsRef.child(reportId).setValue(report)
+                    .addOnSuccessListener(aVoid -> {
+                        if (isAdded()) {
+                            Toast.makeText(getContext(), "Báo cáo của bạn đã được gửi thành công.", Toast.LENGTH_LONG).show();
+                            Log.d(TAG, "Report submitted: " + reportId + " for " + report.getReported_object_id());
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        if (isAdded()) {
+                            Toast.makeText(getContext(), "Lỗi khi gửi báo cáo: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            Log.e(TAG, "Failed to submit report: " + e.getMessage());
+                        }
+                    });
+        } else {
+            if (isAdded()) {
+                Toast.makeText(getContext(), "Lỗi: Không thể tạo ID báo cáo.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     @Override
     public void onDestroyView() {
@@ -636,20 +780,27 @@ public class ItemDetailFragment extends Fragment {
         tvSellerName = null;
         tvSellerRating = null;
         tvViewsCount = null;
-        tvItemAverageRating = null; // Giải phóng TextView mới
-        tvItemRatingCount = null;   // Giải phóng TextView mới
+        tvItemAverageRating = null;
+        tvItemRatingCount = null;
         btnChatSeller = null;
         btnMakeOffer = null;
         btnAddToFavorites = null;
         vpItemImages = null;
-        currentItem = null; // Giải phóng currentItem
+        ivBackButton = null;
+        ivReportButton = null;
+        currentItem = null;
     }
 
     private class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.SliderViewHolder> {
         private List<String> imageUrls;
+        private Context adapterContext;
 
         public ImageSliderAdapter(List<String> imageUrls) {
             this.imageUrls = imageUrls;
+            // Ensure context is retrieved safely
+            if (ItemDetailFragment.this.isAdded()) {
+                this.adapterContext = ItemDetailFragment.this.requireContext();
+            }
         }
 
         @NonNull
@@ -662,11 +813,13 @@ public class ItemDetailFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull SliderViewHolder holder, int position) {
             String imageUrl = imageUrls.get(position);
-            Glide.with(holder.itemView.getContext())
-                    .load(imageUrl)
-                    .placeholder(R.drawable.img_placeholder) // Placeholder image
-                    .error(R.drawable.img_error) // Error image
-                    .into(holder.imageView);
+            if (adapterContext != null) {
+                Glide.with(adapterContext)
+                        .load(imageUrl)
+                        .placeholder(R.drawable.img_placeholder)
+                        .error(R.drawable.img_error)
+                        .into(holder.imageView);
+            }
         }
 
         @Override
@@ -679,7 +832,7 @@ public class ItemDetailFragment extends Fragment {
 
             public SliderViewHolder(@NonNull View itemView) {
                 super(itemView);
-                imageView = itemView.findViewById(R.id.image_slider_image); // Đảm bảo ID này chính xác trong image_slider_item.xml
+                imageView = itemView.findViewById(R.id.image_slider_image);
             }
         }
     }

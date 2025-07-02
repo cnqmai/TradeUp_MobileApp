@@ -98,4 +98,32 @@
     // FR Chat
     <string name="default_notification_channel_id" translatable="false">tradeup_channel</string>
     <string name="default_notification_channel_name" translatable="true">Thông báo TradeUp</string>
+
+    <!-- New strings for Payment Methods UI -->
+    <string name="payment_methods_section_title">Phương thức Thanh toán</string>
+    <string name="credit_debit_cards">Thẻ tín dụng/thẻ ghi nợ</string>
+    <string name="add_manage_cards">Thêm hoặc quản lý thẻ của bạn</string>
+    <string name="add_card">Thêm thẻ</string>
+    <string name="upi_wallets">UPI &amp; Ví</string>
+    <string name="instant_payments">Thực hiện thanh toán tức thì</string>
+    <string name="link_upi">Liên kết UPI</string>
+    <string name="your_saved_cards">Thẻ đã lưu của bạn</string>
+    <string name="no_saved_cards">Bạn chưa có thẻ nào được lưu.</string>
+    <string name="recent_transactions">Giao dịch gần đây</string>
+    <string name="no_recent_transactions">Bạn chưa có giao dịch gần đây nào.</string>
+    <string name="secure_payment_section_title">Thanh toán an toàn</string>
+    <string name="hold_payment">Giữ Thanh toán</string>
+    <string name="payment_held_securely">Khoản thanh toán của bạn sẽ được giữ an toàn.</string>
+    <string name="ship_item">Vận chuyển mặt hàng</string>
+    <string name="seller_ships_item">Người bán vận chuyển mặt hàng.</string>
+    <string name="delivery_inspection">Giao hàng &amp; Kiểm tra</string>
+    <string name="receive_approve_item">Bạn nhận và duyệt mặt hàng.</string>
+    <string name="release_payment">Giải ngân Thanh toán</string>
+    <string name="payment_released_to_seller">Khoản thanh toán được giải ngân cho người bán.</string>
+    <string name="proceed_to_payment">Tiến hành Thanh toán</string>
+    <string name="transaction_id">Mã giao dịch</string>
+    <string name="payment_status">Trạng thái</string>
+    <string name="payment_date">Ngày</string>
+    <string name="escrow_status">Ký quỹ</string>
+    <string name="no_payments_yet">Bạn chưa có giao dịch thanh toán nào.</string>
 </resources>

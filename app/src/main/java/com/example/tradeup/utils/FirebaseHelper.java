@@ -1,12 +1,16 @@
 package com.example.tradeup.utils;
 
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.tradeup.model.Location;
-import com.example.tradeup.model.User; // Import the User model
+import com.example.tradeup.model.Payment;
+import com.example.tradeup.model.SavedCard;
+import com.example.tradeup.model.User;
 import com.example.tradeup.model.Item;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -20,24 +24,26 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.MutableData; // Thêm import này
-import com.google.firebase.database.Transaction; // Thêm import này
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.List; // Thêm import này nếu User model có List trong đó
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Objects;
 
 public class FirebaseHelper {
 
     private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase; // Đã khai báo là mDatabase
+    private DatabaseReference mDatabase;
     private static final String TAG = "FirebaseHelper";
     private static final DateTimeFormatter ISO_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    private Context context;
 
     // Interface for Authentication Callbacks
     public interface AuthCallback {
@@ -52,7 +58,7 @@ public class FirebaseHelper {
     }
 
     // Interface for Database Read Callbacks (generic to handle different data types)
-    public interface DbReadCallback<T> { // <T> makes it generic
+    public interface DbReadCallback<T> {
         void onSuccess(T data);
         void onFailure(String errorMessage);
     }
@@ -61,6 +67,17 @@ public class FirebaseHelper {
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
     }
+
+    public FirebaseHelper(Context context) {
+        this.context = context;
+        mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+    }
+
+    // REMOVED DUPLICATE: public FirebaseUser getCurrentUser() { return mAuth.getCurrentUser(); }
+    // REMOVED DUPLICATE: public String getCurrentUserId() { ... }
+    // REMOVED DUPLICATE: public void signOut() { mAuth.signOut(); }
+
 
     // New method to create or update user profile in Realtime Database
     public void createOrUpdateUserProfile(FirebaseUser firebaseUser, String firstName, String lastName, DbWriteCallback callback) {
@@ -114,7 +131,7 @@ public class FirebaseHelper {
                         displayName = "New User";
                     }
 
-                    // CẬP NHẬT PHẦN NÀY ĐỂ KHỚP VỚI CONSTRUCTOR User MỚI CỦA BẠN
+                    // FIX: Updated constructor to match the 20-parameter User constructor
                     User newUser = new User(
                             userId, // uid
                             email,
@@ -126,15 +143,15 @@ public class FirebaseHelper {
                             0,    // total_transactions (Integer)
                             "user", // role
                             "active", // account_status
-                            // Khởi tạo một đối tượng Location mặc định
-                            new Location(0.0, 0.0, "Unknown"), // location (SỬ DỤNG CLASS Location ĐỘC LẬP)
+                            new Location(0.0, 0.0, "Unknown"), // location
                             currentTime, // created_at
                             currentTime, // updated_at
                             firstName,
                             lastName,
                             0L,  // rating_sum (Long)
                             0L,  // rating_count (Long)
-                            0.0  // average_rating (Double)
+                            0.0, // average_rating (Double)
+                            false // NEW: is_banned (Boolean), default to false
                     );
 
                     userRef.setValue(newUser)
@@ -281,6 +298,11 @@ public class FirebaseHelper {
         return mAuth.getCurrentUser();
     }
 
+    public String getCurrentUserId() {
+        FirebaseUser user = mAuth.getCurrentUser();
+        return user != null ? user.getUid() : null;
+    }
+
     // New method to get user profile from Realtime Database
     public void getUserProfile(String uid, DbReadCallback<User> callback) {
         mDatabase.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -315,7 +337,6 @@ public class FirebaseHelper {
                 });
     }
 
-    // FIX: Changed 'databaseReference' to 'mDatabase'
     public void deleteUserData(String uid, DbWriteCallback callback) {
         mDatabase.child("users").child(uid).removeValue()
                 .addOnSuccessListener(aVoid -> callback.onSuccess())
@@ -447,7 +468,7 @@ public class FirebaseHelper {
                             Item item = itemSnapshot.getValue(Item.class);
                             if (item != null) {
                                 // Lấy key của snapshot và đặt nó làm ID của item
-                                item.setId(itemSnapshot.getKey()); // <-- THÊM DÒNG NÀY
+                                item.setId(itemSnapshot.getKey());
                                 userItems.add(item);
                             }
                         }
@@ -537,5 +558,242 @@ public class FirebaseHelper {
                 }
             }
         });
+    }
+
+    // NEW: Add Payment to 'payments' node and update 'payment_history'
+    public void addPayment(Payment payment, DbWriteCallback callback) {
+        String generatedPaymentId = payment.getPayment_id();
+        if (generatedPaymentId == null) {
+            generatedPaymentId = mDatabase.child("payments").push().getKey();
+            payment.setPayment_id(generatedPaymentId);
+        }
+        // Make variables effectively final
+        final String finalPaymentId = generatedPaymentId;
+        final String payerId = payment.getPayer_id();
+        final String payeeId = payment.getPayee_id();
+
+        mDatabase.child("payments").child(finalPaymentId).setValue(payment)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        mDatabase.child("payment_history").child(payerId).child(finalPaymentId).setValue(true)
+                                .addOnCompleteListener(payerTask -> {
+                                    if (payerTask.isSuccessful()) {
+                                        mDatabase.child("payment_history").child(payeeId).child(finalPaymentId).setValue(true)
+                                                .addOnCompleteListener(payeeTask -> {
+                                                    if (payeeTask.isSuccessful()) {
+                                                        callback.onSuccess();
+                                                    } else {
+                                                        callback.onFailure("Failed to update payee's payment history: " + payeeTask.getException().getMessage());
+                                                    }
+                                                });
+                                    } else {
+                                        callback.onFailure("Failed to update payer's payment history: " + payerTask.getException().getMessage());
+                                    }
+                                });
+                    } else {
+                        callback.onFailure(task.getException().getMessage());
+                    }
+                });
+    }
+
+    // NEW: Get Payment by ID
+    public void getPaymentById(String paymentId, DbReadCallback<Payment> callback) {
+        mDatabase.child("payments").child(paymentId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Payment payment = snapshot.getValue(Payment.class);
+                if (payment != null) {
+                    payment.setPayment_id(snapshot.getKey());
+                }
+                callback.onSuccess(payment);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onFailure(error.getMessage());
+            }
+        });
+    }
+
+    // NEW: Update transaction with payment_id
+    public void updateTransactionPaymentId(String transactionId, String paymentId, DbWriteCallback callback) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("payment_id", paymentId);
+        mDatabase.child("transactions").child(transactionId).updateChildren(updates)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        callback.onSuccess();
+                    } else {
+                        callback.onFailure(task.getException().getMessage());
+                    }
+                });
+    }
+
+    // NEW: Get Transaction by ID (needed by RecentTransactionAdapter)
+    public void getTransactionById(String transactionId, DbReadCallback<com.example.tradeup.model.Transaction> callback) { // ĐÃ SỬA: Dùng model.Transaction
+        mDatabase.child("transactions").child(transactionId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                com.example.tradeup.model.Transaction transaction = snapshot.getValue(com.example.tradeup.model.Transaction.class); // ĐÃ SỬA: Dùng model.Transaction
+                callback.onSuccess(transaction);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onFailure(error.getMessage());
+            }
+        });
+    }
+
+    // NEW: Add SavedCard to 'saved_cards' node and update 'user_saved_cards'
+    public void addSavedCard(SavedCard card, DbWriteCallback callback) {
+        String generatedCardId = card.getCard_id();
+        if (generatedCardId == null) {
+            generatedCardId = mDatabase.child("saved_cards").push().getKey();
+            card.setCard_id(generatedCardId);
+        }
+        // Make variables effectively final
+        final String finalCardId = generatedCardId;
+        final String userId = card.getUser_id();
+
+        mDatabase.child("saved_cards").child(finalCardId).setValue(card)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        mDatabase.child("user_saved_cards").child(userId).child(finalCardId).setValue(true)
+                                .addOnCompleteListener(userCardTask -> {
+                                    if (userCardTask.isSuccessful()) {
+                                        callback.onSuccess();
+                                    } else {
+                                        callback.onFailure("Failed to update user's saved cards list: " + userCardTask.getException().getMessage());
+                                    }
+                                });
+                    } else {
+                        callback.onFailure(task.getException().getMessage());
+                    }
+                });
+    }
+
+    // NEW: Get SavedCards for a specific user
+    public void getSavedCardsForUser(String userId, DbReadCallback<List<SavedCard>> callback) {
+        mDatabase.child("user_saved_cards").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                List<String> cardIds = new ArrayList<>();
+                for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+                    cardIds.add(childSnapshot.getKey());
+                }
+                fetchSavedCardDetails(cardIds, callback);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onFailure(error.getMessage());
+            }
+        });
+    }
+
+    private void fetchSavedCardDetails(List<String> cardIds, DbReadCallback<List<SavedCard>> callback) {
+        if (cardIds.isEmpty()) {
+            callback.onSuccess(new ArrayList<>());
+            return;
+        }
+
+        List<SavedCard> fetchedCards = new ArrayList<>();
+        DatabaseReference savedCardsRef = mDatabase.child("saved_cards");
+        final AtomicInteger cardsToFetch = new AtomicInteger(cardIds.size());
+
+        for (String cardId : cardIds) {
+            savedCardsRef.child(cardId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        SavedCard card = snapshot.getValue(SavedCard.class);
+                        if (card != null) {
+                            card.setCard_id(snapshot.getKey());
+                            fetchedCards.add(card);
+                        }
+                    }
+                    if (cardsToFetch.decrementAndGet() == 0) {
+                        callback.onSuccess(fetchedCards);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, "Failed to fetch saved card details for ID " + cardId + ": " + error.getMessage());
+                    if (cardsToFetch.decrementAndGet() == 0) {
+                        callback.onSuccess(fetchedCards);
+                    }
+                }
+            });
+        }
+    }
+
+    public void getPaymentHistoryForUser(String userId, DbReadCallback<List<Payment>> callback) {
+        mDatabase.child("payment_history").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                List<String> paymentIds = new ArrayList<>();
+                for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+                    paymentIds.add(childSnapshot.getKey());
+                }
+                fetchPaymentDetailsForHistory(paymentIds, callback);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onFailure(error.getMessage());
+            }
+        });
+    }
+
+    private void fetchPaymentDetailsForHistory(List<String> paymentIds, DbReadCallback<List<Payment>> callback) {
+        if (paymentIds.isEmpty()) {
+            callback.onSuccess(new ArrayList<>());
+            return;
+        }
+
+        List<Payment> fetchedPayments = new ArrayList<>();
+        DatabaseReference paymentsRef = mDatabase.child("payments");
+        final AtomicInteger paymentsToFetch = new AtomicInteger(paymentIds.size());
+
+        for (String paymentId : paymentIds) {
+            paymentsRef.child(paymentId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        Payment payment = snapshot.getValue(Payment.class);
+                        if (payment != null) {
+                            payment.setPayment_id(snapshot.getKey());
+                            fetchedPayments.add(payment);
+                        }
+                    }
+                    if (paymentsToFetch.decrementAndGet() == 0) {
+                        callback.onSuccess(fetchedPayments);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, "Failed to fetch payment details for ID " + paymentId + ": " + error.getMessage());
+                    if (paymentsToFetch.decrementAndGet() == 0) {
+                        callback.onSuccess(fetchedPayments);
+                    }
+                }
+            });
+        }
+    }
+
+    public void markItemAsSold(String itemId, DbWriteCallback callback) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("status", "Sold");
+        mDatabase.child("items").child(itemId).updateChildren(updates)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        callback.onSuccess();
+                    } else {
+                        callback.onFailure(task.getException().getMessage());
+                    }
+                });
     }
 }

@@ -297,11 +297,13 @@
                         android:src="@drawable/ic_arrow_right"
                         app:tint="@color/gray" />
                 </LinearLayout>
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="#DADADA" />
 
+                <!-- Re-added: row_transaction_history -->
                 <LinearLayout
                     android:id="@+id/row_transaction_history"
                     android:layout_width="match_parent"
@@ -343,6 +345,7 @@
                         android:src="@drawable/ic_arrow_right"
                         app:tint="@color/gray" />
                 </LinearLayout>
+
                 <View
                     android:id="@+id/divider_admin_dashboard"
                     android:layout_width="match_parent"
@@ -442,6 +445,128 @@
                 </LinearLayout>
 
             </LinearLayout>
+
+            <!-- NEW: History & Activity Section -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp"
+                android:layout_marginTop="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Lịch sử &amp; Hoạt động"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:textColor="@android:color/black"
+                        android:layout_marginBottom="12dp" />
+
+                    <Button
+                        android:id="@+id/btn_saved_items"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Mặt hàng đã lưu"
+                        android:drawableStart="@drawable/ic_bookmark"
+                        android:drawablePadding="8dp"
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:textColor="@android:color/black"
+                        android:layout_marginBottom="8dp"/>
+
+                    <Button
+                        android:id="@+id/btn_offer_history"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Lịch sử đề nghị"
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:textColor="@android:color/black"
+                        android:layout_marginBottom="8dp"/>
+
+                    <Button
+                        android:id="@+id/btn_purchase_history"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Lịch sử mua hàng"
+                        android:drawableStart="@drawable/ic_shopping_bag"
+                        android:drawablePadding="8dp"
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:textColor="@android:color/black"
+                        android:layout_marginBottom="8dp"/>
+
+                    <Button
+                        android:id="@+id/btn_sales_history"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Lịch sử bán hàng"
+                        android:drawableStart="@drawable/ic_sell"
+                        android:drawablePadding="8dp"
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:textColor="@android:color/black"
+                        android:layout_marginBottom="8dp"/>
+
+                    <!-- NEW: Payment History Button -->
+                    <Button
+                        android:id="@+id/btn_payment_history"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Lịch sử thanh toán"
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:textColor="@android:color/black"
+                        android:layout_marginBottom="8dp"/>
+
+                    <!-- NEW: Payment Methods Button -->
+                    <Button
+                        android:id="@+id/btn_payment_methods"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Phương thức thanh toán"
+                        android:drawableStart="@drawable/ic_credit_card"
+                        android:drawablePadding="8dp"
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:textColor="@android:color/black"
+                        android:layout_marginBottom="8dp"/>
+
+                    <Button
+                        android:id="@+id/btn_item_analytics"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Phân tích tin đăng của tôi"
+                        android:drawableStart="@drawable/ic_analytics"
+                        android:drawablePadding="8dp"
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:textColor="@android:color/black"/>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
 
             <LinearLayout
                 android:id="@+id/row_logout"

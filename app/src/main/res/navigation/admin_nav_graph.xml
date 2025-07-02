@@ -5,51 +5,139 @@
     android:id="@+id/admin_nav_graph"
     app:startDestination="@id/adminDashboardHomeFragment">
 
+    <!-- Fragment: Admin Dashboard Home -->
     <fragment
         android:id="@+id/adminDashboardHomeFragment"
         android:name="com.example.tradeup.fragment.AdminDashboardHomeFragment"
-        android:label="Admin Dashboard"
+        android:label="Bảng điều khiển Admin"
         tools:layout="@layout/fragment_admin_dashboard_home">
         <action
             android:id="@+id/action_adminDashboardHomeFragment_to_reviewModerationFragment"
             app:destination="@id/reviewModerationFragment" />
-        <!-- Các action đến các màn hình quản lý khác sẽ được thêm vào đây -->
-        <!-- Ví dụ: -->
-        <!-- <action -->
-        <!-- android:id="@+id/action_adminDashboardHomeFragment_to_reportedItemsFragment" -->
-        <!-- app:destination="@id/reportedItemsFragment" /> -->
-        <!-- <action -->
-        <!-- android:id="@+id/action_adminDashboardHomeFragment_to_reportedUsersFragment" -->
-        <!-- app:destination="@id/reportedUsersFragment" /> -->
-        <!-- <action -->
-        <!-- android:id="@+id/action_adminDashboardHomeFragment_to_reportedChatsFragment" -->
-        <!-- app:destination="@id/reportedChatsFragment" /> -->
+        <action
+            android:id="@+id/action_adminDashboardHomeFragment_to_reportListFragment"
+            app:destination="@id/reportListFragment" />
+        <action
+            android:id="@+id/action_adminDashboardHomeFragment_to_userManagementFragment"
+            app:destination="@id/userManagementFragment" />
+        <action
+            android:id="@+id/action_adminDashboardHomeFragment_to_salesHistoryFragment"
+            app:destination="@id/salesHistoryFragment" />
     </fragment>
 
-    <!-- Bao gồm ReviewModerationFragment đã tạo trước đó -->
+    <!-- Fragment: Review Moderation -->
     <fragment
         android:id="@+id/reviewModerationFragment"
         android:name="com.example.tradeup.fragment.ReviewModerationFragment"
         android:label="Kiểm duyệt đánh giá"
         tools:layout="@layout/fragment_review_moderation"/>
 
-    <!-- Placeholder cho các Fragment quản lý báo cáo khác -->
-    <!-- <fragment -->
-    <!-- android:id="@+id/reportedItemsFragment" -->
-    <!-- android:name="com.example.tradeup.fragment.ReportedItemsFragment" -->
-    <!-- android:label="Tin đăng bị báo cáo" -->
-    <!-- tools:layout="@layout/fragment_reported_items" /> -->
+    <!-- Fragment: Report List -->
+    <fragment
+        android:id="@+id/reportListFragment"
+        android:name="com.example.tradeup.fragment.ReportListFragment"
+        android:label="Danh sách Báo cáo"
+        tools:layout="@layout/fragment_report_list">
+        <action
+            android:id="@+id/action_reportListFragment_to_reportDetailFragment"
+            app:destination="@id/reportDetailFragment" />
+    </fragment>
 
-    <!-- <fragment -->
-    <!-- android:id="@+id/reportedUsersFragment" -->
-    <!-- android:name="com.example.tradeup.fragment.ReportedUsersFragment" -->
-    <!-- android:label="Người dùng bị báo cáo" -->
-    <!-- tools:layout="@layout/fragment_reported_users" /> -->
+    <!-- Fragment: Report Detail -->
+    <fragment
+        android:id="@+id/reportDetailFragment"
+        android:name="com.example.tradeup.fragment.ReportDetailFragment"
+        android:label="Chi tiết Báo cáo"
+        tools:layout="@layout/fragment_report_detail">
+        <argument
+            android:name="reportId"
+            app:argType="string" />
+        <!-- NEW: Actions from ReportDetailFragment -->
+        <action
+            android:id="@+id/action_reportDetailFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment" />
+        <action
+            android:id="@+id/action_reportDetailFragment_to_itemDetailFragment"
+            app:destination="@id/itemDetailFragment" />
+        <action
+            android:id="@+id/action_reportDetailFragment_to_chatDetailFragment"
+            app:destination="@id/chatDetailFragment" />
+    </fragment>
 
-    <!-- <fragment -->
-    <!-- android:id="@+id/reportedChatsFragment" -->
-    <!-- android:name="com.example.tradeup.fragment.ReportedChatsFragment" -->
-    <!-- android:label="Trò chuyện bị báo cáo" -->
-    <!-- tools:layout="@layout/fragment_reported_chats" /> -->
+    <!-- Fragment: User Management -->
+    <fragment
+        android:id="@+id/userManagementFragment"
+        android:name="com.example.tradeup.fragment.UserManagementFragment"
+        android:label="Quản lý Người dùng"
+        tools:layout="@layout/fragment_user_management">
+        <!-- Action để xem chi tiết người dùng -->
+        <action
+            android:id="@+id/action_userManagementFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment" /> <!-- Đảm bảo userProfileFragment có trong main nav_graph hoặc admin_nav_graph -->
+    </fragment>
 
+    <fragment
+        android:id="@+id/userProfileFragment"
+        android:name="com.example.tradeup.fragment.UserProfileFragment"
+        android:label="Hồ sơ người dùng"
+        tools:layout="@layout/fragment_user_profile">
+        <argument
+            android:name="userId"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/itemDetailFragment"
+        android:name="com.example.tradeup.fragment.ItemDetailFragment"
+        android:label="Chi tiết tin đăng"
+        tools:layout="@layout/fragment_item_detail">
+        <argument
+            android:name="itemId"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/chatDetailFragment"
+        android:name="com.example.tradeup.fragment.ChatDetailFragment"
+        android:label="Trò chuyện"
+        tools:layout="@layout/fragment_chat_detail">
+        <argument
+            android:name="chatId"
+            app:argType="string" />
+        <argument
+            android:name="otherUserId"
+            app:argType="string" />
+        <argument
+            android:name="otherUserName"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/salesHistoryFragment"
+        android:name="com.example.tradeup.fragment.SalesHistoryFragment"
+        android:label="Lịch sử Bán hàng"
+        tools:layout="@layout/fragment_sales_history">
+        <action
+            android:id="@+id/action_salesHistoryFragment_to_itemDetailFragment"
+            app:destination="@id/itemDetailFragment" /> <!-- Để xem chi tiết tin đăng đã bán -->
+    </fragment>
+
+    <fragment
+        android:id="@+id/savedItemsFragment"
+        android:name="com.example.tradeup.fragment.SavedItemsFragment"
+        android:label="Mặt hàng đã lưu"
+        tools:layout="@layout/fragment_saved_items">
+        <action
+            android:id="@+id/action_savedItemsFragment_to_itemDetailFragment"
+            app:destination="@id/itemDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/offerHistoryFragment"
+        android:name="com.example.tradeup.fragment.OfferHistoryFragment"
+        android:label="Lịch sử Đề nghị"
+        tools:layout="@layout/fragment_offer_history">
+        <action
+            android:id="@+id/action_offerHistoryFragment_to_itemDetailFragment"
+            app:destination="@id/itemDetailFragment" />
+    </fragment>
 </navigation>

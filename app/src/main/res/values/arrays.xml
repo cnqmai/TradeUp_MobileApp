@@ -52,4 +52,10 @@
         <item>Giá giảm dần</item>
         <item>Khoảng cách (gần nhất)</item>
     </string-array>
+
+    <string-array name="user_filter_options">
+        <item>Tất cả người dùng</item>
+        <item>Người dùng bị gắn cờ</item>
+        <item>Người dùng bị khóa</item>
+    </string-array>
 </resources>

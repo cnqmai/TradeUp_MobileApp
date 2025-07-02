@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white"
+    tools:context=".fragment.UserListingsFragment">
+
+    <!-- Toolbar: Hiển thị tên người dùng và nút quay lại -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_user_listings"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="?attr/actionBarTheme"
+        app:popupTheme="?attr/actionBarTheme">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Nút quay lại -->
+            <ImageView
+                android:id="@+id/iv_back_button_user_listings"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="12dp"
+                android:src="@drawable/ic_arrow_back"
+                android:contentDescription="Nút quay lại"
+                app:tint="@android:color/white"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+
+            <!-- TextView hiển thị tên người dùng -->
+            <TextView
+                android:id="@+id/tv_user_name_listings"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Tin đăng của Người dùng"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginStart="16dp" />
+
+        </LinearLayout>
+    </androidx.appcompat.widget.Toolbar>
+
+    <!-- TextView hiển thị khi không có tin đăng nào -->
+    <TextView
+        android:id="@+id/text_no_items_user_listings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Người dùng này chưa có tin đăng nào."
+        android:textSize="18sp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:gravity="center"
+        android:padding="32dp"
+        android:visibility="gone"
+        android:layout_marginTop="32dp" />
+
+    <!-- RecyclerView để hiển thị danh sách các mặt hàng -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_user_items"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp"
+        android:paddingTop="8dp"
+        tools:listitem="@layout/item_card_view" />
+
+</LinearLayout>

@@ -4,57 +4,65 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
+    android:layout_marginBottom="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    app:cardCornerRadius="15dp"
     app:cardElevation="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="0dp"> <!-- Removed padding from here, will add to inner elements -->
 
-        <!-- Ảnh sản phẩm -->
+        <!-- Product Image -->
         <ImageView
             android:id="@+id/iv_item_image"
             android:layout_width="match_parent"
             android:layout_height="160dp"
             android:scaleType="centerCrop"
             android:src="@drawable/img_placeholder"
-            android:contentDescription="Ảnh sản phẩm" />
+            android:contentDescription="Product Image" />
 
-        <!-- Tiêu đề -->
-        <TextView
-            android:id="@+id/tv_item_title"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:maxLines="2"
-            android:ellipsize="end"
-            tools:text="Tiêu đề sản phẩm rất dài và có thể bị cắt bớt" />
+            android:orientation="vertical"
+            android:padding="12dp"> <!-- Added padding to this inner LinearLayout -->
 
-        <!-- Giá -->
-        <TextView
-            android:id="@+id/tv_item_price"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textSize="14sp"
-            android:textColor="@color/design_default_color_primary_dark"
-            tools:text="Giá: 1.500.000 VNĐ" />
+            <!-- Title -->
+            <TextView
+                android:id="@+id/tv_item_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="@android:color/black"
+                android:maxLines="2"
+                android:ellipsize="end"
+                tools:text="Used Samsung Galaxy S22 Phone" />
 
-        <!-- Vị trí -->
-        <TextView
-            android:id="@+id/tv_item_location"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:textSize="12sp"
-            android:textColor="@android:color/darker_gray"
-            tools:text="Vị trí: Quận Bình Thạnh" />
+            <!-- Price -->
+            <TextView
+                android:id="@+id/tv_item_price"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/orange_bold"
+                tools:text="Giá: 8.500.000 đ" />
 
+            <!-- Location -->
+            <TextView
+                android:id="@+id/tv_item_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray"
+                tools:text="Vị trí: District 1, Ho Chi Minh City" />
+        </LinearLayout>
     </LinearLayout>
-
 </androidx.cardview.widget.CardView>

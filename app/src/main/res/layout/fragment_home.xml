@@ -10,7 +10,7 @@
         android:id="@+id/toolbar_home"
         android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="@color/white"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,27 +23,26 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/tv_home_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="TradeUp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"
-                android:maxLines="1"
-                android:ellipsize="end" />
+            <ImageView
+                android:id="@+id/iv_logo_home"
+                android:layout_width="150dp"
+                android:layout_height="48dp"
+                android:contentDescription="Logo"
+                android:src="@drawable/logo_tradeup" />
+
+            <View
+                android:layout_width="185dp"
+                android:layout_height="match_parent">
+            </View>
 
             <ImageView
                 android:id="@+id/iv_notification_bell_home"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_marginEnd="16dp"
                 android:contentDescription="Notifications"
                 android:padding="8dp"
                 android:src="@drawable/ic_notification"
-                app:tint="@android:color/white" />
+                app:tint="@color/orange_bold" />
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
@@ -59,6 +58,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:background="@color/white"
             android:padding="16dp">
 
             <TextView
@@ -68,14 +68,18 @@
                 android:text="Chào mừng đến với TradeUp!"
                 android:textSize="24sp"
                 android:textStyle="bold"
+                android:fontFamily="@font/montserrat_bold"
+                android:textColor="@android:color/black"
                 android:layout_marginBottom="16dp" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Duyệt theo danh mục"
-                android:textSize="20sp"
+                android:fontFamily="@font/montserrat_bold"
+                android:textSize="18sp"
                 android:textStyle="bold"
+                android:textColor="@android:color/black"
                 android:layout_marginBottom="8dp" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -89,8 +93,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Sản phẩm gần bạn"
+                android:fontFamily="@font/montserrat_bold"
                 android:textSize="20sp"
                 android:textStyle="bold"
+                android:textColor="@android:color/black"
                 android:layout_marginBottom="8dp" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -104,8 +110,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Đang được quan tâm"
+                android:fontFamily="@font/montserrat_bold"
                 android:textSize="20sp"
                 android:textStyle="bold"
+                android:textColor="@android:color/black"
                 android:layout_marginBottom="8dp" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -119,8 +127,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Dành riêng cho bạn"
+                android:fontFamily="@font/montserrat_bold"
                 android:textSize="20sp"
                 android:textStyle="bold"
+                android:textColor="@android:color/black"
                 android:layout_marginBottom="8dp" />
 
             <androidx.recyclerview.widget.RecyclerView

@@ -24,7 +24,7 @@ import com.example.tradeup.R;
 import com.example.tradeup.adapter.CategoryAdapter;
 import com.example.tradeup.adapter.ItemAdapter;
 import com.example.tradeup.model.Item;
-import com.example.tradeup.model.Location; // Giữ import này cho class Location của bạn
+import com.example.tradeup.model.Location;
 import com.example.tradeup.utils.FirebaseHelper;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -32,7 +32,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.CancellationTokenSource;
-import com.google.firebase.auth.FirebaseAuth; // Thêm import này để lấy userId
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -46,13 +46,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects; // Thêm import này
+import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger; // Thêm import này
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class HomeFragment extends Fragment {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    private static final String TAG = "HomeFragment";
 
     private RecyclerView rvPopularItems, rvItemsNearYou, rvCategories, rvPersonalizedItems;
     private ItemAdapter popularItemsAdapter, itemsNearYouAdapter, personalizedItemsAdapter;
@@ -63,7 +66,9 @@ public class HomeFragment extends Fragment {
 
     private FusedLocationProviderClient fusedLocationClient;
     private CancellationTokenSource cancellationTokenSource;
-    private FirebaseAuth mAuth; // Khai báo FirebaseAuth
+    private FirebaseAuth mAuth;
+
+    private ExecutorService backgroundExecutor;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -82,21 +87,23 @@ public class HomeFragment extends Fragment {
         navController = Navigation.findNavController(view);
         firebaseHelper = new FirebaseHelper();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
-        mAuth = FirebaseAuth.getInstance(); // Khởi tạo FirebaseAuth
+        mAuth = FirebaseAuth.getInstance();
+
+        backgroundExecutor = Executors.newSingleThreadExecutor();
 
         // Initialize RecyclerViews
         rvCategories = view.findViewById(R.id.rvCategories);
         rvItemsNearYou = view.findViewById(R.id.rvItemsNearYou);
         rvPopularItems = view.findViewById(R.id.rvPopularItems);
-        rvPersonalizedItems = view.findViewById(R.id.rvPersonalizedItems); // Khởi tạo RecyclerView mới
+        rvPersonalizedItems = view.findViewById(R.id.rvPersonalizedItems);
 
         // Setup Adapters
         categoryAdapter = new CategoryAdapter(getContext(), new ArrayList<>());
         itemsNearYouAdapter = new ItemAdapter(getContext(), new ArrayList<>());
         popularItemsAdapter = new ItemAdapter(getContext(), new ArrayList<>());
-        personalizedItemsAdapter = new ItemAdapter(getContext(), new ArrayList<>()); // Khởi tạo Adapter mới
+        personalizedItemsAdapter = new ItemAdapter(getContext(), new ArrayList<>());
 
-        // Set Layout Managers and Adapters (theo thứ tự hiển thị trong XML)
+        // Set Layout Managers and Adapters
         rvCategories.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         rvCategories.setAdapter(categoryAdapter);
 
@@ -107,14 +114,13 @@ public class HomeFragment extends Fragment {
         rvPopularItems.setAdapter(popularItemsAdapter);
 
         rvPersonalizedItems.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        rvPersonalizedItems.setAdapter(personalizedItemsAdapter); // Thiết lập cho RecyclerView mới
+        rvPersonalizedItems.setAdapter(personalizedItemsAdapter);
 
-        // Khởi tạo ImageView
+        // Initialize ImageView
         ivNotificationBellHome = view.findViewById(R.id.iv_notification_bell_home);
 
-        // Đặt OnClickListener cho ImageView
+        // Set OnClickListener for ImageView
         ivNotificationBellHome.setOnClickListener(v -> {
-            // Điều hướng đến NotificationFragment
             navController.navigate(R.id.action_homeFragment_to_notificationFragment);
         });
 
@@ -137,17 +143,17 @@ public class HomeFragment extends Fragment {
             navController.navigate(R.id.action_homeFragment_to_itemDetailFragment, bundle);
         });
 
-        personalizedItemsAdapter.setOnItemClickListener(itemId -> { // Thiết lập listener cho adapter mới
+        personalizedItemsAdapter.setOnItemClickListener(itemId -> {
             Bundle bundle = new Bundle();
             bundle.putString("itemId", itemId);
             navController.navigate(R.id.action_homeFragment_to_itemDetailFragment, bundle);
         });
 
         // Fetch data
-        fetchCategories(); // Duyệt theo danh mục
-        checkLocationPermissionAndFetchNearYou(); // Sản phẩm gần bạn
-        fetchTrendingItems(); // Đang được quan tâm (dựa vào rating)
-        fetchPersonalizedItems(); // Dành riêng cho bạn (dựa vào lịch sử duyệt)
+        fetchCategories();
+        checkLocationPermissionAndFetchNearYou();
+        fetchTrendingItems();
+        fetchPersonalizedItems();
     }
 
     // Cập nhật logic để lấy sản phẩm đang được quan tâm dựa trên rating
@@ -156,40 +162,49 @@ public class HomeFragment extends Fragment {
         itemsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                List<Item> trendingItems = new ArrayList<>();
-                for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
-                    Item item = itemSnapshot.getValue(Item.class);
-                    // Chỉ lấy các item còn "Available"
-                    if (item != null && item.getStatus().equals("Available")) {
-                        item.setId(itemSnapshot.getKey()); // Set the ID from the snapshot key
-                        trendingItems.add(item);
+                // Execute heavy data processing on a background thread
+                backgroundExecutor.execute(() -> {
+                    List<Item> trendingItems = new ArrayList<>();
+                    for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
+                        Item item = itemSnapshot.getValue(Item.class);
+                        // Chỉ lấy các item còn "Available" và kiểm tra null cho status
+                        if (item != null && item.getStatus() != null && item.getStatus().equals("Available")) {
+                            item.setId(itemSnapshot.getKey());
+                            trendingItems.add(item);
+                        }
                     }
-                }
 
-                // Lọc và sắp xếp các item theo rating
-                // Tiêu chí: average_rating (giảm dần), sau đó rating_count (giảm dần)
-                // Loại bỏ các item không có đánh giá (rating_count <= 0) để đảm bảo độ tin cậy
-                trendingItems.removeIf(item -> item.getRating_count() == null || item.getRating_count() <= 0);
+                    // Lọc và sắp xếp các item theo rating
+                    // Tiêu chí: average_rating (giảm dần), sau đó rating_count (giảm dần)
+                    // Loại bỏ các item không có đánh giá (rating_count <= 0) để đảm bảo độ tin cậy
+                    trendingItems.removeIf(item -> item.getRating_count() == null || item.getRating_count() <= 0);
 
-                Collections.sort(trendingItems, (item1, item2) -> {
-                    // Sắp xếp chính: average_rating giảm dần
-                    int ratingComparison = Double.compare(item2.getAverage_rating(), item1.getAverage_rating());
-                    if (ratingComparison != 0) {
-                        return ratingComparison;
-                    }
-                    // Sắp xếp phụ: rating_count giảm dần (dùng khi average_rating bằng nhau)
-                    return Long.compare(item2.getRating_count(), item1.getRating_count());
+                    Collections.sort(trendingItems, (item1, item2) -> {
+                        // Sắp xếp chính: average_rating giảm dần
+                        int ratingComparison = Double.compare(item2.getAverage_rating(), item1.getAverage_rating());
+                        if (ratingComparison != 0) {
+                            return ratingComparison;
+                        }
+                        // Sắp xếp phụ: rating_count giảm dần (dùng khi average_rating bằng nhau)
+                        return Long.compare(item2.getRating_count(), item1.getRating_count());
+                    });
+
+                    // Giới hạn số lượng item hiển thị (ví dụ: top 10)
+                    List<Item> topTrendingItems = trendingItems.subList(0, Math.min(trendingItems.size(), 10));
+
+                    // Update UI on the main thread
+                    requireActivity().runOnUiThread(() -> {
+                        popularItemsAdapter.setItems(topTrendingItems);
+                    });
                 });
-
-                // Giới hạn số lượng item hiển thị (ví dụ: top 10)
-                List<Item> topTrendingItems = trendingItems.subList(0, Math.min(trendingItems.size(), 10));
-                popularItemsAdapter.setItems(topTrendingItems);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("HomeFragment", "Failed to load trending items by rating: " + error.getMessage());
-                Toast.makeText(getContext(), "Không thể tải sản phẩm đang được quan tâm.", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Failed to load trending items by rating: " + error.getMessage());
+                if (isAdded()) { // Check if fragment is still attached
+                    Toast.makeText(getContext(), "Không thể tải sản phẩm đang được quan tâm.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -216,27 +231,38 @@ public class HomeFragment extends Fragment {
                         fetchedItemMap.put(snapshot.getKey(), item);
                     }
                     if (fetchedCount.incrementAndGet() == itemIds.size()) { // Increment and check if all fetched
-                        List<Item> orderedItems = new ArrayList<>();
-                        for (String id : itemIds) {
-                            if (fetchedItemMap.containsKey(id)) {
-                                orderedItems.add(fetchedItemMap.get(id));
+                        // Execute on background thread if processing is heavy
+                        backgroundExecutor.execute(() -> {
+                            List<Item> orderedItems = new ArrayList<>();
+                            for (String id : itemIds) {
+                                if (fetchedItemMap.containsKey(id)) {
+                                    orderedItems.add(fetchedItemMap.get(id));
+                                }
                             }
-                        }
-                        adapter.setItems(orderedItems);
+                            // Update UI on the main thread
+                            requireActivity().runOnUiThread(() -> {
+                                adapter.setItems(orderedItems);
+                            });
+                        });
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e("HomeFragment", "Failed to load item by ID: " + error.getMessage());
+                    Log.e(TAG, "Failed to load item by ID: " + error.getMessage());
                     if (fetchedCount.incrementAndGet() == itemIds.size()) { // Still increment to ensure completion check works
-                        List<Item> orderedItems = new ArrayList<>();
-                        for (String id : itemIds) {
-                            if (fetchedItemMap.containsKey(id)) {
-                                orderedItems.add(fetchedItemMap.get(id));
+                        // Even if some failed, update UI on main thread with what was fetched
+                        backgroundExecutor.execute(() -> {
+                            List<Item> orderedItems = new ArrayList<>();
+                            for (String id : itemIds) {
+                                if (fetchedItemMap.containsKey(id)) {
+                                    orderedItems.add(fetchedItemMap.get(id));
+                                }
                             }
-                        }
-                        adapter.setItems(orderedItems);
+                            requireActivity().runOnUiThread(() -> {
+                                adapter.setItems(orderedItems);
+                            });
+                        });
                     }
                 }
             });
@@ -249,22 +275,29 @@ public class HomeFragment extends Fragment {
         itemsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Set<String> categories = new HashSet<>();
-                for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
-                    Item item = itemSnapshot.getValue(Item.class);
-                    if (item != null && item.getCategory() != null && !item.getCategory().isEmpty()) {
-                        categories.add(item.getCategory());
+                backgroundExecutor.execute(() -> { // Execute on background thread
+                    Set<String> categories = new HashSet<>();
+                    for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
+                        Item item = itemSnapshot.getValue(Item.class);
+                        if (item != null && item.getCategory() != null && !item.getCategory().isEmpty()) {
+                            categories.add(item.getCategory());
+                        }
                     }
-                }
-                List<String> categoryList = new ArrayList<>(categories);
-                Collections.sort(categoryList); // Sort categories alphabetically
-                categoryAdapter.setCategories(categoryList);
+                    List<String> categoryList = new ArrayList<>(categories);
+                    Collections.sort(categoryList); // Sort categories alphabetically
+
+                    requireActivity().runOnUiThread(() -> { // Update UI on the main thread
+                        categoryAdapter.setCategories(categoryList);
+                    });
+                });
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("HomeFragment", "Failed to load categories: " + error.getMessage());
-                Toast.makeText(getContext(), "Không thể tải danh mục.", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Failed to load categories: " + error.getMessage());
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Không thể tải danh mục.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -281,23 +314,27 @@ public class HomeFragment extends Fragment {
         cancellationTokenSource = new CancellationTokenSource();
 
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(getContext(), "Ứng dụng không có quyền truy cập vị trí.", Toast.LENGTH_SHORT).show();
+            if (isAdded()) { // Check if fragment is still attached
+                Toast.makeText(getContext(), "Ứng dụng không có quyền truy cập vị trí.", Toast.LENGTH_SHORT).show();
+            }
             return;
         }
 
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(requireActivity(), location -> {
                     if (location != null) {
-                        Log.d("HomeFragment", "Vị trí người dùng: Lat=" + location.getLatitude() + ", Lng=" + location.getLongitude());
-                        fetchItemsNearYou(location); // location ở đây là android.location.Location
+                        Log.d(TAG, "User location: Lat=" + location.getLatitude() + ", Lng=" + location.getLongitude());
+                        fetchItemsNearYou(location);
                     } else {
-                        Log.w("HomeFragment", "Không thể lấy vị trí cuối cùng. Thử yêu cầu vị trí mới.");
+                        Log.w(TAG, "Could not get last location. Trying to request new location updates.");
                         requestNewLocationUpdates();
                     }
                 })
                 .addOnFailureListener(requireActivity(), e -> {
-                    Log.e("HomeFragment", "Lỗi khi lấy vị trí: " + e.getMessage());
-                    Toast.makeText(getContext(), "Không thể lấy vị trí hiện tại: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Log.e(TAG, "Error getting location: " + e.getMessage());
+                    if (isAdded()) { // Check if fragment is still attached
+                        Toast.makeText(getContext(), "Không thể lấy vị trí hiện tại: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
                 });
     }
 
@@ -313,11 +350,11 @@ public class HomeFragment extends Fragment {
                 if (locationResult == null) {
                     return;
                 }
-                for (android.location.Location location : locationResult.getLocations()) { // Sử dụng tên đầy đủ
+                for (android.location.Location location : locationResult.getLocations()) {
                     if (location != null) {
-                        Log.d("HomeFragment", "Vị trí mới: Lat=" + location.getLatitude() + ", Lng=" + location.getLongitude());
-                        fetchItemsNearYou(location); // location ở đây là android.location.Location
-                        fusedLocationClient.removeLocationUpdates(this); // Stop updates after getting one
+                        Log.d(TAG, "New location: Lat=" + location.getLatitude() + ", Lng=" + location.getLongitude());
+                        fetchItemsNearYou(location);
+                        fusedLocationClient.removeLocationUpdates(this);
                         return;
                     }
                 }
@@ -329,148 +366,161 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void fetchItemsNearYou(android.location.Location userLocation) { // Cập nhật tham số thành android.location.Location
+    private void fetchItemsNearYou(android.location.Location userLocation) {
         DatabaseReference itemsRef = FirebaseDatabase.getInstance().getReference("items");
         itemsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                List<Item> nearbyItems = new ArrayList<>();
-                float searchRadiusKm = 10.0f; // Example search radius in kilometers
+                backgroundExecutor.execute(() -> { // Execute on background thread
+                    List<Item> nearbyItems = new ArrayList<>();
+                    float searchRadiusKm = 10.0f;
 
-                for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
-                    Item item = itemSnapshot.getValue(Item.class);
-                    if (item != null && item.getLocation() != null && item.getStatus().equals("Available")) {
-                        // Kiểm tra sự tồn tại của 'lat' và 'lng' trực tiếp trên DataSnapshot
-                        DataSnapshot locationSnapshot = itemSnapshot.child("location");
-                        if (locationSnapshot.child("lat").exists() && locationSnapshot.child("lng").exists()) {
-                            // Tạo đối tượng android.location.Location để tính khoảng cách
-                            android.location.Location itemLocation = new android.location.Location("");
-                            // Chuyển đổi Double (từ model của bạn) sang double (cho Android Location)
-                            itemLocation.setLatitude(item.getLocation().getLat());
-                            itemLocation.setLongitude(item.getLocation().getLng());
+                    for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
+                        Item item = itemSnapshot.getValue(Item.class);
+                        if (item != null && item.getLocation() != null && item.getStatus() != null && item.getStatus().equals("Available")) {
+                            DataSnapshot locationSnapshot = itemSnapshot.child("location");
+                            if (locationSnapshot.child("lat").exists() && locationSnapshot.child("lng").exists()) {
+                                android.location.Location itemLocation = new android.location.Location("");
+                                itemLocation.setLatitude(item.getLocation().getLat());
+                                itemLocation.setLongitude(item.getLocation().getLng());
 
-                            float distanceInMeters = userLocation.distanceTo(itemLocation);
-                            float distanceInKm = distanceInMeters / 1000;
+                                float distanceInMeters = userLocation.distanceTo(itemLocation);
+                                float distanceInKm = distanceInMeters / 1000;
 
-                            if (distanceInKm <= searchRadiusKm) {
-                                item.setId(itemSnapshot.getKey());
-                                nearbyItems.add(item);
+                                if (distanceInKm <= searchRadiusKm) {
+                                    item.setId(itemSnapshot.getKey());
+                                    nearbyItems.add(item);
+                                }
+                            } else {
+                                Log.w(TAG, "Item " + itemSnapshot.getKey() + " is missing lat/lng fields in its location data.");
                             }
-                        } else {
-                            Log.w("HomeFragment", "Item " + itemSnapshot.getKey() + " is missing lat/lng fields in its location data.");
                         }
                     }
-                }
-                // Sort by distance (closest first)
-                Collections.sort(nearbyItems, (item1, item2) -> {
-                    // Tạo đối tượng android.location.Location để tính khoảng cách
-                    android.location.Location loc1 = new android.location.Location("");
-                    // Chuyển đổi Double (từ model của bạn) sang double (cho Android Location)
-                    loc1.setLatitude(item1.getLocation().getLat());
-                    loc1.setLongitude(item1.getLocation().getLng());
+                    Collections.sort(nearbyItems, (item1, item2) -> {
+                        android.location.Location loc1 = new android.location.Location("");
+                        loc1.setLatitude(item1.getLocation().getLat());
+                        loc1.setLongitude(item1.getLocation().getLng());
 
-                    android.location.Location loc2 = new android.location.Location("");
-                    // Chuyển đổi Double (từ model của bạn) sang double (cho Android Location)
-                    loc2.setLatitude(item2.getLocation().getLat());
-                    loc2.setLongitude(item2.getLocation().getLng());
+                        android.location.Location loc2 = new android.location.Location("");
+                        loc2.setLatitude(item2.getLocation().getLat());
+                        loc2.setLongitude(item2.getLocation().getLng());
 
-                    float dist1 = userLocation.distanceTo(loc1);
-                    float dist2 = userLocation.distanceTo(loc2);
-                    return Float.compare(dist1, dist2);
+                        float dist1 = userLocation.distanceTo(loc1);
+                        float dist2 = userLocation.distanceTo(loc2);
+                        return Float.compare(dist1, dist2);
+                    });
+
+                    requireActivity().runOnUiThread(() -> { // Update UI on the main thread
+                        itemsNearYouAdapter.setItems(nearbyItems);
+                    });
                 });
-                itemsNearYouAdapter.setItems(nearbyItems);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("HomeFragment", "Failed to load items near you: " + error.getMessage());
-                Toast.makeText(getContext(), "Không thể tải sản phẩm gần bạn.", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Failed to load items near you: " + error.getMessage());
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Không thể tải sản phẩm gần bạn.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
 
     private void fetchPersonalizedItems() {
-        String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
-        if (userId == null) {
-            // Người dùng chưa đăng nhập, không thể cá nhân hóa. Có thể hiển thị mục phổ biến chung
-            Log.w("HomeFragment", "User not logged in, cannot fetch personalized items.");
-            // Ví dụ: hiển thị các item phổ biến chung nếu không có user ID
-            fetchItemsByIds(new ArrayList<>(), personalizedItemsAdapter); // Hoặc một danh sách rỗng
+        String userId = null;
+        if (mAuth.getCurrentUser() != null) {
+            userId = mAuth.getCurrentUser().getUid();
+        }
+
+        // Tạo một biến final mới để sử dụng trong lambda
+        final String finalUserId = userId; // <-- Dòng sửa lỗi
+
+        if (finalUserId == null) { // Sử dụng finalUserId
+            Log.w(TAG, "User not logged in, cannot fetch personalized items.");
+            fetchItemsByIds(new ArrayList<>(), personalizedItemsAdapter);
             return;
         }
 
-        // Lấy 5 danh mục xem gần nhất của người dùng
-        DatabaseReference userHistoryRef = FirebaseDatabase.getInstance().getReference("user_activity").child(userId).child("viewed_categories");
+        DatabaseReference userHistoryRef = FirebaseDatabase.getInstance().getReference("user_activity").child(finalUserId).child("viewed_categories"); // Sử dụng finalUserId
         userHistoryRef.limitToLast(5).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Set<String> recentCategories = new HashSet<>();
-                for (DataSnapshot categorySnapshot : snapshot.getChildren()) {
-                    // Giả sử bạn lưu category là key và timestamp là value trong node viewed_categories
-                    recentCategories.add(categorySnapshot.getKey());
-                }
+                backgroundExecutor.execute(() -> {
+                    Set<String> recentCategories = new HashSet<>();
+                    for (DataSnapshot categorySnapshot : snapshot.getChildren()) {
+                        recentCategories.add(categorySnapshot.getKey());
+                    }
 
-                if (recentCategories.isEmpty()) {
-                    Log.d("HomeFragment", "No recent viewing history found for user " + userId);
-                    Toast.makeText(getContext(), "Chưa có lịch sử duyệt để cá nhân hóa.", Toast.LENGTH_SHORT).show();
-                    // Fallback: Nếu không có lịch sử, có thể hiển thị các item phổ biến hoặc ngẫu nhiên
-                    fetchTrendingItemsForPersonalizationFallback();
-                    return;
-                }
+                    if (recentCategories.isEmpty()) {
+                        Log.d(TAG, "No recent viewing history found for user " + finalUserId); // Sử dụng finalUserId
+                        requireActivity().runOnUiThread(() -> {
+                            if (isAdded()) {
+                                Toast.makeText(getContext(), "Chưa có lịch sử duyệt để cá nhân hóa.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        fetchTrendingItemsForPersonalizationFallback();
+                        return;
+                    }
 
-                Log.d("HomeFragment", "Recent categories for " + userId + ": " + recentCategories.toString());
-                fetchItemsByCategories(new ArrayList<>(recentCategories), personalizedItemsAdapter);
+                    Log.d(TAG, "Recent categories for " + finalUserId + ": " + recentCategories.toString()); // Sử dụng finalUserId
+                    fetchItemsByCategories(new ArrayList<>(recentCategories), personalizedItemsAdapter);
+                });
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("HomeFragment", "Failed to load user history: " + error.getMessage());
-                Toast.makeText(getContext(), "Lỗi khi tải lịch sử duyệt web.", Toast.LENGTH_SHORT).show();
-                fetchTrendingItemsForPersonalizationFallback(); // Fallback nếu lỗi
+                Log.e(TAG, "Failed to load user history: " + error.getMessage());
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Lỗi khi tải lịch sử duyệt web.", Toast.LENGTH_SHORT).show();
+                }
+                fetchTrendingItemsForPersonalizationFallback();
             }
         });
     }
 
     // Phương thức fallback khi không có lịch sử duyệt
     private void fetchTrendingItemsForPersonalizationFallback() {
-        // Lấy một số item phổ biến nhất để hiển thị trong mục "Dành riêng cho bạn" nếu không có lịch sử
         DatabaseReference itemsRef = FirebaseDatabase.getInstance().getReference("items");
         itemsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                List<Item> trendingItems = new ArrayList<>();
-                for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
-                    Item item = itemSnapshot.getValue(Item.class);
-                    // Chỉ lấy các item còn "Available"
-                    if (item != null && item.getStatus().equals("Available")) {
-                        item.setId(itemSnapshot.getKey()); // Set the ID from the snapshot key
-                        trendingItems.add(item);
+                backgroundExecutor.execute(() -> {
+                    List<Item> trendingItems = new ArrayList<>();
+                    for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
+                        Item item = itemSnapshot.getValue(Item.class);
+                        if (item != null && item.getStatus() != null && item.getStatus().equals("Available")) {
+                            item.setId(itemSnapshot.getKey());
+                            trendingItems.add(item);
+                        }
                     }
-                }
 
-                // Lọc và sắp xếp các item theo rating (tương tự fetchTrendingItems)
-                trendingItems.removeIf(item -> item.getRating_count() == null || item.getRating_count() <= 0);
+                    trendingItems.removeIf(item -> item.getRating_count() == null || item.getRating_count() <= 0);
 
-                Collections.sort(trendingItems, (item1, item2) -> {
-                    int ratingComparison = Double.compare(item2.getAverage_rating(), item1.getAverage_rating());
-                    if (ratingComparison != 0) {
-                        return ratingComparison;
-                    }
-                    return Long.compare(item2.getRating_count(), item1.getRating_count());
+                    Collections.sort(trendingItems, (item1, item2) -> {
+                        int ratingComparison = Double.compare(item2.getAverage_rating(), item1.getAverage_rating());
+                        if (ratingComparison != 0) {
+                            return ratingComparison;
+                        }
+                        return Long.compare(item2.getRating_count(), item1.getRating_count());
+                    });
+
+                    List<Item> topTrendingItems = trendingItems.subList(0, Math.min(trendingItems.size(), 5));
+
+                    requireActivity().runOnUiThread(() -> {
+                        personalizedItemsAdapter.setItems(topTrendingItems);
+                    });
                 });
-
-                List<Item> topTrendingItems = trendingItems.subList(0, Math.min(trendingItems.size(), 5)); // Lấy top 5 cho fallback
-                personalizedItemsAdapter.setItems(topTrendingItems);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("HomeFragment", "Failed to load fallback trending items for personalization: " + error.getMessage());
-                personalizedItemsAdapter.setItems(new ArrayList<>()); // Đặt rỗng nếu lỗi
+                Log.e(TAG, "Failed to load fallback trending items for personalization: " + error.getMessage());
+                requireActivity().runOnUiThread(() -> {
+                    personalizedItemsAdapter.setItems(new ArrayList<>());
+                });
             }
         });
     }
-
 
     private void fetchItemsByCategories(List<String> categories, ItemAdapter adapter) {
         if (categories.isEmpty()) {
@@ -480,44 +530,50 @@ public class HomeFragment extends Fragment {
 
         DatabaseReference itemsRef = FirebaseDatabase.getInstance().getReference("items");
         List<Item> resultItems = new ArrayList<>();
-        // Sử dụng AtomicInteger để đếm số lượng category đã xử lý
         AtomicInteger categoriesProcessed = new AtomicInteger(0);
 
         for (String category : categories) {
-            itemsRef.orderByChild("category").equalTo(category).limitToFirst(5).addListenerForSingleValueEvent(new ValueEventListener() { // Lấy 5 item mỗi category
+            itemsRef.orderByChild("category").equalTo(category).limitToFirst(5).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
                         Item item = itemSnapshot.getValue(Item.class);
-                        if (item != null && item.getStatus().equals("Available")) {
+                        if (item != null && item.getStatus() != null && item.getStatus().equals("Available")) {
                             item.setId(itemSnapshot.getKey());
                             resultItems.add(item);
                         }
                     }
                     if (categoriesProcessed.incrementAndGet() == categories.size()) {
-                        // Trộn các item từ các danh mục khác nhau và loại bỏ trùng lặp nếu có
-                        // Có thể thêm logic sắp xếp nếu cần
-                        Set<Item> uniqueItems = new HashSet<>(resultItems); // Loại bỏ trùng lặp
-                        List<Item> finalItems = new ArrayList<>(uniqueItems);
-                        Collections.shuffle(finalItems); // Xáo trộn để có sự đa dạng
-                        adapter.setItems(finalItems);
+                        backgroundExecutor.execute(() -> {
+                            Set<Item> uniqueItems = new HashSet<>(resultItems);
+                            List<Item> finalItems = new ArrayList<>(uniqueItems);
+                            Collections.shuffle(finalItems);
+
+                            requireActivity().runOnUiThread(() -> {
+                                adapter.setItems(finalItems);
+                            });
+                        });
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e("HomeFragment", "Failed to load items for category " + category + ": " + error.getMessage());
+                    Log.e(TAG, "Failed to load items for category " + category + ": " + error.getMessage());
                     if (categoriesProcessed.incrementAndGet() == categories.size()) {
-                        Set<Item> uniqueItems = new HashSet<>(resultItems);
-                        List<Item> finalItems = new ArrayList<>(uniqueItems);
-                        Collections.shuffle(finalItems);
-                        adapter.setItems(finalItems);
+                        backgroundExecutor.execute(() -> {
+                            Set<Item> uniqueItems = new HashSet<>(resultItems);
+                            List<Item> finalItems = new ArrayList<>(uniqueItems);
+                            Collections.shuffle(finalItems);
+
+                            requireActivity().runOnUiThread(() -> {
+                                adapter.setItems(finalItems);
+                            });
+                        });
                     }
                 }
             });
         }
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -526,7 +582,9 @@ public class HomeFragment extends Fragment {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 fetchUserLocationAndItemsNearYou();
             } else {
-                Toast.makeText(getContext(), "Quyền truy cập vị trí bị từ chối. Không thể hiển thị sản phẩm gần bạn.", Toast.LENGTH_LONG).show();
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Quyền truy cập vị trí bị từ chối. Không thể hiển thị sản phẩm gần bạn.", Toast.LENGTH_LONG).show();
+                }
             }
         }
     }
@@ -536,6 +594,19 @@ public class HomeFragment extends Fragment {
         super.onStop();
         if (cancellationTokenSource != null) {
             cancellationTokenSource.cancel();
+        }
+        // Shut down the executor when the fragment is stopped to prevent memory leaks
+        if (backgroundExecutor != null && !backgroundExecutor.isShutdown()) {
+            backgroundExecutor.shutdownNow();
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Ensure executor is shut down if not already
+        if (backgroundExecutor != null && !backgroundExecutor.isShutdown()) {
+            backgroundExecutor.shutdownNow();
         }
     }
 }

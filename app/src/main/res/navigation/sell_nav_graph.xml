@@ -19,7 +19,26 @@
         <action
             android:id="@+id/action_myItemsFragment_to_editItemFragment"
             app:destination="@id/editItemFragment" />
+        <!-- Action to itemAnalyticsFragment, now in the main nav_graph -->
+        <action
+            android:id="@+id/action_myItemsFragment_to_itemAnalyticsFragment"
+            app:destination="@id/itemAnalyticsFragment" />
+        <!-- Action to salesHistoryFragment, now in the main nav_graph -->
+        <action
+            android:id="@+id/action_myItemsFragment_to_salesHistoryFragment"
+            app:destination="@id/salesHistoryFragment" />
     </fragment>
+
+    <!-- Removed from here as it's now in nav_graph.xml -->
+    <!-- <fragment
+    android:id="@+id/itemAnalyticsFragment"
+    android:name="com.example.tradeup.fragment.ItemAnalyticsFragment"
+    android:label="Phân tích Tin đăng"
+    tools:layout="@layout/fragment_item_analytics">
+    <argument
+        android:name="itemId"
+        app:argType="string" />
+    </fragment> -->
 
     <fragment
         android:id="@+id/addItemFragment"

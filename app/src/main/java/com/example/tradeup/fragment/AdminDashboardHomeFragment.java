@@ -40,8 +40,6 @@ public class AdminDashboardHomeFragment extends Fragment {
 
     // Updated TextViews for stat cards
     private TextView tvActiveUsersCount, tvTodaysTradesCount, tvRevenueAmount, tvNewUsersCount;
-    // Textviews for Recent Activity (static for now, dynamic with RecyclerView later)
-    // private TextView tvActivity1, tvActivity2, tvActivity3, tvActivity4; // If using individual TextViews
     private ImageView ivAdminNotifications, ivAdminProfile; // For toolbar icons
     private Button btnChartToday, btnChartWeek, btnChartMonth; // For performance chart filters
     private ImageView ivPerformanceChartPlaceholder; // Placeholder for chart
@@ -102,9 +100,6 @@ public class AdminDashboardHomeFragment extends Fragment {
         llViewReports = view.findViewById(R.id.ll_view_reports);
         llSettings = view.findViewById(R.id.ll_settings);
         llSupport = view.findViewById(R.id.ll_support);
-
-        // Note: Recent Activity items are hardcoded in XML for now.
-        // If you want them dynamic, you'd replace the LinearLayout with a RecyclerView and create an adapter.
     }
 
     private void setupListeners() {
@@ -120,12 +115,16 @@ public class AdminDashboardHomeFragment extends Fragment {
         // Quick Actions
         llManageUsers.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Manage Users Clicked", Toast.LENGTH_SHORT).show();
-            // Example navigation: if (navController != null) navController.navigate(R.id.action_adminDashboardHomeFragment_to_manageUsersFragment);
+            if (navController != null) {
+                // Navigate to UserManagementFragment (FR-8.2.1 part: view flagged users)
+                navController.navigate(R.id.action_adminDashboardHomeFragment_to_userManagementFragment);
+            }
         });
         llViewReports.setOnClickListener(v -> {
             Toast.makeText(getContext(), "View Reports Clicked", Toast.LENGTH_SHORT).show();
             if (navController != null) {
-                navController.navigate(R.id.action_adminDashboardHomeFragment_to_reviewModerationFragment); // Navigate to Review Moderation for now
+                // Navigate to ReportListFragment (FR-8.2.1 part: view reports)
+                navController.navigate(R.id.action_adminDashboardHomeFragment_to_reportListFragment);
             }
         });
         llSettings.setOnClickListener(v -> {
@@ -250,4 +249,3 @@ public class AdminDashboardHomeFragment extends Fragment {
         }
     }
 }
-    

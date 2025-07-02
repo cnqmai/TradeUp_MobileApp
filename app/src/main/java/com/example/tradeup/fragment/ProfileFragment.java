@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
+import android.widget.Button; // Import Button
 import android.widget.ImageView; // Keep ImageView for general use, but CircleImageView for profile
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
@@ -74,6 +75,12 @@ public class ProfileFragment extends Fragment {
     private LinearLayout rowAdminDashboard; // NEW: Admin Dashboard row
     private View dividerAdminDashboard; // NEW: Divider for Admin Dashboard
 
+    // NEW: Buttons for history and analytics
+    private Button btnSavedItems, btnOfferHistory, btnPurchaseHistory, btnSalesHistory, btnItemAnalytics;
+    private Button btnPaymentHistory; // NEW: Payment History Button
+    private Button btnPaymentMethods; // NEW: Payment Methods Button
+
+
     private String targetUserId; // For viewing other users' profiles
 
     // ActivityResultLauncher declarations (from your original code)
@@ -89,7 +96,8 @@ public class ProfileFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        firebaseHelper = new FirebaseHelper(); // Initialize FirebaseHelper
+        // FIX: Initialize FirebaseHelper with Context
+        firebaseHelper = new FirebaseHelper(requireContext());
         currentUser = FirebaseAuth.getInstance().getCurrentUser(); // Get current user
 
         // GALLERY (from your original code)
@@ -155,13 +163,24 @@ public class ProfileFragment extends Fragment {
         rowEditProfile = view.findViewById(R.id.row_edit_profile);
         rowChangePhoto = view.findViewById(R.id.row_change_photo);
         rowMyListings = view.findViewById(R.id.row_my_listings);
+        rowTransactionHistory = view.findViewById(R.id.row_transaction_history); // Re-initialized
         rowAccountManagement = view.findViewById(R.id.row_account_management);
         rowLogout = view.findViewById(R.id.row_logout);
-        rowTransactionHistory = view.findViewById(R.id.row_transaction_history);
+
 
         // NEW: Initialize Admin Dashboard row and divider
         rowAdminDashboard = view.findViewById(R.id.row_admin_dashboard);
         dividerAdminDashboard = view.findViewById(R.id.divider_admin_dashboard);
+
+        // NEW: Initialize history and analytics buttons
+        btnSavedItems = view.findViewById(R.id.btn_saved_items);
+        btnOfferHistory = view.findViewById(R.id.btn_offer_history);
+        btnPurchaseHistory = view.findViewById(R.id.btn_purchase_history);
+        btnSalesHistory = view.findViewById(R.id.btn_sales_history);
+        btnItemAnalytics = view.findViewById(R.id.btn_item_analytics);
+        btnPaymentHistory = view.findViewById(R.id.btn_payment_history); // NEW: Initialize Payment History Button
+        btnPaymentMethods = view.findViewById(R.id.btn_payment_methods); // NEW: Initialize Payment Methods Button
+
 
         // Get targetUserId if viewing another user's profile
         if (getArguments() != null) {
@@ -176,10 +195,22 @@ public class ProfileFragment extends Fragment {
             rowChangePhoto.setVisibility(View.GONE);
             rowAccountManagement.setVisibility(View.GONE);
             rowLogout.setVisibility(View.GONE);
-            rowTransactionHistory.setVisibility(View.GONE);
+            // Ensure rowTransactionHistory is also hidden if viewing another user's profile
+            if (rowTransactionHistory != null) rowTransactionHistory.setVisibility(View.GONE);
+
+
             // Hide Admin Dashboard if viewing another user's profile
             rowAdminDashboard.setVisibility(View.GONE);
             dividerAdminDashboard.setVisibility(View.GONE);
+
+            // NEW: Hide history/analytics buttons if viewing another user's profile
+            btnSavedItems.setVisibility(View.GONE);
+            btnOfferHistory.setVisibility(View.GONE);
+            btnPurchaseHistory.setVisibility(View.GONE);
+            btnSalesHistory.setVisibility(View.GONE);
+            btnItemAnalytics.setVisibility(View.GONE);
+            btnPaymentHistory.setVisibility(View.GONE); // NEW: Hide Payment History Button
+            btnPaymentMethods.setVisibility(View.GONE); // NEW: Hide Payment Methods Button
         }
 
         setupListeners(); // Setup listeners after initViews
@@ -372,6 +403,7 @@ public class ProfileFragment extends Fragment {
 
         rowMyListings.setOnClickListener(v -> {
             if (navController != null && isAdded()) {
+                // Navigate to MyItemsFragment, which is the start destination of sell_nav_graph
                 navController.navigate(R.id.sell_nav_graph);
             } else {
                 Log.e("ProfileFragment", "NavController is null or fragment not added for My Listings navigation.");
@@ -381,6 +413,7 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        // Re-added listener for rowTransactionHistory
         rowTransactionHistory.setOnClickListener(v -> {
             if (navController != null && isAdded()) {
                 navController.navigate(R.id.action_profileFragment_to_transactionHistoryFragment);
@@ -408,6 +441,52 @@ public class ProfileFragment extends Fragment {
         rowAdminDashboard.setOnClickListener(v -> {
             if (navController != null) {
                 navController.navigate(R.id.action_profileFragment_to_admin_nav_graph); // Navigate to the nested graph
+            }
+        });
+
+        // NEW: Listeners for history and analytics buttons
+        btnSavedItems.setOnClickListener(v -> {
+            if (navController != null) {
+                navController.navigate(R.id.action_profileFragment_to_savedItemsFragment);
+            }
+        });
+
+        btnOfferHistory.setOnClickListener(v -> {
+            if (navController != null) {
+                navController.navigate(R.id.action_profileFragment_to_offerHistoryFragment);
+            }
+        });
+
+        btnPurchaseHistory.setOnClickListener(v -> {
+            if (navController != null) {
+                navController.navigate(R.id.action_profileFragment_to_purchaseHistoryFragment);
+            }
+        });
+
+        btnSalesHistory.setOnClickListener(v -> {
+            if (navController != null) {
+                navController.navigate(R.id.action_profileFragment_to_salesHistoryFragment);
+            }
+        });
+
+        // NEW: Payment History Button Listener
+        btnPaymentHistory.setOnClickListener(v -> {
+            if (navController != null) {
+                navController.navigate(R.id.action_profileFragment_to_paymentHistoryFragment);
+            }
+        });
+
+        // NEW: Payment Methods Button Listener
+        btnPaymentMethods.setOnClickListener(v -> {
+            if (navController != null) {
+                navController.navigate(R.id.action_profileFragment_to_paymentMethodsFragment);
+            }
+        });
+
+        btnItemAnalytics.setOnClickListener(v -> {
+            Toast.makeText(getContext(), "Vui lòng chọn tin đăng để xem phân tích.", Toast.LENGTH_SHORT).show();
+            if (navController != null) {
+                navController.navigate(R.id.action_profileFragment_to_myItemsFragment);
             }
         });
     }

@@ -66,6 +66,11 @@ dependencies {
     // Google Play Services Location (Bắt buộc cho FusedLocationProviderClient)
     implementation ("com.google.android.gms:play-services-location:21.0.1")
 
+    // For Stripe SDK (even for simulation, it's good to have the structure)
+    // NOTE: This will only provide the client-side components.
+    // For full integration, you need a backend.
+    implementation ("com.stripe:stripe-android:20.37.0")
+
     // Cloudinary Storage
     implementation ("com.squareup.okhttp3:okhttp:4.12.0")
 

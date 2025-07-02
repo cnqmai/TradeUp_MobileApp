@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Trạng thái khi được chọn -->
+    <item android:state_selected="true" android:drawable="@drawable/bg_category_chip_selected" />
+    <!-- Trạng thái mặc định -->
+    <item android:drawable="@drawable/bg_category_chip_default" />
+</selector>
+    
