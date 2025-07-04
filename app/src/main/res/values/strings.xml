@@ -411,4 +411,226 @@
     <string name="toast_error_cannot_navigate_nav_controller_null">Error: Cannot navigate. NavController not available.</string>
     <string name="error_parsing_timestamp_sort">Error parsing timestamp when sorting transaction: %1$s</string>
 
+    <!-- Strings for TransactionAdapter -->
+    <string name="price_not_available">Price N/A</string>
+    <string name="sold_on_date">Sold on %1$s</string>
+    <string name="date_not_available">Date N/A</string>
+    <string name="status_completed">Completed</string>
+    <string name="status_active">Active</string>
+    <string name="item_not_found">Item not found</string>
+    <string name="error_loading_item">Error loading item</string>
+    <string name="invalid_item_id">Invalid Item ID</string>
+    <string name="toast_cannot_rate_transaction">Cannot rate this transaction.</string>
+    <string name="toast_transaction_not_completed_cannot_rate">Transaction not completed. Cannot rate.</string>
+
+    <!-- Notifications Fragment Strings -->
+    <string name="notifications_title">Notifications</string>
+    <string name="settings_button_content_desc">Settings button</string>
+    <string name="tab_all">All</string>
+    <string name="tab_messages">Messages</string>
+    <string name="tab_offers">Offers</string>
+    <string name="tab_updates">Updates</string>
+    <string name="settings_button_clicked">Settings button clicked!</string>
+    <string name="toast_offer_id_not_found">Offer ID not found in notification.</string>
+    <string name="toast_promotion_notification">This is a promotion notification about: %1$s</string>
+    <string name="toast_reported_chat_notification">Reported chat: %1$s</string>
+    <string name="toast_general_notification">Notification: %1$s</string>
+    <string name="notification_icon_content_desc">Notification icon</string>
+    <string name="no_notifications_message">No notifications in this section.</string>
+    <string name="toast_error_loading_notifications">Error loading notifications: %1$s</string>
+
+    <!-- Notification Adapter Time Formats -->
+    <string name="time_just_now">Just now</string>
+    <string name="time_minutes_ago">%1$d m ago</string>
+    <string name="time_hours_ago">%1$d h ago</string>
+    <string name="time_days_ago">%1$d d ago</string>
+
+    <!-- Offer Detail Fragment Strings -->
+    <string name="offers_title">Offers</string>
+    <string name="original_price_label">Original Price:</string>
+    <string name="your_offer_label">Your Offer:</string>
+    <string name="received_offer_label">Received Offer:</string>
+    <string name="status_pending">Pending</string>
+    <string name="status_accepted">Accepted</string>
+    <string name="status_rejected">Rejected</string>
+    <string name="status_countered">Countered</string>
+    <string name="status_na">N/A</string>
+    <string name="offer_history_label">Offer History</string>
+    <string name="initial_offer_label">Initial Offer</string>
+    <string name="counter_offer_label">Counter offer</string>
+    <string name="initial_offer_icon_desc">Initial offer icon</string>
+    <string name="counter_offer_icon_desc">Counter offer icon</string>
+    <string name="button_accept">Accept</string>
+    <string name="button_counter">Counter</string>
+    <string name="button_reject">Reject</string>
+    <string name="button_respond_to_offer">Respond to Offer</string>
+    <string name="transaction_complete_icon_desc">Transaction complete icon</string>
+    <string name="transaction_complete_title">Transaction Complete</string>
+    <string name="transaction_complete_message">The item has been successfully sold</string>
+    <string name="final_price_label">Final Price</string>
+    <string name="transaction_id_label">Transaction ID</string>
+    <string name="button_view_receipt">View Receipt</string>
+    <string name="button_back_to_home">Back to Home</string>
+    <string name="item_size_color_format">Size: %1$s | Color: %2$s</string>
+    <string name="transaction_id_format">#%1$s</string>
+
+    <!-- Toasts and Dialogs -->
+    <string name="toast_error_offer_id_missing">Error: Offer ID missing.</string>
+    <string name="toast_error_arguments_null">Error: Arguments are null.</string>
+    <string name="toast_error_load_offer_details">Error: Could not load offer details.</string>
+    <string name="toast_cannot_accept_offer">Cannot accept this offer.</string>
+    <string name="toast_cannot_reject_offer">Cannot reject this offer.</string>
+    <string name="toast_cannot_counter_offer">Cannot counter this offer.</string>
+    <string name="toast_cannot_respond_to_offer">Cannot respond to this offer.</string>
+    <string name="toast_view_receipt_clicked">View Receipt button clicked!</string>
+    <string name="toast_item_details_not_found">Item details not found for this offer.</string>
+    <string name="toast_error_loading_item_details">Error loading item details: %1$s</string>
+    <string name="toast_offer_details_not_found">Offer details not found.</string>
+    <string name="toast_error_loading_offer">Error loading offer: %1$s</string>
+    <string name="toast_waiting_seller_response">Waiting for seller\'s response to your offer.</string>
+    <string name="toast_seller_countered">Seller has sent a counter offer.</string>
+    <string name="toast_counter_sent_waiting_buyer">Counter offer sent. Waiting for buyer\'s response.</string>
+    <string name="toast_offer_accepted">Offer has been accepted.</string>
+    <string name="toast_offer_rejected">Offer has been rejected.</string>
+    <string name="toast_error_perform_action">Error: Cannot perform action.</string>
+    <string name="toast_offer_status_updated">Offer status updated to %1$s.</string>
+    <string name="notif_offer_accepted_title">Offer Accepted!</string>
+    <string name="notif_offer_accepted_body">Your offer for \"%1$s\" has been accepted.</string>
+    <string name="notif_offer_rejected_title">Offer Rejected!</string>
+    <string name="notif_offer_rejected_body">Your offer for \"%1$s\" has been rejected.</string>
+    <string name="dialog_title_counter_offer">Make a Counter Offer</string>
+    <string name="hint_enter_counter_price">Enter your counter price (current offer: %1$s)</string>
+    <string name="toast_enter_counter_price">Please enter a counter price.</string>
+    <string name="toast_counter_price_must_be_positive">Counter price must be greater than 0.</string>
+    <string name="toast_invalid_counter_price">Invalid counter price.</string>
+    <string name="button_send_counter_offer">Send Counter Offer</string>
+    <string name="toast_error_send_counter_offer">Error: Could not send counter offer.</string>
+    <string name="toast_counter_offer_sent">Counter offer sent: %1$d</string>
+    <string name="notif_your_offer_countered_title">Your Offer Countered!</string>
+    <string name="notif_your_offer_countered_body">The seller has countered with %1$d for \"%2$s\".</string>
+    <string name="dialog_title_new_offer">Make a New Offer</string>
+    <string name="hint_enter_new_offer_price">Enter your new offer price (countered price: %1$s)</string>
+    <string name="toast_enter_new_offer_price">Please enter a new offer price.</string>
+    <string name="toast_new_offer_price_must_be_positive">New offer price must be greater than 0.</string>
+    <string name="toast_invalid_new_offer_price">Invalid new offer price.</string>
+    <string name="button_send_new_offer">Send New Offer</string>
+    <string name="toast_error_send_new_offer">Error: Could not send new offer.</string>
+    <string name="toast_new_offer_sent">New offer sent: %1$d.</string>
+
+    <!-- Offer Detail Fragment (UI Update) Strings -->
+    <string name="filter_button_content_desc">Filter button</string>
+    <string name="original_price_short">Original: %1$s</string>
+    <string name="offer_price_display">Offer: %1$s</string>
+    <string name="profile_picture_content_desc">Profile picture</string>
+    <string name="time_icon_content_desc">Time icon</string>
+    <string name="button_make_new_offer">Make New Offer</string>
+    <string name="button_respond_to_counter_offer">Respond to Counter Offer</string>
+
+    <!-- Reused from other fragments/adapters for consistency -->
+    <string name="error_loading_data">Error loading data</string>
+    <string name="unknown_user">Unknown User</string>
+    <string name="error_loading_user">Error loading user</string>
+
+    <!-- Dialogs and Toasts (reused from previous OfferDetailFragment logic) -->
+    <string name="toast_seller_countered_offer">Seller has made a counter offer.</string>
+    <string name="toast_toast_counter_offer_sent_waiting_buyer">Counter offer sent. Waiting for buyer\'s response.</string>
+    <string name="toast_offer_accepted_status">Offer has been accepted.</string>
+    <string name="toast_offer_rejected_status">Offer has been rejected.</string>
+    <string name="toast_offer_superseded_status">This offer has been superseded by a new negotiation.</string>
+    <string name="toast_offer_cancelled_status">This offer has been cancelled.</string>
+    <string name="toast_error_cannot_perform_action">Error: Cannot perform action.</string>
+    <string name="toast_offer_updated_to">Offer updated to %1$s.</string>
+    <string name="toast_please_enter_counter_price">Please enter a counter offer price.</string>
+    <string name="toast_counter_price_must_be_greater_than_zero">Counter offer price must be greater than 0.</string>
+    <string name="toast_error_cannot_counter_offer_generic">Error: Cannot send counter offer.</string>
+    <string name="toast_error_sending_counter_offer">Error sending counter offer: %1$s</string>
+    <string name="toast_please_enter_new_offer_price">Please enter a new offer price.</string>
+    <string name="toast_new_offer_price_must_be_greater_than_zero">New offer price must be greater than 0.</string>
+    <string name="toast_error_cannot_send_new_offer">Error: Cannot send new offer.</string>
+    <string name="toast_error_sending_new_offer">Error sending new offer: %1$s</string>
+    <string name="toast_item_marked_as_sold">Item marked as \'Sold\'.</string>
+    <string name="toast_error_marking_item_sold">Error marking item as \'Sold\'.</string>
+    <string name="toast_transaction_recorded">Transaction recorded.</string>
+    <string name="toast_error_recording_transaction">Error recording transaction.</string>
+    <string name="your_item">your item</string>
+    <string name="notification_title_offer_accepted">Offer Accepted!</string>
+    <string name="notification_body_offer_accepted">Your offer for "%s" has been accepted.</string>
+    <string name="notification_title_offer_rejected">Offer Rejected!</string>
+    <string name="notification_body_offer_rejected">Your offer for "%s" has been rejected.</string>
+    <string name="notification_title_counter_offer">Counter Offer Received!</string>
+    <string name="notification_body_counter_offer">The seller has made a counter offer of %1$d for "%s".</string>
+    <string name="notification_title_buyer_responded">Buyer Responded!</string>
+    <string name="notification_body_buyer_responded">The buyer has made a new offer of %1$d for "%s".</string>
+    <string name="price_not_available_short">N/A</string>
+    <string name="toast_new_offer_sent_value">New offer sent: %1$d</string>
+    <string name="dialog_title_respond_to_counter_offer">Respond to Counter Offer</string>
+    <string name="hint_enter_new_offer_price_with_counter">Enter your new offer price (counter: %1$s)</string>
+    <string name="hint_enter_counter_offer_price_with_current">Enter counter offer price (current: %1$s)</string>
+    <string name="toast_error_updating_offer">Error updating offer: %1$s</string>
+    <string name="toast_cannot_respond_offer">You cannot respond to this offer.</string>
+    <string name="toast_offer_not_found">Offer not found.</string>
+    <string name="filter_button_clicked">Filter button clicked.</string>
+    <string name="toast_error_loading_offer_details">Error loading offer details.</string>
+    <string name="toast_counter_offer_sent_value">Counter offer sent: %s</string>
+
+    <!-- Transaction Detail Fragment Strings -->
+    <string name="transaction_detail_title">Transaction Details</string>
+    <string name="final_price_display">Final Price: %1$s</string>
+    <string name="buyer_label">Buyer:</string>
+    <string name="seller_label">Seller:</string>
+    <string name="transaction_date_label">Date:</string>
+    <string name="transaction_date_icon_desc">Transaction date icon</string>
+    <string name="button_mark_as_complete">Mark as Complete</string>
+    <string name="dialog_title_confirm_complete">Confirm Completion</string>
+    <string name="dialog_message_confirm_complete">Are you sure you want to mark this transaction as complete?</string>
+    <string name="toast_transaction_marked_complete">Transaction marked as complete!</string>
+    <string name="toast_error_marking_complete">Failed to mark transaction as complete: %1$s</string>
+    <string name="toast_error_transaction_id_missing">Transaction ID is missing.</string>
+    <string name="toast_transaction_not_found">Transaction not found.</string>
+    <string name="toast_error_loading_transaction">Error loading transaction: %1$s</string>
+    <string name="toast_error_transaction_data_missing">Transaction data is missing.</string>
+
+    <!-- Reused existing strings -->
+    <string name="img_placeholder">Placeholder image</string>
+    <string name="img_error">Error loading image</string>
+    <string name="button_yes">Yes</string>
+    <string name="button_no">No</string>
+
+    <!-- Chat Detail -->
+    <string name="chat_detail_other_user_name_placeholder">Other User Name</string>
+    <string name="chat_detail_block_chat_description">Block Chat</string>
+    <string name="chat_detail_report_chat_description">Report Chat</string>
+    <string name="chat_detail_message_input_hint">Type a message...</string>
+    <string name="chat_detail_attach_image_description">Attach Image</string>
+    <string name="chat_detail_send_message_description">Send Message</string>
+    <string name="no_conversations_yet">You don\'t have any conversations yet.</string>
+
+    !-- Chat Preview Item -->
+    <string name="chat_preview_other_user_name_placeholder">Other User Name</string>
+    <string name="chat_preview_last_message_placeholder">This is the content of the last message in this conversation.</string>
+    <string name="chat_preview_last_message_time_placeholder">10:30 AM</string>
+    <string name="chat_preview_unread_indicator_description">Unread Message Indicator</string>
+
+    <!-- Saved Items Fragment -->
+    <string name="saved_item_title_placeholder">Saved Item Name</string>
+    <string name="saved_item_price_placeholder">Price: 1,000,000 VND</string>
+    <string name="saved_item_status_placeholder">Status: For Sale</string>
+    <string name="content_description_remove_saved_item">Remove from saved list</string>
+    <string name="content_description_back_button">Back button</string>
+    <string name="title_saved_items">Saved Items</string>
+    <string name="text_no_saved_items">You haven\'t saved any items yet.</string>
+
+    <!-- Report Dialog Strings -->
+    <string name="report_dialog_title">Report</string>
+    <string name="close_button_content_desc">Close button</string>
+    <string name="select_report_type">Select Report Type</string>
+    <string name="reason_scam_fraud">Scam or Fraud</string>
+    <string name="reason_inappropriate_content">Inappropriate Content</string>
+    <string name="reason_spam">Spam</string>
+    <string name="provide_more_details">Provide more details</string>
+    <string name="hint_describe_issue">Please describe the issue...</string>
+    <string name="icon_warning_desc">Warning icon</string>
+    <string name="icon_inappropriate_desc">Inappropriate content icon</string>
+    <string name="icon_flag_desc">Flag icon</string>
+    <string name="border_image_preview">Image preview border</string>
 </resources>

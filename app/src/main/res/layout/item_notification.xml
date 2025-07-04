@@ -17,19 +17,21 @@
 
         <ImageView
             android:id="@+id/iv_notification_icon"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:contentDescription="Notification icon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:contentDescription="@string/notification_icon_content_desc"
+            android:background="@drawable/bg_circle_icon_light"
+            android:padding="8dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="?attr/colorPrimary"
-            tools:src="@drawable/ic_notification" />
+            app:tint="@color/orange_bold"
+            tools:src="@drawable/ic_message" />
 
         <TextView
             android:id="@+id/tv_notification_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="12dp"
             android:layout_marginEnd="8dp"
             android:maxLines="1"
             android:ellipsize="end"
@@ -39,13 +41,13 @@
             app:layout_constraintEnd_toStartOf="@+id/tv_notification_time"
             app:layout_constraintStart_toEndOf="@+id/iv_notification_icon"
             app:layout_constraintTop_toTopOf="@+id/iv_notification_icon"
-            tools:text="Tiêu đề thông báo" />
+            tools:text="New message from John Smith" />
 
         <TextView
             android:id="@+id/tv_notification_body"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="12dp"
             android:layout_marginTop="2dp"
             android:maxLines="2"
             android:ellipsize="end"
@@ -54,7 +56,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/iv_notification_icon"
             app:layout_constraintTop_toBottomOf="@+id/tv_notification_title"
-            tools:text="Nội dung chi tiết của thông báo sẽ hiển thị ở đây." />
+            tools:text="Is this item still available?" />
 
         <TextView
             android:id="@+id/tv_notification_time"
@@ -64,7 +66,19 @@
             android:textColor="@android:color/darker_gray"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="2 giờ trước" />
+            tools:text="2m ago" />
+
+        <!-- Unread dot -->
+        <View
+            android:id="@+id/unread_dot"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:background="@drawable/bg_unread_dot"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="4dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

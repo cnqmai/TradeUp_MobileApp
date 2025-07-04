@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card_chat_preview"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="100dp"
     android:layout_marginHorizontal="8dp"
     android:layout_marginVertical="4dp"
     app:cardCornerRadius="8dp"
@@ -13,6 +13,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:padding="12dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
@@ -40,7 +41,7 @@
             app:layout_constraintEnd_toStartOf="@+id/tv_last_message_time"
             app:layout_constraintStart_toEndOf="@+id/iv_other_user_profile_image"
             app:layout_constraintTop_toTopOf="@+id/iv_other_user_profile_image"
-            tools:text="Tên Người Dùng Khác" />
+            tools:text="@string/chat_preview_other_user_name_placeholder" /> <!-- Đã thay đổi -->
 
         <TextView
             android:id="@+id/tv_last_message"
@@ -56,7 +57,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/iv_other_user_profile_image"
             app:layout_constraintTop_toBottomOf="@+id/tv_other_user_name"
-            tools:text="Đây là nội dung của tin nhắn cuối cùng trong cuộc trò chuyện này." />
+            tools:text="@string/chat_preview_last_message_placeholder" /> <!-- Đã thay đổi -->
 
         <TextView
             android:id="@+id/tv_last_message_time"
@@ -67,7 +68,7 @@
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tv_other_user_name"
-            tools:text="10:30 SA" />
+            tools:text="@string/chat_preview_last_message_time_placeholder" /> <!-- Đã thay đổi -->
 
         <ImageView
             android:id="@+id/iv_unread_indicator"
@@ -79,7 +80,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginEnd="4dp"
-            android:layout_marginBottom="4dp" />
+            android:layout_marginBottom="4dp"
+            android:contentDescription="@string/chat_preview_unread_indicator_description" /> <!-- Đã thay đổi -->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

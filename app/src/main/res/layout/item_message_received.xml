@@ -24,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        app:cardBackgroundColor="#E0E0E0"
+        app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="12dp"
         app:cardElevation="1dp"
         app:contentPadding="8dp"

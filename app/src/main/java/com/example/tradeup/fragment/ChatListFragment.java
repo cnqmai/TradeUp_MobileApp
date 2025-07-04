@@ -87,7 +87,7 @@ public class ChatListFragment extends Fragment implements ChatAdapter.OnChatClic
     }
 
     private void fetchChats() {
-        Query query = chatsRef.orderByChild("lastMessageTimestamp"); // Sắp xếp theo thời gian tin nhắn cuối cùng
+        Query query = chatsRef.orderByChild("lastMessageTimestamp"); // Sort by last message timestamp
 
         query.addValueEventListener(new ValueEventListener() {
             @Override
@@ -96,23 +96,23 @@ public class ChatListFragment extends Fragment implements ChatAdapter.OnChatClic
                 for (DataSnapshot chatSnapshot : snapshot.getChildren()) {
                     Chat chat = chatSnapshot.getValue(Chat.class);
                     if (chat != null) {
-                        // Chỉ thêm các cuộc trò chuyện mà người dùng hiện tại tham gia
+                        // Only add chats the current user is part of
                         if (chat.getUser_1().equals(currentUserId) || chat.getUser_2().equals(currentUserId)) {
-                            // Firebase không tự set ID khi getValue, cần set thủ công
-                            chat.setChatId(chatSnapshot.getKey()); // Đảm bảo Chat model có setId
+                            // Firebase does not automatically set ID when getValue, need to set manually
+                            chat.setChatId(chatSnapshot.getKey()); // Ensure Chat model has setId
                             fetchedChats.add(chat);
                         }
                     }
                 }
 
-                // Sắp xếp lại theo lastMessageTimestamp giảm dần (mới nhất lên đầu)
+                // Re-sort by lastMessageTimestamp in descending order (newest first)
                 Collections.sort(fetchedChats, (c1, c2) -> {
                     String ts1 = c1.getLastMessageTimestamp();
                     String ts2 = c2.getLastMessageTimestamp();
                     if (ts1 == null && ts2 == null) return 0;
-                    if (ts1 == null) return 1; // Đặt các chat không có timestamp xuống cuối
+                    if (ts1 == null) return 1; // Put chats without timestamp at the end
                     if (ts2 == null) return -1;
-                    return ts2.compareTo(ts1); // So sánh ngược để mới nhất lên đầu
+                    return ts2.compareTo(ts1); // Reverse comparison for newest first
                 });
 
                 chatList.clear();
@@ -131,18 +131,19 @@ public class ChatListFragment extends Fragment implements ChatAdapter.OnChatClic
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e(TAG, "Failed to load chats: " + error.getMessage());
-                Toast.makeText(requireContext(), "Lỗi khi tải cuộc trò chuyện: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                // Consider moving this string to strings.xml
+                Toast.makeText(requireContext(), "Error loading chats: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     @Override
     public void onChatClick(Chat chat, String otherUserId, String otherUserName) {
-        // Điều hướng đến ChatDetailFragment khi một cuộc trò chuyện được nhấn
+        // Navigate to ChatDetailFragment when a chat is clicked
         Bundle bundle = new Bundle();
-        bundle.putString("chatId", chat.getChatId()); // Lấy ID cuộc trò chuyện
-        bundle.putString("otherUserId", otherUserId); // Lấy ID người dùng khác
-        bundle.putString("otherUserName", otherUserName); // Lấy tên người dùng khác
+        bundle.putString("chatId", chat.getChatId()); // Get chat ID
+        bundle.putString("otherUserId", otherUserId); // Get other user ID
+        bundle.putString("otherUserName", otherUserName); // Get other user name
         navController.navigate(R.id.chatDetailFragment, bundle);
     }
 }

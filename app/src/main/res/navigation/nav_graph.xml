@@ -222,6 +222,18 @@
         <action
             android:id="@+id/action_transactionHistoryFragment_to_ratingReviewFragment"
             app:destination="@id/ratingReviewFragment" />
+        <action
+            android:id="@+id/action_transactionHistoryFragment_to_transactionDetailFragment"
+            app:destination="@id/transactionDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/transactionDetailFragment"
+        android:name="com.example.tradeup.fragment.TransactionDetailFragment"
+        android:label="TransactionDetailFragment">
+        <argument
+            android:name="transactionId"
+            app:argType="string" />
     </fragment>
 
     <!-- Fragment: Rating Review -->

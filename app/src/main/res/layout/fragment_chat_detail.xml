@@ -4,19 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="@color/orange_skin"
     tools:context=".fragment.ChatDetailFragment">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_chat_detail"
         android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="@color/white"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:titleTextColor="@android:color/white">
+        app:titleTextColor="@color/orange_bold">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -31,13 +31,12 @@
                 android:layout_height="48dp"
                 android:padding="14dp"
                 android:src="@drawable/ic_arrow_back"
-                app:tint="@android:color/white"/>
+                app:tint="@color/gray"/>
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/iv_other_user_profile_toolbar"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginStart="8dp"
                 android:src="@drawable/img_profile_placeholder"
                 app:civ_border_color="@android:color/white"
                 app:civ_border_width="1dp"
@@ -51,30 +50,29 @@
                 android:layout_marginStart="12dp"
                 android:layout_marginEnd="8dp"
                 android:textStyle="bold"
-                android:textColor="@android:color/white"
+                android:textColor="@color/orange_bold"
                 android:textSize="20sp"
                 android:maxLines="1"
                 android:ellipsize="end"
-                tools:text="Tên Người Dùng Khác" />
+                tools:text="@string/chat_detail_other_user_name_placeholder" />
 
             <ImageView
                 android:id="@+id/iv_block_chat"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:padding="8dp"
+                android:padding="14dp"
                 android:src="@drawable/ic_block"
-                app:tint="@android:color/white"
-                android:contentDescription="Block Chat" />
+                app:tint="@color/orange_bold"
+                android:contentDescription="@string/chat_detail_block_chat_description" />
 
             <ImageView
                 android:id="@+id/iv_report_chat"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:padding="8dp"
+                android:padding="14dp"
                 android:src="@drawable/ic_report"
-                app:tint="@android:color/white"
-                android:contentDescription="Report Chat" />
-        </LinearLayout>
+                app:tint="@color/orange_bold"
+                android:contentDescription="@string/chat_detail_report_chat_description" /> </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -107,21 +105,19 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:src="@drawable/ic_add_image"
-            android:contentDescription="Attach Image"
-            android:padding="12dp"
+            android:contentDescription="@string/chat_detail_attach_image_description" android:padding="12dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            app:tint="@color/black" />
+            app:tint="@color/orange_bold" />
 
         <EditText
             android:id="@+id/et_message_input"
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:hint="Nhập tin nhắn..."
+            android:hint="@string/chat_detail_message_input_hint"
             android:maxLines="5"
             android:padding="12dp"
             android:background="@drawable/rounded_edittext_background"
-            android:textColor="@android:color/black"
             android:textSize="16sp"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"/>
@@ -131,10 +127,9 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:src="@drawable/ic_send"
-            android:contentDescription="Send Message"
-            android:padding="12dp"
+            android:contentDescription="@string/chat_detail_send_message_description" android:padding="12dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            app:tint="@color/black" />
+            app:tint="@color/orange_bold" />
 
     </LinearLayout>
 

@@ -51,8 +51,8 @@ public class TransactionHistoryFragment extends Fragment implements
     private ImageView ivSortButton;
 
     private TransactionAdapter transactionAdapter;
-    private List<Transaction> allTransactions;
-    private List<Transaction> currentDisplayedTransactions;
+    private List<Transaction> allTransactions; // Keep these initialized
+    private List<Transaction> currentDisplayedTransactions; // Keep these initialized
 
     private DatabaseReference transactionsRef;
     private ValueEventListener transactionsValueEventListener;
@@ -70,30 +70,37 @@ public class TransactionHistoryFragment extends Fragment implements
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: Fragment created.");
+
         // Ensure current user is not null before accessing UID
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         } else {
-            // Handle case where user is not logged in, e.g., redirect to login
             Log.e(TAG, "No current user found. Cannot load transactions.");
-            // You might want to navigate to a login screen here
-            // navController.navigate(R.id.action_global_loginFragment);
+            // Consider navigating to a login screen or showing an error state
+            // if (navController != null) { // NavController might not be available yet in onCreate
+            //     navController.navigate(R.id.action_global_loginFragment);
+            // }
         }
         transactionsRef = FirebaseDatabase.getInstance().getReference("transactions");
 
+        // Initialize lists here to ensure they are never null
         allTransactions = new ArrayList<>();
         currentDisplayedTransactions = new ArrayList<>();
+        Log.d(TAG, "onCreate: allTransactions and currentDisplayedTransactions initialized.");
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView: View created.");
         return inflater.inflate(R.layout.fragment_transaction_history, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Log.d(TAG, "onViewCreated: View created and ready.");
 
         navController = Navigation.findNavController(view);
         Log.d(TAG, "onViewCreated: NavController initialized.");
@@ -102,6 +109,14 @@ public class TransactionHistoryFragment extends Fragment implements
         setupRecyclerView();
         setupTabLayout();
         setupListeners();
+        fetchAllTransactions();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: Fragment resumed. Re-fetching transactions.");
+        // Re-fetch transactions to ensure data is up-to-date, especially after returning from another fragment
         fetchAllTransactions();
     }
 
@@ -114,16 +129,18 @@ public class TransactionHistoryFragment extends Fragment implements
     }
 
     private void setupRecyclerView() {
-        if (!isAdded()) return; // Ensure fragment is attached
+        if (!isAdded()) return;
         transactionAdapter = new TransactionAdapter(requireContext(), currentDisplayedTransactions, this);
         rvTransactions.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvTransactions.setAdapter(transactionAdapter);
+        Log.d(TAG, "setupRecyclerView: Adapter set.");
     }
 
     private void setupTabLayout() {
-        if (!isAdded()) return; // Ensure fragment is attached
+        if (!isAdded()) return;
         tabLayout.addTab(tabLayout.newTab().setText(getString(R.string.tab_active)));
         tabLayout.addTab(tabLayout.newTab().setText(getString(R.string.tab_archived)));
+        Log.d(TAG, "setupTabLayout: Tabs added.");
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -133,6 +150,7 @@ public class TransactionHistoryFragment extends Fragment implements
                 } else {
                     currentTab = "archived";
                 }
+                Log.d(TAG, "onTabSelected: Current tab changed to " + currentTab);
                 filterAndDisplayTransactions();
             }
 
@@ -152,12 +170,14 @@ public class TransactionHistoryFragment extends Fragment implements
         ivBackButton.setOnClickListener(v -> {
             if (navController != null) {
                 navController.navigateUp();
+                Log.d(TAG, "setupListeners: Back button clicked, navigating up.");
             } else {
-                Log.e(TAG, "NavController is null, cannot navigate up.");
+                Log.e(TAG, "setupListeners: NavController is null, cannot navigate up.");
             }
         });
         ivSortButton.setOnClickListener(v -> {
             showSortOptionsDialog();
+            Log.d(TAG, "setupListeners: Sort button clicked, showing dialog.");
         });
     }
 
@@ -167,25 +187,34 @@ public class TransactionHistoryFragment extends Fragment implements
             if (isAdded()) {
                 Toast.makeText(requireContext(), getString(R.string.toast_error_no_user_id), Toast.LENGTH_LONG).show();
             }
-            tvNoTransactions.setText(getString(R.string.no_transactions_message)); // Display no transactions message
+            tvNoTransactions.setText(getString(R.string.no_transactions_message));
             tvNoTransactions.setVisibility(View.VISIBLE);
             rvTransactions.setVisibility(View.GONE);
             return;
         }
 
+        // Remove previous listener to prevent duplicate calls if fetchAllTransactions is called multiple times
         if (transactionsRef != null && transactionsValueEventListener != null) {
             transactionsRef.removeEventListener(transactionsValueEventListener);
+            Log.d(TAG, "fetchAllTransactions: Removed previous Firebase listener.");
         }
 
         transactionsValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!isAdded()) {
-                    Log.w(TAG, "Fragment is not added, skipping UI updates in onDataChange.");
+                    Log.w(TAG, "onDataChange: Fragment is not added, skipping UI updates.");
                     return;
                 }
 
-                allTransactions.clear();
+                // Ensure allTransactions is not null before clearing
+                if (allTransactions == null) {
+                    allTransactions = new ArrayList<>();
+                    Log.w(TAG, "onDataChange: allTransactions was null, re-initialized.");
+                }
+                allTransactions.clear(); // Clear existing data before adding new
+                Log.d(TAG, "onDataChange: allTransactions cleared.");
+
                 for (DataSnapshot transactionSnapshot : snapshot.getChildren()) {
                     Transaction transaction = transactionSnapshot.getValue(Transaction.class);
                     if (transaction != null) {
@@ -195,6 +224,7 @@ public class TransactionHistoryFragment extends Fragment implements
                         }
                     }
                 }
+                Log.d(TAG, "onDataChange: Fetched " + allTransactions.size() + " transactions for current user.");
                 applySorting();
                 filterAndDisplayTransactions();
             }
@@ -202,22 +232,30 @@ public class TransactionHistoryFragment extends Fragment implements
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 if (!isAdded()) {
-                    Log.w(TAG, "Fragment is not added, skipping error message in onCancelled.");
+                    Log.w(TAG, "onCancelled: Fragment is not added, skipping error message.");
                     return;
                 }
                 Log.e(TAG, "Failed to load transactions: " + error.getMessage());
                 Toast.makeText(requireContext(), getString(R.string.toast_error_loading_transactions, error.getMessage()), Toast.LENGTH_SHORT).show();
-                tvNoTransactions.setText(getString(R.string.no_transactions_message)); // Display no transactions message on error
+                tvNoTransactions.setText(getString(R.string.no_transactions_message));
                 tvNoTransactions.setVisibility(View.VISIBLE);
                 rvTransactions.setVisibility(View.GONE);
             }
         };
 
         transactionsRef.addValueEventListener(transactionsValueEventListener);
+        Log.d(TAG, "fetchAllTransactions: Firebase listener added.");
     }
 
     private void filterAndDisplayTransactions() {
+        // Ensure currentDisplayedTransactions is not null before clearing
+        if (currentDisplayedTransactions == null) {
+            currentDisplayedTransactions = new ArrayList<>();
+            Log.w(TAG, "filterAndDisplayTransactions: currentDisplayedTransactions was null, re-initialized.");
+        }
         currentDisplayedTransactions.clear();
+        Log.d(TAG, "filterAndDisplayTransactions: currentDisplayedTransactions cleared.");
+
         for (Transaction transaction : allTransactions) {
             if (currentTab.equals("active")) {
                 if (!transaction.isArchived()) {
@@ -229,18 +267,30 @@ public class TransactionHistoryFragment extends Fragment implements
                 }
             }
         }
+        Log.d(TAG, "filterAndDisplayTransactions: Filtered " + currentDisplayedTransactions.size() + " transactions for tab " + currentTab);
+
 
         if (currentDisplayedTransactions.isEmpty()) {
             tvNoTransactions.setVisibility(View.VISIBLE);
             rvTransactions.setVisibility(View.GONE);
+            Log.d(TAG, "filterAndDisplayTransactions: No transactions, showing message.");
         } else {
             tvNoTransactions.setVisibility(View.GONE);
             rvTransactions.setVisibility(View.VISIBLE);
+            Log.d(TAG, "filterAndDisplayTransactions: Transactions found, showing RecyclerView.");
         }
         transactionAdapter.setTransactions(currentDisplayedTransactions);
+        Log.d(TAG, "filterAndDisplayTransactions: Adapter updated.");
     }
 
     private void applySorting() {
+        // Ensure allTransactions is not null before sorting
+        if (allTransactions == null) {
+            Log.e(TAG, "applySorting: allTransactions is null, cannot sort.");
+            return;
+        }
+        Log.d(TAG, "applySorting: Applying sort order: " + currentSortOrder);
+
         Collections.sort(allTransactions, (t1, t2) -> {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
             sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
@@ -250,7 +300,7 @@ public class TransactionHistoryFragment extends Fragment implements
                 Date date2 = sdf.parse(t2.getTransaction_date());
 
                 if (date1 == null || date2 == null) {
-                    return 0;
+                    return 0; // Cannot compare if dates are null
                 }
 
                 switch (currentSortOrder) {
@@ -278,7 +328,7 @@ public class TransactionHistoryFragment extends Fragment implements
 
     private void showSortOptionsDialog() {
         if (!isAdded()) {
-            Log.w(TAG, "Fragment not added to context, cannot show sort dialog.");
+            Log.w(TAG, "showSortOptionsDialog: Fragment not added to context, cannot show sort dialog.");
             return;
         }
 
@@ -323,6 +373,7 @@ public class TransactionHistoryFragment extends Fragment implements
                     break;
             }
             dialog.dismiss();
+            Log.d(TAG, "showSortOptionsDialog: Sort option selected: " + currentSortOrder);
             applySorting();
             filterAndDisplayTransactions();
         });
@@ -333,12 +384,11 @@ public class TransactionHistoryFragment extends Fragment implements
     @Override
     public void onTransactionClick(Transaction transaction) {
         if (isAdded()) {
-            Log.d(TAG, "onTransactionClick: Transaction clicked: " + transaction.getItem_id());
-            Toast.makeText(requireContext(), getString(R.string.toast_transaction_details_clicked, transaction.getItem_id()), Toast.LENGTH_SHORT).show();
-            // Điều hướng đến màn hình chi tiết giao dịch ở đây nếu bạn có một Fragment cho nó
-            // Ví dụ: Bundle bundle = new Bundle();
-            // bundle.putString("transactionId", transaction.getTransaction_id());
-            // navController.navigate(R.id.action_transactionHistoryFragment_to_transactionDetailFragment, bundle);
+            Log.d(TAG, "onTransactionClick: Transaction clicked: " + transaction.getTransaction_id());
+            // Navigate to TransactionDetailFragment
+            Bundle bundle = new Bundle();
+            bundle.putString("transactionId", transaction.getTransaction_id());
+            navController.navigate(R.id.action_transactionHistoryFragment_to_transactionDetailFragment, bundle);
         }
     }
 
@@ -365,9 +415,10 @@ public class TransactionHistoryFragment extends Fragment implements
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        Log.d(TAG, "onDestroyView: Fragment view destroyed.");
         if (transactionsRef != null && transactionsValueEventListener != null) {
             transactionsRef.removeEventListener(transactionsValueEventListener);
-            Log.d(TAG, "Transaction history Firebase listener removed.");
+            Log.d(TAG, "onDestroyView: Transaction history Firebase listener removed.");
         }
         // Nullify view references to prevent memory leaks
         tabLayout = null;
@@ -375,9 +426,19 @@ public class TransactionHistoryFragment extends Fragment implements
         tvNoTransactions = null;
         ivBackButton = null;
         ivSortButton = null;
-        transactionAdapter = null; // Adapter might hold context, so nullify it
-        allTransactions = null; // Clear list references
-        currentDisplayedTransactions = null; // Clear list references
-        navController = null; // Nullify navController
+        // Do NOT nullify transactionAdapter, allTransactions, currentDisplayedTransactions here.
+        // They are data/adapter objects and should persist across view lifecycle or be re-initialized in onCreate.
+        // If you nullify them here, they might be null when onDataChange is triggered later.
+        Log.d(TAG, "onDestroyView: View references nullified.");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: Fragment destroyed.");
+        // If you want to completely clear data when fragment is truly destroyed (e.g., app killed)
+        // you can do it here, but typically not needed for navigation.
+        // allTransactions = null;
+        // currentDisplayedTransactions = null;
     }
 }

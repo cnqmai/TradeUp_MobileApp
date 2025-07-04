@@ -4,13 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/orange_skin"
     tools:context=".fragment.ChatListFragment">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_chat_list"
         android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="@drawable/bg_orange_yellow_gradient"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -28,7 +29,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Tin nhắn"
+                android:text="@string/message"
                 android:textStyle="bold"
                 android:textColor="@android:color/white"
                 android:textSize="20sp"
@@ -53,7 +54,7 @@
         android:id="@+id/tv_no_chats"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Bạn chưa có cuộc trò chuyện nào."
+        android:text="@string/no_conversations_yet"
         android:textColor="@android:color/darker_gray"
         android:textSize="16sp"
         android:visibility="gone"

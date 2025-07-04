@@ -13,7 +13,7 @@
         android:id="@+id/toolbar_payment"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="@drawable/bg_orange_yellow_gradient"
         android:theme="?attr/actionBarTheme"
         app:titleTextColor="@android:color/white">
 

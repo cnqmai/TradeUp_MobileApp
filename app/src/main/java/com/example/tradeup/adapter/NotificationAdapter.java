@@ -19,6 +19,7 @@ import com.example.tradeup.model.Notification;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -41,8 +42,15 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     }
 
     public void setNotifications(List<Notification> newNotifications) {
-        this.notificationList = newNotifications;
-        notifyDataSetChanged();
+        // FIX: Add null check for newNotifications
+        if (newNotifications != null) {
+            this.notificationList = newNotifications;
+            notifyDataSetChanged();
+        } else {
+            Log.w("NotificationAdapter", "Attempted to set null notification list.");
+            this.notificationList = new ArrayList<>(); // Set to empty list to avoid NPE
+            notifyDataSetChanged();
+        }
     }
 
     @NonNull
@@ -54,26 +62,38 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     @Override
     public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
+        // FIX: Add null check for notificationList before accessing elements
+        if (notificationList == null || position >= notificationList.size()) {
+            Log.e("NotificationAdapter", "notificationList is null or position is out of bounds in onBindViewHolder.");
+            return;
+        }
+
         Notification notification = notificationList.get(position);
 
         holder.tvTitle.setText(notification.getTitle());
-        holder.tvBody.setText(notification.getBody() != null ? notification.getBody() : notification.getTitle()); // Dùng body nếu có, không thì dùng title
+        holder.tvBody.setText(notification.getBody() != null ? notification.getBody() : notification.getTitle());
         holder.tvTime.setText(formatTimestamp(notification.getTimestamp()));
 
-        // Thay đổi màu sắc/kiểu chữ nếu thông báo chưa đọc
+        // Change color/font style if notification is unread
         if (notification.getRead() != null && !notification.getRead()) {
-            holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.unread_notification_background)); // Định nghĩa màu này
+            holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.unread_notification_background));
             holder.tvTitle.setTypeface(null, Typeface.BOLD);
             holder.tvBody.setTypeface(null, Typeface.BOLD);
+            holder.unreadDot.setVisibility(View.VISIBLE); // Show the unread dot
         } else {
             holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, android.R.color.white));
             holder.tvTitle.setTypeface(null, Typeface.NORMAL);
             holder.tvBody.setTypeface(null, Typeface.NORMAL);
+            holder.unreadDot.setVisibility(View.GONE); // Hide the unread dot
         }
 
-        // Đặt icon dựa trên loại thông báo (tùy chọn)
+        // Set icon based on notification type
         int iconRes = getIconForNotificationType(notification.getType());
         holder.ivIcon.setImageResource(iconRes);
+        // Set tint color for the icon background circle
+        holder.ivIcon.setBackgroundResource(R.drawable.bg_circle_icon_light); // Ensure this drawable exists
+        holder.ivIcon.setColorFilter(ContextCompat.getColor(context, getIconTintColor(notification.getType())));
+
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
@@ -84,7 +104,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     @Override
     public int getItemCount() {
-        return notificationList.size();
+        // FIX: Ensure notificationList is not null before calling size()
+        return notificationList != null ? notificationList.size() : 0;
     }
 
     private String formatTimestamp(String timestamp) {
@@ -92,7 +113,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
         try {
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
-            inputFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC")); // Chuẩn để parse đúng ISO 'Z'
+            inputFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
 
             Date notificationDate = inputFormat.parse(timestamp);
             Date now = new Date();
@@ -105,42 +126,64 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             long days = TimeUnit.MILLISECONDS.toDays(diffMillis);
 
             if (seconds < 60) {
-                return "Vừa xong";
+                return context.getString(R.string.time_just_now);
             } else if (minutes < 60) {
-                return minutes + " phút trước";
+                return context.getString(R.string.time_minutes_ago, minutes);
             } else if (hours < 24) {
-                return hours + " giờ trước";
+                return context.getString(R.string.time_hours_ago, hours);
             } else if (days < 7) {
-                return days + " ngày trước";
+                return context.getString(R.string.time_days_ago, days);
             } else {
                 SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
                 return outputFormat.format(notificationDate);
             }
         } catch (ParseException e) {
-            Log.e("NotificationAdapter", "Lỗi định dạng timestamp: " + timestamp, e);
+            Log.e("NotificationAdapter", "Error formatting timestamp: " + timestamp, e);
             return timestamp;
         }
     }
 
-
-
     private int getIconForNotificationType(String type) {
-        if (type == null) return R.drawable.ic_notification; // Icon mặc định
+        if (type == null) return R.drawable.ic_notification; // Default icon
 
         switch (type) {
             case "new_message":
                 return R.drawable.ic_message;
             case "new_offer":
-                return R.drawable.ic_attach_money; // Cần icon tiền
-            case "promotion":
-                return R.drawable.ic_promotion; // Cần icon sao
-            case "reported_chat":
-                return R.drawable.ic_report; // Cần icon báo cáo
             case "offer_accepted":
-                return R.drawable.ic_check_circle; // Cần icon check
-            // Thêm các loại thông báo khác nếu có
+            case "counter_offer":
+            case "buyer_responded_offer":
+                return R.drawable.ic_attach_money; // Icon for money/offers
+            case "promotion":
+                return R.drawable.ic_promotion; // Icon for promotion
+            case "reported_chat":
+                return R.drawable.ic_report; // Icon for report
+            case "listing_update": // New type for listing updates
+                return R.drawable.ic_update; // Icon for updates (e.g., refresh icon)
             default:
-                return R.drawable.ic_notification;
+                return R.drawable.ic_notification; // Default icon
+        }
+    }
+
+    private int getIconTintColor(String type) {
+        if (type == null) return R.color.gray; // Default tint color
+
+        switch (type) {
+            case "new_message":
+                return R.color.green_bold; // Green for messages
+            case "new_offer":
+            case "offer_accepted":
+            case "counter_offer":
+            case "buyer_responded_offer":
+                return R.color.orange_bold; // Orange for offers
+            case "promotion":
+                return R.color.yellow_bold; // Yellow for promotions
+            case "reported_chat":
+                return R.color.red_bold; // Red for reports
+            case "listing_update":
+                return R.color.blue_bold; // Blue for updates
+            default:
+                return R.color.gray;
         }
     }
 
@@ -148,6 +191,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         CardView cardView;
         ImageView ivIcon;
         TextView tvTitle, tvBody, tvTime;
+        View unreadDot; // Added unread dot
 
         public NotificationViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -156,6 +200,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             tvTitle = itemView.findViewById(R.id.tv_notification_title);
             tvBody = itemView.findViewById(R.id.tv_notification_body);
             tvTime = itemView.findViewById(R.id.tv_notification_time);
+            unreadDot = itemView.findViewById(R.id.unread_dot); // Initialize unread dot
         }
     }
 }

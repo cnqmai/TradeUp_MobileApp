@@ -148,7 +148,7 @@ public class ChatDetailFragment extends Fragment {
                     uploadImageAndSendMessage(imageUri);
                 }
             } else {
-                Toast.makeText(requireContext(), "Chụp ảnh bị hủy hoặc lỗi.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Photo capture cancelled.", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -156,7 +156,7 @@ public class ChatDetailFragment extends Fragment {
             if (uri != null) {
                 uploadImageAndSendMessage(uri);
             } else {
-                Toast.makeText(requireContext(), "Chọn ảnh bị hủy.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Image selection cancelled.", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -166,22 +166,16 @@ public class ChatDetailFragment extends Fragment {
     // New method to initialize the list of sensitive words
     private void initializeSensitiveWords() {
         sensitiveWords = new HashSet<>();
-        // Add your sensitive words here (should be lowercase for case-insensitive checking)
-        sensitiveWords.add("địt");
-        sensitiveWords.add("mày");
-        sensitiveWords.add("đồ ngu");
-        sensitiveWords.add("buồi");
-        sensitiveWords.add("lồn");
-        sensitiveWords.add("cặc");
-        sensitiveWords.add("phò");
-        sensitiveWords.add("đĩ");
+        sensitiveWords.add("dick");
+        sensitiveWords.add("idiot");
+        sensitiveWords.add("cock");
+        sensitiveWords.add("vagina");
+        sensitiveWords.add("cunt");
+        sensitiveWords.add("whore");
+        sensitiveWords.add("slut");
         sensitiveWords.add("sex");
-        sensitiveWords.add("lol");
-        sensitiveWords.add("đcm");
-        sensitiveWords.add("clm");
-        // Add more words according to your application's regulations
-        // In a real application, you might load this list from Firebase Remote Config
-        // or a remote source for easy updates without app updates.
+        sensitiveWords.add("f*ck you");
+        sensitiveWords.add("f*ck me");
     }
 
     @Nullable
@@ -197,7 +191,7 @@ public class ChatDetailFragment extends Fragment {
         navController = Navigation.findNavController(view);
 
         progressDialog = new ProgressDialog(requireContext());
-        progressDialog.setMessage("Đang xử lý..."); // Default message
+        progressDialog.setMessage("Processing..."); // Default message
         progressDialog.setCancelable(false);
 
         initViews(view);
@@ -234,7 +228,7 @@ public class ChatDetailFragment extends Fragment {
                     if (user != null && user.getDisplay_name() != null) {
                         tvOtherUserNameToolbar.setText(user.getDisplay_name());
                     } else {
-                        tvOtherUserNameToolbar.setText("Người dùng khác");
+                        tvOtherUserNameToolbar.setText("Other user");
                     }
                 }
 
@@ -292,7 +286,7 @@ public class ChatDetailFragment extends Fragment {
             if (otherUserId != null && !otherUserId.isEmpty() && navController != null) {
                 // Prevent navigating to own profile if it somehow gets clicked
                 if (currentUserId != null && currentUserId.equals(otherUserId)) {
-                    Toast.makeText(getContext(), "Đây là hồ sơ của bạn.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "This is your profile.", Toast.LENGTH_SHORT).show();
                     // Optionally, navigate to the main ProfileFragment if you have one for own profile
                     // navController.navigate(R.id.action_chatDetailFragment_to_profileFragment);
                 } else {
@@ -302,7 +296,7 @@ public class ChatDetailFragment extends Fragment {
                     navController.navigate(R.id.action_chatDetailFragment_to_userProfileFragment, bundle);
                 }
             } else {
-                Toast.makeText(getContext(), "Không thể xem hồ sơ người dùng.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Cannot view user profile.", Toast.LENGTH_SHORT).show();
                 Log.w(TAG, "Cannot navigate to user profile: otherUserId is null or navController is null.");
             }
         });
@@ -357,7 +351,7 @@ public class ChatDetailFragment extends Fragment {
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) {
                             Log.e(TAG, "Failed to find chat (reverse): " + error.getMessage());
-                            Toast.makeText(requireContext(), "Lỗi khi tìm cuộc trò chuyện.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(requireContext(), "Error finding chat.", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -366,7 +360,7 @@ public class ChatDetailFragment extends Fragment {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e(TAG, "Failed to find chat: " + error.getMessage());
-                Toast.makeText(requireContext(), "Lỗi khi tìm cuộc trò chuyện.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Error finding chat.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -374,7 +368,7 @@ public class ChatDetailFragment extends Fragment {
     private void createNewChat() {
         chatId = chatsRef.push().getKey(); // Create new chat ID
         if (chatId == null) {
-            Toast.makeText(requireContext(), "Không thể tạo ID cuộc trò chuyện.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Cannot create chat ID.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -385,7 +379,7 @@ public class ChatDetailFragment extends Fragment {
         newChat.setUser_2(otherUserId); // otherUserId is user_2
         newChat.setBlocked(false); // Default to false
         newChat.setReported(false); // Default to false
-        newChat.setLastMessage("Hãy bắt đầu cuộc trò chuyện!");
+        newChat.setLastMessage("Let's start the conversation!");
         newChat.setLastMessageTimestamp(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date()));
         newChat.setUser1UnreadCount(0); // Initialize unread message count for user_1 (currentUserId)
         newChat.setUser2UnreadCount(0); // Initialize unread message count for user_2 (otherUserId)
@@ -404,7 +398,7 @@ public class ChatDetailFragment extends Fragment {
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to create new chat: " + e.getMessage());
-                    Toast.makeText(requireContext(), "Không thể tạo cuộc trò chuyện mới.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Cannot create new chat.", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -429,7 +423,7 @@ public class ChatDetailFragment extends Fragment {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e(TAG, "Failed to load chat details: " + error.getMessage());
-                Toast.makeText(requireContext(), "Lỗi khi tải chi tiết cuộc trò chuyện.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Error loading chat details.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -458,17 +452,17 @@ public class ChatDetailFragment extends Fragment {
     // New method to display sensitive content warning dialog
     private void showSensitiveContentWarning(String messageText, String type) {
         new AlertDialog.Builder(requireContext())
-                .setTitle("Cảnh báo nội dung nhạy cảm")
-                .setMessage("Tin nhắn của bạn có thể chứa từ ngữ không phù hợp. Bạn có muốn:")
-                .setPositiveButton("Gửi dù sao", (dialog, which) -> {
+                .setTitle("Sensitive Content Warning")
+                .setMessage("Your message may contain inappropriate language. Do you want to:")
+                //.setPositiveButton("Gửi dù sao", (dialog, which) -> {
                     // User chooses to send anyway, call the actual send message method
-                    actuallySendMessage(messageText, type);
-                })
-                .setNeutralButton("Chỉnh sửa", (dialog, which) -> {
+                //    actuallySendMessage(messageText, type);
+                //})
+                .setNeutralButton("Edit", (dialog, which) -> {
                     // User chooses to edit, keep the text in EditText
                     dialog.dismiss(); // Dismiss dialog
                 })
-                .setNegativeButton("Hủy", (dialog, which) -> {
+                .setNegativeButton("Cancel", (dialog, which) -> {
                     // User chooses to cancel, clear the text in EditText
                     etMessageInput.setText("");
                     dialog.dismiss(); // Dismiss dialog
@@ -482,7 +476,7 @@ public class ChatDetailFragment extends Fragment {
             etMessageInput.setEnabled(false);
             ivSendMessage.setEnabled(false);
             ivAttachImage.setEnabled(false);
-            Toast.makeText(requireContext(), "Cuộc trò chuyện này đang bị chặn.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "This chat has been blocked.", Toast.LENGTH_SHORT).show();
         } else {
             ivBlockChat.setImageResource(R.drawable.ic_unlock);
             etMessageInput.setEnabled(true);
@@ -532,7 +526,7 @@ public class ChatDetailFragment extends Fragment {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e(TAG, "Failed to load messages: " + error.getMessage());
-                Toast.makeText(requireContext(), "Lỗi khi tải tin nhắn: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Error loading messages: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -540,18 +534,18 @@ public class ChatDetailFragment extends Fragment {
     private void sendMessage(String type) {
         String messageText = etMessageInput.getText().toString().trim();
         if (messageText.isEmpty() && !"image".equals(type)) {
-            Toast.makeText(requireContext(), "Vui lòng nhập tin nhắn hoặc chọn ảnh.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Please enter a message or select an image.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (chatId == null || currentChat == null) {
-            Toast.makeText(requireContext(), "Chưa thể gửi tin nhắn. Đang tải cuộc trò chuyện...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Cannot send message yet. Chat is loading...", Toast.LENGTH_SHORT).show();
             return;
         }
 
         // Check block status first
         if (currentChat.getBlocked() != null && currentChat.getBlocked()) {
-            Toast.makeText(requireContext(), "Cuộc trò chuyện này đã bị chặn. Bạn không thể gửi tin nhắn.", Toast.LENGTH_LONG).show();
+            Toast.makeText(requireContext(), "This chat has been blocked. You cannot send messages.", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -608,7 +602,7 @@ public class ChatDetailFragment extends Fragment {
                     })
                     .addOnFailureListener(e -> {
                         Log.e(TAG, "Failed to send message: " + e.getMessage());
-                        Toast.makeText(requireContext(), "Không thể gửi tin nhắn: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), "Cannot send message: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
         }
     }
@@ -696,14 +690,21 @@ public class ChatDetailFragment extends Fragment {
     // Image sending logic
     private void showImagePickerDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Chọn ảnh");
-        builder.setItems(new CharSequence[]{"Chụp ảnh", "Chọn từ thư viện"}, (dialog, which) -> {
+        builder.setTitle("Choose image source");
+        builder.setItems(new CharSequence[]{
+                "Camera",
+                "Gallery",
+                "Cancel"
+        }, (dialog, which) -> {
             switch (which) {
                 case 0:
                     checkCameraPermissionAndTakePicture();
                     break;
                 case 1:
                     checkGalleryPermissionAndPickImage();
+                    break;
+                case 2: // Cancel
+                    dialog.dismiss();
                     break;
             }
         });
@@ -748,32 +749,32 @@ public class ChatDetailFragment extends Fragment {
 
     private void uploadImageAndSendMessage(Uri imageUri) {
         if (imageUri == null) {
-            Toast.makeText(requireContext(), "Không có ảnh để tải lên.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "No image to upload.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         // Check if chatId and currentChat are initialized
         if (chatId == null || currentChat == null) {
-            Toast.makeText(requireContext(), "Chưa thể gửi tin nhắn. Đang tải cuộc trò chuyện...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Cannot send message yet. Chat is loading...", Toast.LENGTH_SHORT).show();
             return;
         }
 
         // --- START BLOCK CHECK LOGIC ---
         if (currentChat.getBlocked() != null && currentChat.getBlocked()) {
-            Toast.makeText(requireContext(), "Cuộc trò chuyện này đã bị chặn. Bạn không thể gửi tin nhắn.", Toast.LENGTH_LONG).show();
+            Toast.makeText(requireContext(), "This chat has been blocked. You cannot send messages.", Toast.LENGTH_LONG).show();
             return; // PREVENT SENDING MESSAGE
         }
         // --- END BLOCK CHECK LOGIC ---
 
 
-        progressDialog.setMessage("Đang tải ảnh...");
+        progressDialog.setMessage("Uploading photo...");
         progressDialog.show();
 
         try {
             InputStream inputStream = requireContext().getContentResolver().openInputStream(imageUri);
             if (inputStream == null) {
                 progressDialog.dismiss();
-                Toast.makeText(getContext(), "Không thể mở luồng đầu vào từ URI ảnh.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Cannot open input stream from image URI.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -809,7 +810,7 @@ public class ChatDetailFragment extends Fragment {
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     requireActivity().runOnUiThread(() -> {
                         progressDialog.dismiss();
-                        Toast.makeText(getContext(), "Tải ảnh thất bại: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "Image upload failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
                         Log.e(TAG, "Cloudinary upload failed", e);
                     });
                 }
@@ -821,7 +822,7 @@ public class ChatDetailFragment extends Fragment {
                     if (!response.isSuccessful()) {
                         String errorBody = response.body() != null ? response.body().string() : "No error body";
                         requireActivity().runOnUiThread(() -> {
-                            Toast.makeText(getContext(), "Lỗi tải ảnh: " + response.code() + " " + response.message() + " - " + errorBody, Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), "Image loading error:: " + response.code() + " " + response.message() + " - " + errorBody, Toast.LENGTH_LONG).show();
                             Log.e(TAG, "Cloudinary upload error: " + response.code() + " " + response.message() + " - " + errorBody);
                         });
                         return;
@@ -835,7 +836,7 @@ public class ChatDetailFragment extends Fragment {
 
                     } catch (Exception e) {
                         requireActivity().runOnUiThread(() ->
-                                Toast.makeText(getContext(), "Lỗi xử lý phản hồi Cloudinary: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                                Toast.makeText(getContext(), "Error processing Cloudinary response: " + e.getMessage(), Toast.LENGTH_LONG).show());
                         Log.e(TAG, "Error parsing Cloudinary response", e);
                     } finally {
                         if (response.body() != null) {
@@ -847,8 +848,8 @@ public class ChatDetailFragment extends Fragment {
 
         } catch (Exception e) {
             progressDialog.dismiss();
-            Log.e(TAG, "Lỗi đọc URI ảnh: " + e.getMessage(), e);
-            Toast.makeText(getContext(), "Lỗi đọc ảnh: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Log.e(TAG, "Error reading image URI: " + e.getMessage(), e);
+            Toast.makeText(getContext(), "Error reading image: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
     // Helper method to get file extension from MIME type
@@ -874,13 +875,13 @@ public class ChatDetailFragment extends Fragment {
     private void sendImageMessage(String imageUrl) {
         // Check if chatId and currentChat are initialized
         if (chatId == null || currentChat == null) {
-            Toast.makeText(requireContext(), "Chưa thể gửi tin nhắn. Đang tải cuộc trò chuyện...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Cannot send message yet. Chat is loading...", Toast.LENGTH_SHORT).show();
             return;
         }
 
         // --- START BLOCK CHECK LOGIC ---
         if (currentChat.getBlocked() != null && currentChat.getBlocked()) {
-            Toast.makeText(requireContext(), "Cuộc trò chuyện này đã bị chặn. Bạn không thể gửi tin nhắn.", Toast.LENGTH_LONG).show();
+            Toast.makeText(requireContext(), "This chat has been blocked. You cannot send messages.", Toast.LENGTH_LONG).show();
             return; // PREVENT SENDING MESSAGE
         }
         // --- END BLOCK CHECK LOGIC ---
@@ -900,12 +901,12 @@ public class ChatDetailFragment extends Fragment {
                     .addOnSuccessListener(aVoid -> {
                         Log.d(TAG, "Image message sent: " + imageUrl);
                         etMessageInput.setText(""); // Clear input
-                        updateChatLastMessage("[Hình ảnh]"); // Update last message
+                        updateChatLastMessage("[Image]"); // Update last message
                         incrementUnreadCountForOtherUser(); // Update unread count for recipient
                     })
                     .addOnFailureListener(e -> {
                         Log.e(TAG, "Failed to send image message: " + e.getMessage());
-                        Toast.makeText(requireContext(), "Không thể gửi tin nhắn ảnh: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), "Cannot send image message: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
         }
     }
@@ -916,7 +917,7 @@ public class ChatDetailFragment extends Fragment {
                 if (isGranted) {
                     takePicture();
                 } else {
-                    Toast.makeText(requireContext(), "Quyền máy ảnh bị từ chối.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Camera permission denied.", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -925,7 +926,7 @@ public class ChatDetailFragment extends Fragment {
                 if (isGranted) {
                     pickImage();
                 } else {
-                    Toast.makeText(requireContext(), "Quyền đọc ảnh bị từ chối.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Photo read permission denied.", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -934,7 +935,7 @@ public class ChatDetailFragment extends Fragment {
                 if (isGranted) {
                     pickImage();
                 } else {
-                    Toast.makeText(requireContext(), "Quyền đọc bộ nhớ bị từ chối.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Storage read permission denied.", Toast.LENGTH_SHORT).show();
                 }
             });
     //endregion
@@ -942,7 +943,7 @@ public class ChatDetailFragment extends Fragment {
     // FR-4.1.3: Block/Report function
     private void toggleBlockChat() {
         if (chatId == null) {
-            Toast.makeText(requireContext(), "Cuộc trò chuyện chưa được tạo.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Chat not yet created.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -954,19 +955,19 @@ public class ChatDetailFragment extends Fragment {
                     boolean currentBlockedStatus = chat.getBlocked() != null ? chat.getBlocked() : false;
                     chatsRef.child(chatId).child("blocked").setValue(!currentBlockedStatus)
                             .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(requireContext(), !currentBlockedStatus ? "Cuộc trò chuyện đã bị chặn." : "Cuộc trò chuyện đã được bỏ chặn.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(requireContext(), !currentBlockedStatus ? "Chat has been blocked." : "Chat has been unblocked.", Toast.LENGTH_SHORT).show();
                                 // Update UI immediately after blocking/unblocking
                                 // This will trigger the listener in loadChatDetails and update currentChat
                                 // and then updateChatHeader will be called.
                             })
-                            .addOnFailureListener(e -> Toast.makeText(requireContext(), "Không thể cập nhật trạng thái chặn: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                            .addOnFailureListener(e -> Toast.makeText(requireContext(), "Cannot update block status: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e(TAG, "Failed to read chat status for blocking: " + error.getMessage());
-                Toast.makeText(requireContext(), "Lỗi khi kiểm tra trạng thái chặn.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Error checking block status.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -974,7 +975,7 @@ public class ChatDetailFragment extends Fragment {
     // New method to handle reporting and unreporting
     private void toggleReportChat() {
         if (chatId == null || currentChat == null) {
-            Toast.makeText(requireContext(), "Cuộc trò chuyện chưa được tạo hoặc đang tải.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Chat not yet created or loading.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -986,15 +987,15 @@ public class ChatDetailFragment extends Fragment {
             recordAdminLog("unreported_chat", chatId, null); // Log unreport action
         } else {
             // If not reported, ask for confirmation before reporting with reasons
-            final String[] reportReasons = {"Lừa đảo/gian lận", "Nội dung không phù hợp", "Spam"};
+            final String[] reportReasons = {"Scam/Fraud", "Inappropriate content", "Spam"};
             AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-            builder.setTitle("Báo cáo cuộc trò chuyện vì:");
+            builder.setTitle("Report chat for:");
             builder.setItems(reportReasons, (dialog, which) -> {
                 String selectedReason = reportReasons[which];
                 updateReportStatus(true, selectedReason); // Update status with selected reason
                 recordAdminLog("reported_chat", chatId, selectedReason); // Log report action with reason
             });
-            builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
+            builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
             builder.show();
         }
     }
@@ -1012,10 +1013,10 @@ public class ChatDetailFragment extends Fragment {
 
         chatsRef.child(chatId).updateChildren(updates)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(requireContext(), newStatus ? "Cuộc trò chuyện đã được báo cáo." : "Cuộc trò chuyện đã được bỏ báo cáo.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), newStatus ? "Chat has been reported." : "Chat has been un-reported.", Toast.LENGTH_SHORT).show();
                     // UI will be updated automatically via loadChatDetails listener
                 })
-                .addOnFailureListener(e -> Toast.makeText(requireContext(), "Không thể cập nhật trạng thái báo cáo: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(requireContext(), "Cannot update report status: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     private void recordAdminLog(String action, String targetId, @Nullable String reason) {

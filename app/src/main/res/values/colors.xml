@@ -21,10 +21,14 @@
     <color name="orange_skin">#FFF7EB</color>
 
     <color name="red">#F9C0C0</color>
+    <color name="red_light">#FDD7D7</color>
     <color name="red_bold">#D94545</color>
 
     <color name="gray">#888888</color>
     <color name="gray_light">#DADADA</color>
 
-    <color name="unread_notification_background">#FFCF4B</color>
+    <color name="blue_bold">#2196F3</color>
+
+    <color name="notifications_background_light">#F8F8F8</color>
+    <color name="unread_notification_background">#E8F5E9</color>
 </resources>

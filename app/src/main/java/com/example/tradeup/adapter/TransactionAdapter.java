@@ -57,7 +57,14 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         this.context = context;
         this.transactionList = transactionList;
         this.listener = listener;
-        this.currentUserId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+        // Ensure currentUserId is initialized safely
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            this.currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        } else {
+            this.currentUserId = null; // Handle case where user is not logged in
+            Log.e(TAG, "Current user is null in TransactionAdapter constructor.");
+        }
+
 
         inputFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
         currencyFormat = new DecimalFormat("#,###");
@@ -72,13 +79,19 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull TransactionViewHolder holder, int position) {
+        // FIX: Add null check for transactionList before accessing elements
+        if (transactionList == null || position >= transactionList.size()) {
+            Log.e(TAG, "transactionList is null or position is out of bounds in onBindViewHolder.");
+            return;
+        }
         Transaction transaction = transactionList.get(position);
         holder.bind(transaction);
     }
 
     @Override
     public int getItemCount() {
-        return transactionList.size();
+        // FIX: Ensure transactionList is not null before calling size()
+        return transactionList != null ? transactionList.size() : 0;
     }
 
     public void setTransactions(List<Transaction> transactions) {
@@ -104,7 +117,12 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
                 if (listener != null) {
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
-                        listener.onTransactionClick(transactionList.get(position));
+                        // FIX: Add null check for transactionList here as well
+                        if (transactionList != null && position < transactionList.size()) {
+                            listener.onTransactionClick(transactionList.get(position));
+                        } else {
+                            Log.e(TAG, "transactionList is null or position is out of bounds on item click.");
+                        }
                     }
                 }
             });
@@ -112,31 +130,33 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
         public void bind(Transaction transaction) {
             if (transaction.getFinal_price() != null) {
-                tvItemPrice.setText(currencyFormat.format(transaction.getFinal_price()) + " VNĐ");
+                tvItemPrice.setText(currencyFormat.format(transaction.getFinal_price()) + " VNĐ"); // Keep VNĐ for currency
             } else {
-                tvItemPrice.setText("N/A");
+                tvItemPrice.setText(context.getString(R.string.price_not_available));
             }
 
             if (transaction.getTransaction_date() != null) {
                 try {
                     Date date = inputFormat.parse(transaction.getTransaction_date());
                     if (date != null) {
-                        tvSoldDate.setText("Sold on " + outputFormat.format(date));
+                        tvSoldDate.setText(context.getString(R.string.sold_on_date, outputFormat.format(date)));
+                    } else {
+                        tvSoldDate.setText(context.getString(R.string.date_not_available));
                     }
                 } catch (ParseException e) {
                     Log.e(TAG, "Failed to parse transaction date: " + transaction.getTransaction_date(), e);
-                    tvSoldDate.setText("Sold on N/A");
+                    tvSoldDate.setText(context.getString(R.string.date_not_available));
                 }
             } else {
-                tvSoldDate.setText("Sold on N/A");
+                tvSoldDate.setText(context.getString(R.string.date_not_available));
             }
 
-            // Hiển thị trạng thái dựa trên isArchived
+            // Display status based on isArchived
             if (transaction.isArchived()) {
-                tvStatusSold.setText("Completed");
+                tvStatusSold.setText(context.getString(R.string.status_completed));
                 tvStatusSold.setTextColor(context.getResources().getColor(android.R.color.holo_green_dark));
             } else {
-                tvStatusSold.setText("Active");
+                tvStatusSold.setText(context.getString(R.string.status_active));
                 tvStatusSold.setTextColor(context.getResources().getColor(android.R.color.holo_orange_dark));
             }
 
@@ -159,7 +179,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
                                 ivItemImage.setImageResource(R.drawable.img_placeholder);
                             }
                         } else {
-                            tvItemTitle.setText("Sản phẩm không tồn tại");
+                            tvItemTitle.setText(context.getString(R.string.item_not_found));
                             ivItemImage.setImageResource(R.drawable.img_placeholder);
                         }
                     }
@@ -167,37 +187,41 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
                         Log.e(TAG, "Failed to load item details for transaction: " + error.getMessage());
-                        tvItemTitle.setText("Lỗi tải sản phẩm");
+                        tvItemTitle.setText(context.getString(R.string.error_loading_item));
                         ivItemImage.setImageResource(R.drawable.img_error);
                     }
                 });
             } else {
-                tvItemTitle.setText("ID Sản phẩm không hợp lệ");
+                tvItemTitle.setText(context.getString(R.string.invalid_item_id));
                 ivItemImage.setImageResource(R.drawable.img_placeholder);
             }
 
-            // Logic xử lý khi nhấn vào mũi tên
+            // Logic to handle arrow click for rating or transaction details
             ivArrowRight.setOnClickListener(v -> {
                 if (listener != null) {
-                    // Kiểm tra xem giao dịch đã được archived (hoàn tất) chưa
+                    // Check if the transaction is archived (completed)
                     if (transaction.isArchived()) {
-                        // Xác định người cần được đánh giá
-                        String reviewedUserId;
-                        if (currentUserId.equals(transaction.getBuyer_id())) {
-                            reviewedUserId = transaction.getSeller_id();
-                        } else if (currentUserId.equals(transaction.getSeller_id())) {
-                            reviewedUserId = transaction.getBuyer_id();
-                        } else {
-                            Log.e(TAG, "Current user is neither buyer nor seller for transaction: " + transaction.getTransaction_id());
-                            Toast.makeText(context, "Không thể đánh giá giao dịch này.", Toast.LENGTH_SHORT).show();
-                            return;
+                        // Determine who needs to be reviewed
+                        String reviewedUserId = null;
+                        if (currentUserId != null) { // Ensure currentUserId is not null
+                            if (currentUserId.equals(transaction.getBuyer_id())) {
+                                reviewedUserId = transaction.getSeller_id();
+                            } else if (currentUserId.equals(transaction.getSeller_id())) {
+                                reviewedUserId = transaction.getBuyer_id();
+                            }
                         }
-                        // LUÔN LUÔN điều hướng đến màn hình đánh giá nếu giao dịch đã archived
-                        listener.onArrowClickForRating(transaction, reviewedUserId);
+
+                        if (reviewedUserId != null) {
+                            // Always navigate to the rating screen if transaction is archived and reviewedUserId is valid
+                            listener.onArrowClickForRating(transaction, reviewedUserId);
+                        } else {
+                            Log.e(TAG, "Reviewed user ID is null for transaction: " + transaction.getTransaction_id());
+                            Toast.makeText(context, context.getString(R.string.toast_cannot_rate_transaction), Toast.LENGTH_SHORT).show();
+                        }
                     } else {
-                        // Nếu giao dịch chưa hoàn tất (chưa archived), thông báo và điều hướng đến màn hình chi tiết giao dịch
-                        Toast.makeText(context, "Giao dịch chưa hoàn tất. Không thể đánh giá.", Toast.LENGTH_SHORT).show();
-                        listener.onTransactionClick(transaction); // Vẫn cho phép xem chi tiết
+                        // If the transaction is not completed (not archived), inform and navigate to transaction details
+                        Toast.makeText(context, context.getString(R.string.toast_transaction_not_completed_cannot_rate), Toast.LENGTH_SHORT).show();
+                        listener.onTransactionClick(transaction); // Still allow viewing details
                     }
                 }
             });
@@ -205,6 +229,13 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     }
 
     private void checkIfAlreadyReviewed(Transaction transaction, String reviewedUserId, OnReviewedCheckCallback callback) {
+        // FIX: Add null check for currentUserId
+        if (currentUserId == null) {
+            Log.e(TAG, "Current user ID is null, cannot check if reviewed.");
+            callback.onResult(true); // Assume reviewed to prevent further action
+            return;
+        }
+
         DatabaseReference reviewsRef = FirebaseDatabase.getInstance().getReference("reviews");
         Query query = reviewsRef.orderByChild("reviewer_id").equalTo(currentUserId);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -225,7 +256,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e(TAG, "Failed to check if reviewed: " + error.getMessage());
-                callback.onResult(true);
+                callback.onResult(true); // Assume reviewed on error to prevent issues
             }
         });
     }
