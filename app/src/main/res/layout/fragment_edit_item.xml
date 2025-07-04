@@ -1,212 +1,359 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
+    android:background="@color/white"
     tools:context=".fragment.EditItemFragment">
 
+    <!-- Top Bar with Gradient Background -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/top_bar_edit_item"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:gravity="center"
+        android:background="@drawable/bg_orange_yellow_gradient"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Chỉnh sửa tin đăng"
-            android:textAppearance="?attr/textAppearanceHeadline5"
-            android:layout_marginBottom="16dp" />
+            android:text="@string/edit_item_title"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_edit_title"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:hint="Tiêu đề tin đăng">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_edit_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textCapSentences"
-                android:maxLines="1" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_edit_description"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:hint="Mô tả">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_edit_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="top"
-                android:inputType="textMultiLine"
-                android:lines="4" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_edit_price"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:hint="Giá (VNĐ)">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_edit_price"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:maxLines="1" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Danh mục"
-            android:textAppearance="?attr/textAppearanceSubtitle1"
-            android:layout_marginTop="8dp" />
-        <Spinner
-            android:id="@+id/spinner_edit_category"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:layout_marginBottom="8dp"
-            android:spinnerMode="dropdown"
-            android:background="?attr/editTextBackground"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tình trạng"
-            android:textAppearance="?attr/textAppearanceSubtitle1"
-            android:layout_marginTop="8dp" />
-        <Spinner
-            android:id="@+id/spinner_edit_condition"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:layout_marginBottom="8dp"
-            android:spinnerMode="dropdown"
-            android:background="?attr/editTextBackground"/>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_edit_location"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:hint="Vị trí">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_edit_location"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textCapWords"
-                android:maxLines="1" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <Button
-            android:id="@+id/btn_edit_get_location_gps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:text="Lấy vị trí từ GPS"
-            android:layout_marginBottom="16dp" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_edit_item_behavior"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:hint="Mục đích (vd: Trao đổi, Bán)">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_edit_item_behavior"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:maxLines="1" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_edit_tags"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:hint="Từ khóa (phân cách bằng dấu phẩy)">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_edit_tags"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:maxLines="1" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Ảnh tin đăng (Tối đa 10 ảnh)"
-            android:textAppearance="?attr/textAppearanceSubtitle1"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp" />
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/top_bar_edit_item"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <ImageView
-                android:id="@+id/iv_edit_add_image"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:src="@drawable/ic_add_image"
-                android:scaleType="centerCrop"
-                android:background="@drawable/border_image_preview"
-                android:padding="8dp"
-                android:contentDescription="Add Image" />
-
-            <HorizontalScrollView
-                android:layout_width="0dp"
+            <!-- Title -->
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:scrollbars="none">
+                android:text="@string/item_title_label"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="8dp"/>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_edit_title"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/item_title_hint"
+                android:layout_marginBottom="16dp"
+                app:boxCornerRadiusBottomEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusTopStart="8dp"
+                app:boxStrokeColor="@color/orange_bold"
+                app:hintTextColor="@color/gray">
 
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_edit_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:inputType="textCapSentences"
+                    android:textColor="@android:color/black"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Description -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/description_label"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="8dp"/>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_edit_description"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/description_hint"
+                android:layout_marginBottom="16dp"
+                app:boxCornerRadiusBottomEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusTopStart="8dp"
+                app:boxStrokeColor="@color/orange_bold"
+                app:hintTextColor="@color/gray">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_edit_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:gravity="top"
+                    android:inputType="textMultiLine"
+                    android:textColor="@android:color/black"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Price -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/price_label"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="8dp"/>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_edit_price"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/price_hint"
+                android:layout_marginBottom="16dp"
+                app:boxCornerRadiusBottomEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusTopStart="8dp"
+                app:boxStrokeColor="@color/orange_bold"
+                app:hintTextColor="@color/gray">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_edit_price"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:inputType="numberDecimal"
+                    android:textColor="@android:color/black"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Category -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/category_label"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="8dp"/>
+            <Spinner
+                android:id="@+id/spinner_edit_category"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:spinnerMode="dropdown"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Condition -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/condition_label"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="8dp"/>
+            <Spinner
+                android:id="@+id/spinner_edit_condition"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:spinnerMode="dropdown"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Location -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/location_label"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="8dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_edit_location"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/location_hint"
+                    android:layout_marginEnd="8dp"
+                    app:boxCornerRadiusBottomEnd="8dp"
+                    app:boxCornerRadiusBottomStart="8dp"
+                    app:boxCornerRadiusTopEnd="8dp"
+                    app:boxCornerRadiusTopStart="8dp"
+                    app:boxStrokeColor="@color/orange_bold"
+                    app:hintTextColor="@color/gray">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_edit_location"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:inputType="textPostalAddress"
+                        android:textColor="@android:color/black"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <Button
+                    android:id="@+id/btn_edit_get_location_gps"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/get_gps_location_button"
+                    android:backgroundTint="@color/green_bold"
+                    android:textColor="@android:color/white"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:minHeight="0dp"
+                    android:paddingVertical="12dp"
+                    app:cornerRadius="15dp" />
+            </LinearLayout>
+
+            <!-- Image Upload -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/product_images_label"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="8dp"/>
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp">
                 <LinearLayout
-                    android:id="@+id/ll_edit_image_previews"
+                    android:id="@+id/ll_edit_image_previews_container"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp">
+                    android:gravity="center_vertical">
+                    <!-- This LinearLayout will hold dynamically added image previews -->
+                    <LinearLayout
+                        android:id="@+id/ll_edit_add_image_placeholder"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:background="@drawable/bg_dashed_border"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:padding="8dp">
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/ic_camera"
+                            android:contentDescription="@string/add_image_content_desc"
+                            app:tint="@color/gray" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/tap_to_add_image"
+                            android:textSize="12sp"
+                            android:gravity="center"
+                            android:textColor="@color/gray" />
+                    </LinearLayout>
+                    <!-- Existing image previews will be added to ll_edit_image_previews here dynamically -->
+                    <LinearLayout
+                        android:id="@+id/ll_edit_image_previews"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp">
+                    </LinearLayout>
                 </LinearLayout>
             </HorizontalScrollView>
+
+            <!-- Item Behavior -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/item_behavior_label"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="8dp"/>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_edit_item_behavior"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/item_behavior_hint"
+                android:layout_marginBottom="16dp"
+                app:boxCornerRadiusBottomEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusTopStart="8dp"
+                app:boxStrokeColor="@color/orange_bold"
+                app:hintTextColor="@color/gray">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_edit_item_behavior"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:inputType="textCapSentences"
+                    android:textColor="@android:color/black"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Tags -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tags_label"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="8dp"/>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_edit_tags"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/tags_hint"
+                android:layout_marginBottom="24dp"
+                app:boxCornerRadiusBottomEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusTopStart="8dp"
+                app:boxStrokeColor="@color/orange_bold"
+                app:hintTextColor="@color/gray">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_edit_tags"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:inputType="text"
+                    android:textColor="@android:color/black"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Update Button -->
+            <Button
+                android:id="@+id/btn_update_item"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/update_item_button"
+                android:backgroundTint="@color/green_bold"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:paddingVertical="12dp"
+                app:cornerRadius="12dp"
+                android:layout_marginTop="16dp" />
+
         </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="16dp" />
-
-        <Button
-            android:id="@+id/btn_update_item"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Cập nhật tin đăng"
-            android:layout_marginTop="16dp"
-            style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
-
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

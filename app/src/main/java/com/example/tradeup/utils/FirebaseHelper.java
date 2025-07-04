@@ -796,4 +796,20 @@ public class FirebaseHelper {
                     }
                 });
     }
+
+    // Trong FirebaseHelper.java
+
+    public void updateTransactionStatus(String transactionId, String newStatus, DbWriteCallback callback) {
+        DatabaseReference transactionRef = FirebaseDatabase.getInstance().getReference("transactions").child(transactionId);
+        transactionRef.child("status").setValue(newStatus)
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    public void updateItemStatus(String itemId, String newStatus, DbWriteCallback callback) {
+        DatabaseReference itemRef = FirebaseDatabase.getInstance().getReference("items").child(itemId);
+        itemRef.child("status").setValue(newStatus)
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
 }

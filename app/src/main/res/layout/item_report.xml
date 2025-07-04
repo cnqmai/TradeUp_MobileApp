@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="4dp"
     app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    app:cardElevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,41 +15,49 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tv_report_type"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Loại: Người dùng"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="4dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:id="@+id/tv_report_type"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                tools:text="@string/report_type_placeholder"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/tv_report_timestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="@string/report_timestamp_placeholder"
+                android:textSize="12sp"
+                android:textColor="@color/gray" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tv_report_reason"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Lý do: Nội dung không phù hợp"
+            tools:text="@string/report_reason_placeholder"
             android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="@color/red_bold"
             android:layout_marginBottom="4dp" />
 
         <TextView
             android:id="@+id/tv_report_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Trạng thái: Đang chờ xử lý"
+            tools:text="@string/report_status_placeholder"
             android:textSize="14sp"
-            android:textColor="@color/design_default_color_primary"
-            android:layout_marginBottom="4dp" />
-
-        <TextView
-            android:id="@+id/tv_report_timestamp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Thời gian: 20/06/2024 10:30"
-            android:textSize="12sp"
-            android:textColor="@android:color/darker_gray" />
+            android:textStyle="bold"
+            android:textColor="@color/green_bold" /> <!-- Using blue for pending, can be dynamic -->
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

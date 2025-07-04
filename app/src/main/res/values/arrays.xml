@@ -24,7 +24,7 @@
     <string-array name="item_statuses_array">
         <item>Available</item>
         <item>Pending</item>
-        <item>Traded</item>
+        <item>Sold</item>
         <item>Closed</item>
     </string-array>
 
@@ -62,8 +62,9 @@
 
     <string-array name="user_filter_options">
         <item>All users</item>
-        <item>Flagged users</item>
-        <item>Blocked users</item>
+        <item>Active Users</item>
+        <item>Banned users</item>
+        <item>Reported users</item>
     </string-array>
 
 </resources>

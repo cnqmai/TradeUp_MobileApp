@@ -58,7 +58,7 @@ public class PaymentFragment extends Fragment {
     private String transactionId; // If payment is for an existing transaction
     private String sellerId;
     private String buyerId;
-    private double finalPrice;
+    private Long finalPrice; // SỬA ĐỔI TẠI ĐÂY: Từ double thành Long
     private String itemTitle;
 
 
@@ -75,7 +75,7 @@ public class PaymentFragment extends Fragment {
             transactionId = args.getTransactionId();
             sellerId = args.getSellerId();
             buyerId = args.getBuyerId();
-            finalPrice = args.getFinalPrice();
+            finalPrice = args.getFinalPrice(); // Lấy giá trị Long
             itemTitle = args.getItemTitle();
 
             Log.d(TAG, "PaymentFragment received args: " +
@@ -86,7 +86,6 @@ public class PaymentFragment extends Fragment {
             Log.e(TAG, "No arguments passed to PaymentFragment.");
             if (isAdded()) {
                 Toast.makeText(requireContext(), "Lỗi: Không có thông tin thanh toán.", Toast.LENGTH_SHORT).show();
-                // Optionally navigate back
             }
         }
     }
@@ -120,7 +119,16 @@ public class PaymentFragment extends Fragment {
         } else {
             tvItemTitle.setText("Thanh toán cho một giao dịch");
         }
-        tvPaymentAmountDisplay.setText(String.format(Locale.getDefault(), "Số tiền: %,.0f VNĐ", finalPrice));
+
+        // Định dạng giá trị Long cho hiển thị
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        currencyFormat.setMaximumFractionDigits(0); // Đảm bảo không có số thập phân
+        if (finalPrice != null) {
+            tvPaymentAmountDisplay.setText(String.format(Locale.getDefault(), "Số tiền: %s", currencyFormat.format(finalPrice)));
+        } else {
+            tvPaymentAmountDisplay.setText("Số tiền: N/A");
+        }
+
 
         setupListeners();
     }
@@ -177,7 +185,6 @@ public class PaymentFragment extends Fragment {
     }
 
     private void recordPayment(String status, String stripePaymentIntentId, boolean escrowEnabled) {
-        // FIX: Generate paymentId once and make it effectively final
         final String paymentId = FirebaseDatabase.getInstance().getReference("payments").push().getKey();
         if (paymentId == null) {
             Toast.makeText(getContext(), "Lỗi: Không thể tạo ID thanh toán.", Toast.LENGTH_SHORT).show();
@@ -188,16 +195,16 @@ public class PaymentFragment extends Fragment {
 
         Payment newPayment = new Payment(
                 paymentId,
-                finalPrice,
-                "VND", // Assuming VND currency
-                "Credit Card", // Assuming credit card for this fragment, could be dynamic
+                finalPrice, // Giá trị Long
+                "VND",
+                "Credit Card",
                 status,
                 currentTimestamp,
-                transactionId, // Link to the transaction
-                buyerId, // Payer is the buyer
-                sellerId, // Payee is the seller
+                transactionId,
+                buyerId,
+                sellerId,
                 escrowEnabled,
-                escrowEnabled ? "pending" : null, // Escrow status: pending if enabled
+                escrowEnabled ? "pending" : null,
                 stripePaymentIntentId
         );
 
@@ -206,14 +213,26 @@ public class PaymentFragment extends Fragment {
             public void onSuccess() {
                 if (isAdded()) {
                     Toast.makeText(getContext(), "Thanh toán thành công!", Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "Payment recorded successfully: " + paymentId); // paymentId is now effectively final
+                    Log.d(TAG, "Payment recorded successfully: " + paymentId);
 
-                    // Update transaction with payment ID (if it's a new transaction or needs update)
                     if (transactionId != null) {
                         firebaseHelper.updateTransactionPaymentId(transactionId, paymentId, new FirebaseHelper.DbWriteCallback() {
                             @Override
                             public void onSuccess() {
                                 Log.d(TAG, "Transaction " + transactionId + " updated with payment ID " + paymentId);
+                                if (escrowEnabled) {
+                                    firebaseHelper.updateTransactionStatus(transactionId, "payment_held", new FirebaseHelper.DbWriteCallback() {
+                                        @Override
+                                        public void onSuccess() {
+                                            Log.d(TAG, "Transaction " + transactionId + " status updated to 'payment_held'.");
+                                        }
+
+                                        @Override
+                                        public void onFailure(String errorMessage) {
+                                            Log.e(TAG, "Failed to update transaction status to 'payment_held': " + errorMessage);
+                                        }
+                                    });
+                                }
                             }
 
                             @Override
@@ -223,8 +242,7 @@ public class PaymentFragment extends Fragment {
                         });
                     }
 
-                    // Update item status to "Sold" if it's a direct payment for an item
-                    if (itemId != null) {
+                    if (itemId != null && !escrowEnabled) {
                         firebaseHelper.markItemAsSold(itemId, new FirebaseHelper.DbWriteCallback() {
                             @Override
                             public void onSuccess() {
@@ -236,11 +254,22 @@ public class PaymentFragment extends Fragment {
                                 Log.e(TAG, "Failed to mark item as Sold: " + errorMessage);
                             }
                         });
+                    } else if (itemId != null && escrowEnabled) {
+                        firebaseHelper.updateItemStatus(itemId, "pending_escrow", new FirebaseHelper.DbWriteCallback() {
+                            @Override
+                            public void onSuccess() {
+                                Log.d(TAG, "Item " + itemId + " status updated to 'pending_escrow'.");
+                            }
+
+                            @Override
+                            public void onFailure(String errorMessage) {
+                                Log.e(TAG, "Failed to update item status to 'pending_escrow': " + errorMessage);
+                            }
+                        });
                     }
 
-                    // Navigate back or to a success screen
                     if (navController != null) {
-                        navController.popBackStack(); // Go back after successful payment
+                        navController.popBackStack();
                     }
                 }
             }
@@ -255,7 +284,6 @@ public class PaymentFragment extends Fragment {
         });
     }
 
-    // Simple TextWatcher for MM/YY expiry date format
     private static class ExpiryDateTextWatcher implements android.text.TextWatcher {
         private TextInputEditText editText;
         private String current = "";

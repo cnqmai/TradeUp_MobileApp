@@ -326,7 +326,7 @@
             app:argType="string" />
         <argument
             android:name="finalPrice"
-            app:argType="float" />
+            app:argType="long" />
         <argument
             android:name="itemTitle"
             app:argType="string"
@@ -336,8 +336,36 @@
     <fragment
         android:id="@+id/paymentMethodsFragment"
         android:name="com.example.tradeup.fragment.PaymentMethodsFragment"
-        android:label="Phương thức Thanh toán"
-        tools:layout="@layout/fragment_payment_methods">
+        android:label="PaymentMethodsFragment">
+        <argument
+            android:name="itemId"
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true" />
+        <argument
+            android:name="transactionId"
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true" />
+        <argument
+            android:name="sellerId"
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true" />
+        <argument
+            android:name="buyerId"
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true" />
+        <argument
+            android:name="finalPrice"
+            app:argType="long"
+            android:defaultValue="0L" />
+        <argument
+            android:name="itemTitle"
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true" />
         <action
             android:id="@+id/action_paymentMethodsFragment_to_paymentFragment"
             app:destination="@id/paymentFragment" />

@@ -19,7 +19,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
 
             <ImageView
                 android:id="@+id/iv_payment_method_icon"
@@ -28,7 +29,7 @@
                 android:layout_marginEnd="8dp"
                 android:src="@drawable/ic_credit_card"
                 app:tint="@color/orange_bold"
-                android:contentDescription="Payment Method Icon" />
+                android:contentDescription="@string/payment_method_icon_desc" />
 
             <TextView
                 android:id="@+id/tv_payment_method"
@@ -37,8 +38,8 @@
                 android:layout_weight="1"
                 android:textStyle="bold"
                 android:textSize="16sp"
-                android:textColor="@android:color/black"
-                tools:text="Credit Card" />
+                android:textColor="@color/black"
+                tools:text="@string/payment_method_placeholder" />
 
             <TextView
                 android:id="@+id/tv_payment_amount"
@@ -47,7 +48,7 @@
                 android:textStyle="bold"
                 android:textSize="18sp"
                 android:textColor="@color/green_bold"
-                tools:text="+1,200,000 VNĐ" />
+                tools:text="@string/payment_amount_placeholder" />
         </LinearLayout>
 
         <TextView
@@ -57,7 +58,7 @@
             android:layout_marginTop="4dp"
             android:textSize="14sp"
             android:textColor="@color/gray"
-            tools:text="Trạng thái: Hoàn thành" />
+            tools:text="@string/payment_status_placeholder" />
 
         <TextView
             android:id="@+id/tv_payment_date"
@@ -66,7 +67,7 @@
             android:layout_marginTop="4dp"
             android:textSize="14sp"
             android:textColor="@color/gray"
-            tools:text="Ngày: 2024-07-01 10:30" />
+            tools:text="@string/payment_date_placeholder" />
 
         <TextView
             android:id="@+id/tv_transaction_id"
@@ -75,7 +76,7 @@
             android:layout_marginTop="4dp"
             android:textSize="12sp"
             android:textColor="@color/gray"
-            tools:text="Mã giao dịch: trans_12345" />
+            tools:text="@string/transaction_id_placeholder" />
 
         <TextView
             android:id="@+id/tv_escrow_status"
@@ -85,7 +86,7 @@
             android:textSize="12sp"
             android:textColor="@color/gray"
             android:visibility="gone"
-            tools:text="Ký quỹ: Đã giải ngân" />
+            tools:text="@string/escrow_status_placeholder" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

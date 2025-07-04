@@ -58,18 +58,18 @@
 
             <ImageView
                 android:id="@+id/iv_block_chat"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:padding="14dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="12dp"
                 android:src="@drawable/ic_block"
                 app:tint="@color/orange_bold"
                 android:contentDescription="@string/chat_detail_block_chat_description" />
 
             <ImageView
                 android:id="@+id/iv_report_chat"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:padding="14dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="12dp"
                 android:src="@drawable/ic_report"
                 app:tint="@color/orange_bold"
                 android:contentDescription="@string/chat_detail_report_chat_description" /> </LinearLayout>

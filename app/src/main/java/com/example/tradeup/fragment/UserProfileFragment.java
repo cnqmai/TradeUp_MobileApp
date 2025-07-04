@@ -1,7 +1,5 @@
 package com.example.tradeup.fragment;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RadioButton; // NEW: For report dialog
 import android.widget.RadioGroup; // NEW: For report dialog
 import android.widget.RatingBar;
@@ -25,7 +22,6 @@ import androidx.navigation.Navigation;
 
 import com.bumptech.glide.Glide;
 import com.example.tradeup.R;
-import com.example.tradeup.activity.LoginActivity; // Assuming this is still needed for logout/redirect
 import com.example.tradeup.model.Report; // NEW: Import Report model
 import com.example.tradeup.model.User;
 import com.example.tradeup.utils.FirebaseHelper;
@@ -35,11 +31,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference; // For Firebase Database operations
 import com.google.firebase.database.FirebaseDatabase; // For Firebase Database instance
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -259,10 +251,6 @@ public class UserProfileFragment extends Fragment {
         });
     }
 
-    /**
-     * Displays a dialog with options to Report or Block the user.
-     * @param userId The ID of the user to report/block.
-     */
     private void showReportBlockOptionsDialog(String userId) {
         if (!isAdded()) return;
 
@@ -293,22 +281,22 @@ public class UserProfileFragment extends Fragment {
         TextView tvTitle = dialogView.findViewById(R.id.tv_report_dialog_title);
         RadioGroup rgReasons = dialogView.findViewById(R.id.rg_report_reasons);
         TextInputEditText etComment = dialogView.findViewById(R.id.et_report_comment);
-        Button btnCancel = dialogView.findViewById(R.id.btn_cancel_report);
+        ImageView ivCloseDialog = dialogView.findViewById(R.id.iv_close_report_dialog);
         Button btnSubmit = dialogView.findViewById(R.id.btn_submit_report);
 
         String title = "";
         switch (reportType) {
             case "item":
-                title = "Báo cáo tin đăng";
+                title = "Report Item";
                 break;
             case "user":
-                title = "Báo cáo người dùng";
+                title = "Report User";
                 break;
             case "chat":
-                title = "Báo cáo trò chuyện";
+                title = "Report Chat";
                 break;
             default:
-                title = "Báo cáo";
+                title = "Report";
                 break;
         }
         tvTitle.setText(title);
@@ -316,7 +304,10 @@ public class UserProfileFragment extends Fragment {
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
 
-        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        ivCloseDialog.setOnClickListener(v -> {
+            etComment.setText(""); // Vẫn xóa nội dung của etComment khi đóng/hủy
+            dialog.dismiss();
+        });
 
         btnSubmit.setOnClickListener(v -> {
             int selectedId = rgReasons.getCheckedRadioButtonId();
@@ -344,10 +335,6 @@ public class UserProfileFragment extends Fragment {
         dialog.show();
     }
 
-    /**
-     * Saves the Report object to Firebase Realtime Database.
-     * @param report The Report object to save.
-     */
     private void saveReportToFirebase(Report report) {
         if (!isAdded()) return;
 
@@ -376,10 +363,6 @@ public class UserProfileFragment extends Fragment {
         }
     }
 
-    /**
-     * Displays a confirmation dialog for blocking a user.
-     * @param userIdToBlock The ID of the user to block.
-     */
     private void showBlockUserDialog(String userIdToBlock) {
         if (!isAdded()) return;
 
@@ -393,10 +376,6 @@ public class UserProfileFragment extends Fragment {
                 .show();
     }
 
-    /**
-     * Blocks a user by adding their ID to the current user's blocked list in Firebase.
-     * @param userIdToBlock The ID of the user to block.
-     */
     private void blockUser(String userIdToBlock) {
         if (!isAdded() || currentUser == null || userIdToBlock == null || userIdToBlock.isEmpty()) {
             Log.w(TAG, "Cannot block user: Fragment not added, current user null, or target user ID invalid.");

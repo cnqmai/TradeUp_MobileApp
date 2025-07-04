@@ -7,12 +7,14 @@
     android:layout_marginBottom="12dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="4dp"
-    android:background="@drawable/bg_card_gradient"> <!-- Use the new gradient drawable -->
+    app:cardBackgroundColor="@android:color/transparent"> <!-- Make card background transparent to show drawable background -->
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20dp">
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="40dp"
+        android:background="@drawable/bg_card_gradient"> <!-- Use the new gradient drawable here -->
 
         <!-- Top section: Card Type Icon and Default Badge -->
         <ImageView
@@ -22,7 +24,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:src="@drawable/ic_visa_logo"
-            android:contentDescription="Card Type Logo"
+            android:contentDescription="@string/card_type_logo_desc"
             tools:src="@drawable/ic_visa_logo" />
 
         <TextView
@@ -31,15 +33,15 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
-            android:text="DEFAULT"
-            android:textColor="@android:color/white"
+            android:text="@string/default_badge_text"
+            android:textColor="@color/yellow_star"
             android:textSize="12sp"
             android:textStyle="bold"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
             android:paddingTop="4dp"
             android:paddingBottom="4dp"
-            android:background="@drawable/rounded_corners_background"
+            android:background="@drawable/rounded_corners_badge_background"
             android:visibility="gone"
             tools:visibility="visible" />
 
@@ -55,7 +57,7 @@
             android:textColor="@android:color/white"
             android:textSize="22sp"
             android:textStyle="bold"
-            tools:text="•••• •••• •••• 4582" />
+            tools:text="@string/card_number_placeholder" />
 
         <!-- Card Holder Name and Expiry Date -->
         <LinearLayout
@@ -70,18 +72,18 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textColor="@color/gray_light"
+                android:textColor="@color/white"
                 android:textSize="14sp"
                 android:textAllCaps="true"
-                tools:text="NGUYEN VAN A" />
+                tools:text="@string/card_holder_name_placeholder" />
 
             <TextView
                 android:id="@+id/tv_card_expiry"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/gray_light"
+                android:textColor="@color/white"
                 android:textSize="14sp"
-                tools:text="12/27" />
+                tools:text="@string/card_expiry_placeholder" />
         </LinearLayout>
 
     </RelativeLayout>

@@ -1,72 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="4dp"
     app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    app:cardElevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center_vertical">
+        android:padding="12dp"
+    android:gravity="center_vertical">
 
-        <ImageView
-            android:id="@+id/iv_item_thumbnail_sales"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/img_placeholder"
-            android:background="@drawable/rounded_corners_background"
-            android:layout_marginEnd="12dp" />
+    <ImageView
+        android:id="@+id/iv_item_thumbnail_sales"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/img_placeholder"
+        android:background="@drawable/border_image_preview"
+        android:padding="2dp"
+        android:contentDescription="@string/item_image_content_desc"
+        android:layout_marginEnd="12dp" />
 
-        <LinearLayout
-            android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_item_title_sales"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            tools:text="@string/sales_item_title_placeholder"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:layout_marginBottom="2dp" />
 
-            <TextView
-                android:id="@+id/tv_item_title_sales"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tên Tin đăng đã bán"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                android:textColor="@android:color/black"
-                android:layout_marginBottom="2dp" />
+        <TextView
+            android:id="@+id/tv_final_price_sales"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="@string/sales_final_price_placeholder"
+            android:textSize="14sp"
+            android:textColor="@color/green_bold"
+            android:layout_marginBottom="2dp" />
 
-            <TextView
-                android:id="@+id/tv_final_price_sales"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Giá cuối cùng: 1.000.000 VNĐ"
-                android:textSize="14sp"
-                android:textColor="@android:color/holo_green_dark"
-                android:layout_marginBottom="2dp" />
-
-            <TextView
-                android:id="@+id/tv_transaction_date_sales"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ngày giao dịch: 01/01/2024"
-                android:textSize="12sp"
-                android:textColor="@android:color/darker_gray" />
-
-        </LinearLayout>
-
-        <ImageView
-            android:id="@+id/iv_view_details_sales"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_arrow_right"
-            android:contentDescription="Xem chi tiết"
-            app:tint="@android:color/darker_gray"
-            android:padding="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless" />
+        <TextView
+            android:id="@+id/tv_transaction_date_sales"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="@string/sales_date_placeholder"
+            android:textSize="12sp"
+            android:textColor="@color/gray" />
 
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+
+    <ImageView
+        android:id="@+id/iv_view_details_sales"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_arrow_right"
+        android:contentDescription="@string/view_details_content_desc"
+        app:tint="@color/gray"
+        android:padding="4dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:layout_marginStart="8dp" />
+
+</LinearLayout>
+    </androidx.cardview.widget.CardView>

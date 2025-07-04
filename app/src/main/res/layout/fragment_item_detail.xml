@@ -116,7 +116,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/item_detail_status_available"
-                        android:background="@drawable/bg_card_gradient"
+                        android:background="@drawable/bg_orange_yellow_gradient"
                         android:textColor="@android:color/white"
                         android:paddingStart="8dp"
                         android:paddingEnd="8dp"
@@ -470,7 +470,7 @@
                     android:text="@string/btn_add_to_favorites"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:textColor="@color/orange_bold"
-                    app:strokeColor="@color/orange_bold"
+                    app:strokeColor="@color/green_bold"
                     app:cornerRadius="8dp"
                     android:textSize="16sp"
                     android:paddingVertical="12dp"/>

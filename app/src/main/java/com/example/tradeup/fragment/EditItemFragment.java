@@ -90,7 +90,7 @@ public class EditItemFragment extends Fragment {
     private TextInputEditText etTitle, etDescription, etPrice, etLocation, etItemBehavior, etTags;
     private Spinner spinnerCategory, spinnerCondition;
     private Button btnGetLocationGps, btnUpdateItem;
-    private ImageView ivAddImage;
+    private LinearLayout llAddImagePlaceholder;
     private LinearLayout llImagePreviews;
 
     // Helpers
@@ -199,7 +199,7 @@ public class EditItemFragment extends Fragment {
         btnGetLocationGps = view.findViewById(R.id.btn_edit_get_location_gps);
         btnUpdateItem = view.findViewById(R.id.btn_update_item);
 
-        ivAddImage = view.findViewById(R.id.iv_edit_add_image);
+        llAddImagePlaceholder = view.findViewById(R.id.ll_add_image_placeholder);
         llImagePreviews = view.findViewById(R.id.ll_edit_image_previews);
     }
 
@@ -217,7 +217,7 @@ public class EditItemFragment extends Fragment {
 
     private void setupListeners() {
         btnGetLocationGps.setOnClickListener(v -> requestLocationPermission());
-        ivAddImage.setOnClickListener(v -> showImagePickerDialog());
+        llAddImagePlaceholder.setOnClickListener(v -> showImagePickerDialog());
         btnUpdateItem.setOnClickListener(v -> {
             if (validateInputs()) {
                 uploadNewImagesAndSubmitUpdate();
@@ -635,7 +635,7 @@ public class EditItemFragment extends Fragment {
         }
 
         // Show add image icon if total images are less than MAX_IMAGES
-        ivAddImage.setVisibility((selectedImageUris.size() + existingImageUrls.size()) < MAX_IMAGES ? View.VISIBLE : View.GONE);
+        llAddImagePlaceholder.setVisibility((selectedImageUris.size() + existingImageUrls.size()) < MAX_IMAGES ? View.VISIBLE : View.GONE);
     }
 
     private void addImageViewToLayout(Uri uri, boolean isExisting, int index) {

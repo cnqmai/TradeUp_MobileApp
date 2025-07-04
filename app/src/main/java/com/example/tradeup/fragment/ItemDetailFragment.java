@@ -539,6 +539,47 @@ public class ItemDetailFragment extends Fragment {
                         tvTags.setText(R.string.tags_none);
                     }
 
+                    // START OF ADDED/MODIFIED CODE
+                    // Cập nhật trạng thái sản phẩm và áp dụng styling nếu cần
+                    String status = item.getStatus();
+                    if (status != null) {
+                        // Chuyển đổi trạng thái từ database sang chuỗi hiển thị thân thiện
+                        String displayStatus;
+                        int statusBgDrawable; // Drawable cho nền
+                        int statusTextColor;  // Màu chữ
+
+                        switch (status) {
+                            case "Available":
+                                displayStatus = getString(R.string.status_available);
+                                statusBgDrawable = R.drawable.tag_approved; // Ví dụ: drawable màu xanh lá cây
+                                statusTextColor = getResources().getColor(R.color.white); // Màu trắng
+                                break;
+                            case "Sold":
+                                displayStatus = getString(R.string.status_sold);
+                                statusBgDrawable = R.drawable.tag_rejected; // Ví dụ: drawable màu đỏ
+                                statusTextColor = getResources().getColor(R.color.white); // Màu trắng
+                                break;
+                            case "Pending": // Có thể có trạng thái "đang chờ giao dịch"
+                                displayStatus = getString(R.string.status_pending);
+                                statusBgDrawable = R.drawable.tag_pending; // Ví dụ: drawable màu cam
+                                statusTextColor = getResources().getColor(R.color.white); // Màu trắng
+                                break;
+                            default:
+                                displayStatus = status; // Hiển thị nguyên trạng nếu không khớp
+                                statusBgDrawable = R.drawable.tag_default; // Drawable mặc định (ví dụ: xám)
+                                statusTextColor = getResources().getColor(R.color.black); // Màu đen
+                                break;
+                        }
+                        tvStatus.setText(displayStatus);
+                        tvStatus.setBackgroundResource(statusBgDrawable);
+                        tvStatus.setTextColor(statusTextColor);
+                        // END OF ADDED/MODIFIED CODE
+                    } else {
+                        tvStatus.setText(getString(R.string.status_unknown)); // Trường hợp status là null
+                        tvStatus.setBackgroundResource(R.drawable.tag_default);
+                        tvStatus.setTextColor(getResources().getColor(R.color.black));
+                    }
+
                     if (item.getAverage_rating() != null && item.getRating_count() != null) {
                         tvItemAverageRating.setText(getString(R.string.item_rating_format, item.getAverage_rating()));
                         tvItemRatingCount.setText(getString(R.string.rating_count_format, item.getRating_count())); // New string resource
@@ -734,7 +775,7 @@ public class ItemDetailFragment extends Fragment {
         TextView tvTitle = dialogView.findViewById(R.id.tv_report_dialog_title);
         RadioGroup rgReasons = dialogView.findViewById(R.id.rg_report_reasons);
         TextInputEditText etComment = dialogView.findViewById(R.id.et_report_comment);
-        Button btnCancel = dialogView.findViewById(R.id.btn_cancel_report);
+        ImageView ivCloseDialog = dialogView.findViewById(R.id.iv_close_report_dialog);
         Button btnSubmit = dialogView.findViewById(R.id.btn_submit_report);
 
         String title = "";
@@ -757,7 +798,10 @@ public class ItemDetailFragment extends Fragment {
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
 
-        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        ivCloseDialog.setOnClickListener(v -> {
+            etComment.setText(""); // Vẫn xóa nội dung của etComment khi đóng/hủy
+            dialog.dismiss();
+        });
 
         btnSubmit.setOnClickListener(v -> {
             int selectedId = rgReasons.getCheckedRadioButtonId();

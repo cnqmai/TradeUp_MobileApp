@@ -21,7 +21,8 @@
             android:scaleType="centerCrop"
             android:src="@drawable/img_placeholder"
             android:background="@drawable/rounded_corners_background"
-            android:layout_marginEnd="12dp" />
+            android:layout_marginEnd="12dp"
+            android:contentDescription="@string/content_description_view_offer_details" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -33,35 +34,35 @@
                 android:id="@+id/tv_offer_item_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tên Tin đăng được đề nghị"
+                android:text="@string/offer_item_title_placeholder"
                 android:textStyle="bold"
                 android:textSize="16sp"
-                android:textColor="@android:color/black"
+                android:textColor="@color/black"
                 android:layout_marginBottom="2dp" />
 
             <TextView
                 android:id="@+id/tv_offer_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Giá đề nghị: 900.000 VNĐ"
+                android:text="@string/offer_price_placeholder"
                 android:textSize="14sp"
-                android:textColor="@android:color/holo_blue_dark"
+                android:textColor="@color/orange_bold"
                 android:layout_marginBottom="2dp" />
 
             <TextView
                 android:id="@+id/tv_offer_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Trạng thái: Đang chờ"
+                android:text="@string/offer_status_placeholder"
                 android:textSize="14sp"
-                android:textColor="@color/design_default_color_primary"
+                android:textColor="@color/green_bold"
                 android:layout_marginBottom="2dp" />
 
             <TextView
                 android:id="@+id/tv_offer_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ngày đề nghị: 01/01/2024"
+                android:text="@string/offer_date_placeholder"
                 android:textSize="12sp"
                 android:textColor="@android:color/darker_gray" />
 
@@ -72,10 +73,9 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/ic_arrow_right"
-            android:contentDescription="Xem chi tiết đề nghị"
+            android:contentDescription="@string/content_description_view_offer_details"
             app:tint="@android:color/darker_gray"
-            android:padding="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless" />
+            android:padding="4dp" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

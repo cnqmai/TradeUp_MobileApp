@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class Payment {
     public String payment_id;
-    public double amount;
+    public Long amount; // SỬA ĐỔI TẠI ĐÂY: Từ double thành Long
     public String currency;
     public String method; // e.g., "Credit Card", "UPI", "Cash"
     public String status; // e.g., "pending", "completed", "failed", "refunded"
@@ -22,11 +22,11 @@ public class Payment {
         // Default constructor required for calls to DataSnapshot.getValue(Payment.class)
     }
 
-    public Payment(String payment_id, double amount, String currency, String method, String status,
+    public Payment(String payment_id, Long amount, String currency, String method, String status, // SỬA ĐỔI TẠI ĐÂY: Từ double thành Long
                    String timestamp, String transaction_id, String payer_id, String payee_id,
                    boolean escrow_enabled, String escrow_status, String stripe_payment_intent_id) {
         this.payment_id = payment_id;
-        this.amount = amount;
+        this.amount = amount; // SỬA ĐỔI TẠI ĐÂY
         this.currency = currency;
         this.method = method;
         this.status = status;
@@ -41,7 +41,7 @@ public class Payment {
 
     // Getters
     public String getPayment_id() { return payment_id; }
-    public double getAmount() { return amount; }
+    public Long getAmount() { return amount; } // SỬA ĐỔI TẠI ĐÂY: Từ double thành Long
     public String getCurrency() { return currency; }
     public String getMethod() { return method; }
     public String getStatus() { return status; }
@@ -55,7 +55,7 @@ public class Payment {
 
     // Setters (optional, depending on your needs)
     public void setPayment_id(String payment_id) { this.payment_id = payment_id; }
-    public void setAmount(double amount) { this.amount = amount; }
+    public void setAmount(Long amount) { this.amount = amount; } // SỬA ĐỔI TẠI ĐÂY: Từ double thành Long
     public void setCurrency(String currency) { this.currency = currency; }
     public void setMethod(String method) { this.method = method; }
     public void setStatus(String status) { this.status = status; }

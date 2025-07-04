@@ -23,8 +23,8 @@
             android:layout_height="80dp"
             android:scaleType="centerCrop"
             android:background="@android:color/darker_gray"
-            tools:src="@tools:sample/avatars"
-            android:contentDescription="Hình ảnh sản phẩm"/>
+            android:contentDescription="@string/item_image_content_desc"
+            tools:src="@tools:sample/avatars" />
 
         <!-- Thông tin giao dịch -->
         <LinearLayout
@@ -41,7 +41,7 @@
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:textColor="@android:color/black"
-                tools:text="Vintage Camera"/>
+                tools:text="@string/item_title_label"/>
 
             <TextView
                 android:id="@+id/tv_item_price"
@@ -50,7 +50,7 @@
                 android:textSize="14sp"
                 android:layout_marginTop="4dp"
                 android:textColor="@android:color/darker_gray"
-                tools:text="$299.99"/>
+                tools:text="@string/price_hint"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -72,7 +72,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="Sold"
+                    android:text="@string/status_sold"
                     android:textColor="@android:color/holo_green_dark"
                     android:textStyle="bold"
                     android:textSize="12sp"/>
@@ -87,10 +87,10 @@
             android:layout_height="48dp"
             android:padding="10dp"
             android:src="@drawable/ic_arrow_right"
-            android:contentDescription="Xem chi tiết hoặc Đánh giá"
             app:tint="@android:color/darker_gray"
             android:clickable="true"
             android:focusable="true"
-            android:background="?attr/selectableItemBackgroundBorderless"/>
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/view_details_content_desc" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

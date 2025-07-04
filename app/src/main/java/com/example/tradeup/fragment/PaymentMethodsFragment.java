@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,7 +24,6 @@ import com.example.tradeup.adapter.RecentTransactionAdapter;
 import com.example.tradeup.adapter.SavedCardAdapter;
 import com.example.tradeup.model.Payment;
 import com.example.tradeup.model.SavedCard;
-import com.example.tradeup.model.Transaction; // Import Transaction model
 import com.example.tradeup.utils.FirebaseHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -41,8 +41,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-// NEW: Import the generated Directions class
-import com.example.tradeup.fragment.PaymentMethodsFragmentDirections; // Dòng này cần được thêm vào
+import com.example.tradeup.fragment.PaymentMethodsFragmentDirections;
 
 public class PaymentMethodsFragment extends Fragment {
 
@@ -59,17 +58,18 @@ public class PaymentMethodsFragment extends Fragment {
     private TextView textNoSavedCards, textNoRecentTransactions;
     private TextView tvSecurePaymentItemTitle, tvSecurePaymentAmount;
     private Button btnProceedToPaymentSecure;
+    private LinearLayout layoutSecurePaymentSection;
 
     private SavedCardAdapter savedCardAdapter;
     private RecentTransactionAdapter recentTransactionAdapter;
 
-    // Data for Secure Payment section (mock data for now, would come from arguments in a real scenario)
-    private String securePaymentItemId = "item_007"; // Example item ID
-    private String securePaymentTransactionId = "transaction_007"; // Example transaction ID
-    private String securePaymentSellerId = "NTv5DwTFwUZK3lSo94U66lDG8r83";
-    private String securePaymentBuyerId = "SArdKr2bOLaZLR1HzOrPq1FcZXV2";
-    private double securePaymentFinalPrice = 599.99; // Example price
-    private String securePaymentItemTitle = "Guitar Cổ điển"; // Example item title
+    // Data for Secure Payment section (now from arguments)
+    private String receivedItemId;
+    private String receivedTransactionId;
+    private String receivedSellerId;
+    private String receivedBuyerId;
+    private Long receivedFinalPrice = 0L; // SỬA ĐỔI TẠI ĐÂY: Từ double thành Long
+    private String receivedItemTitle;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -81,8 +81,25 @@ public class PaymentMethodsFragment extends Fragment {
             Log.e(TAG, "User not logged in.");
             if (isAdded()) {
                 Toast.makeText(requireContext(), "Vui lòng đăng nhập để xem phương thức thanh toán.", Toast.LENGTH_SHORT).show();
-                // Optionally navigate to login
             }
+        }
+
+        // Retrieve arguments for secure payment section
+        if (getArguments() != null) {
+            PaymentMethodsFragmentArgs args = PaymentMethodsFragmentArgs.fromBundle(getArguments());
+            receivedItemId = args.getItemId();
+            receivedTransactionId = args.getTransactionId();
+            receivedSellerId = args.getSellerId();
+            receivedBuyerId = args.getBuyerId();
+            receivedFinalPrice = args.getFinalPrice(); // Lấy giá trị Long
+            receivedItemTitle = args.getItemTitle();
+
+            Log.d(TAG, "Received arguments for secure payment: " +
+                    "itemId=" + receivedItemId + ", transactionId=" + receivedTransactionId +
+                    ", sellerId=" + receivedSellerId + ", buyerId=" + receivedBuyerId +
+                    ", finalPrice=" + receivedFinalPrice + ", itemTitle=" + receivedItemTitle);
+        } else {
+            Log.d(TAG, "No arguments received for secure payment section.");
         }
     }
 
@@ -101,6 +118,7 @@ public class PaymentMethodsFragment extends Fragment {
         tvSecurePaymentItemTitle = view.findViewById(R.id.tv_secure_payment_item_title);
         tvSecurePaymentAmount = view.findViewById(R.id.tv_secure_payment_amount);
         btnProceedToPaymentSecure = view.findViewById(R.id.btn_proceed_to_payment_secure);
+        layoutSecurePaymentSection = view.findViewById(R.id.layout_secure_payment_section);
 
         // Setup RecyclerViews
         recyclerSavedCards.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -146,15 +164,14 @@ public class PaymentMethodsFragment extends Fragment {
                 return;
             }
             // Navigate to PaymentFragment with secure payment details
-            // FIX: Use PaymentMethodsFragmentDirections instead of PaymentFragmentDirections
             PaymentMethodsFragmentDirections.ActionPaymentMethodsFragmentToPaymentFragment action =
                     PaymentMethodsFragmentDirections.actionPaymentMethodsFragmentToPaymentFragment(
-                            securePaymentItemId,
-                            securePaymentTransactionId,
-                            securePaymentSellerId,
-                            securePaymentBuyerId,
-                            (float) securePaymentFinalPrice,
-                            securePaymentItemTitle
+                            receivedItemId,
+                            receivedTransactionId,
+                            receivedSellerId,
+                            receivedBuyerId,
+                            receivedFinalPrice, // Truyền giá trị Long trực tiếp
+                            receivedItemTitle
                     );
             navController.navigate(action);
         });
@@ -227,9 +244,17 @@ public class PaymentMethodsFragment extends Fragment {
     }
 
     private void setupSecurePaymentSection() {
-        tvSecurePaymentItemTitle.setText(securePaymentItemTitle);
-        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-        tvSecurePaymentAmount.setText(currencyFormat.format(securePaymentFinalPrice));
-        btnProceedToPaymentSecure.setText(String.format(Locale.getDefault(), "Tiến hành Thanh toán - %s", currencyFormat.format(securePaymentFinalPrice)));
+        // Only show this section if relevant arguments are passed
+        if (receivedItemId != null && receivedFinalPrice != null && receivedFinalPrice > 0 && receivedItemTitle != null) {
+            layoutSecurePaymentSection.setVisibility(View.VISIBLE);
+            tvSecurePaymentItemTitle.setText(receivedItemTitle);
+            NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+            currencyFormat.setMaximumFractionDigits(0);
+            tvSecurePaymentAmount.setText(currencyFormat.format(receivedFinalPrice)); // Định dạng Long
+            btnProceedToPaymentSecure.setText(String.format(Locale.getDefault(), getString(R.string.button_proceed_to_payment_secure_format), currencyFormat.format(receivedFinalPrice)));
+        } else {
+            layoutSecurePaymentSection.setVisibility(View.GONE);
+            Log.d(TAG, "Hiding secure payment section as no specific item/transaction data was passed.");
+        }
     }
 }

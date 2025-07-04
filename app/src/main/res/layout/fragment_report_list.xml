@@ -1,94 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#F0F2F5"
+    android:background="@color/orange_skin"
     tools:context=".fragment.ReportListFragment">
 
     <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_report_list"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
-        android:background="@android:color/white"
+        android:background="@color/white"
         android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/iv_back_button_report_list"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:padding="14dp"
-            android:src="@drawable/ic_arrow_back"
-            android:contentDescription="Nút quay lại"
-            app:tint="@android:color/black" />
-
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Quản lý Báo cáo"
-            android:textColor="@android:color/black"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginStart="16dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
+            <ImageView
+                android:id="@+id/iv_back_button_report_list"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="14dp"
+                android:src="@drawable/ic_arrow_back"
+                android:contentDescription="@string/back_button_content_desc"
+                app:tint="@color/gray" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/report_management_title"
+                android:textColor="@color/orange_bold"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center_horizontal" />
+
+            <View
+                android:layout_width="48dp"
+                android:layout_height="48dp" /> <!-- Spacer to balance back button -->
+
+        </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
-
-    <!-- Filter/Search (Optional - can be added later) -->
-    <!--
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp"
-        android:background="@android:color/white"
-        android:layout_marginBottom="8dp">
-
-        <EditText
-            android:id="@+id/et_search_reports"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="Tìm kiếm báo cáo..."
-            android:padding="10dp"
-            android:background="@drawable/rounded_edittext_background"
-            android:drawableStart="@drawable/ic_search"
-            android:drawablePadding="8dp"
-            android:singleLine="true" />
-
-        <Button
-            android:id="@+id/btn_filter_reports"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Lọc"
-            android:layout_marginStart="8dp" />
-    </LinearLayout>
-    -->
 
     <!-- RecyclerView for Reports -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_reports"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="8dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:paddingVertical="8dp"
         android:clipToPadding="false"
-        android:paddingBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_report_list"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/item_report" /> <!-- Placeholder for report item layout -->
 
     <!-- Empty State -->
     <TextView
         android:id="@+id/text_no_reports"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:gravity="center"
-        android:text="Không có báo cáo nào."
+        android:text="@string/no_reports_message"
         android:textSize="18sp"
-        android:textColor="?android:attr/textColorSecondary"
-        android:visibility="gone" />
+        android:textColor="@color/gray"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_report_list"
+        app:layout_constraintVertical_bias="0.3" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Objects; // Import Objects for null-safe checks
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -130,7 +131,8 @@ public class UserManagementFragment extends Fragment {
                 if (navController != null) {
                     Bundle bundle = new Bundle();
                     bundle.putString("userId", user.getUid());
-                    // Assuming action_userManagementFragment_to_userProfileFragment exists in admin_nav_graph
+                    // Assuming action_userManagementFragment_to_userDetailFragment exists in your nav_graph
+                    // If you named it userProfileFragment, keep that.
                     navController.navigate(R.id.action_userManagementFragment_to_userProfileFragment, bundle);
                 }
             }
@@ -171,7 +173,8 @@ public class UserManagementFragment extends Fragment {
                     flaggedUserIds.clear();
                     for (DataSnapshot reportSnapshot : snapshot.getChildren()) {
                         Report report = reportSnapshot.getValue(Report.class);
-                        if (report != null && "user".equalsIgnoreCase(report.getReport_type()) && report.getReported_object_id() != null) {
+                        // Ensure report_type is "user" and reported_object_id is not null
+                        if (report != null && Objects.equals(report.getReport_type(), "user") && report.getReported_object_id() != null) {
                             flaggedUserIds.add(report.getReported_object_id());
                         }
                     }
@@ -236,16 +239,26 @@ public class UserManagementFragment extends Fragment {
 
             boolean matchesFilter = false;
             switch (filterPosition) {
-                case 0: // Tất cả người dùng
+                case 0: // All Users
                     matchesFilter = true;
                     break;
-                case 1: // Người dùng bị gắn cờ
-                    if (user.getUid() != null && flaggedUserIds.contains(user.getUid())) {
+                case 1: // Active Users
+                    // Assuming 'account_status' is a field in your User model
+                    // and "active" means not banned and has an active status.
+                    if (user.getIs_banned() != null && !user.getIs_banned()) {
+                        // You might also check user.getAccount_status() if you have more granular statuses
+                        matchesFilter = true;
+                    } else if (user.getIs_banned() == null) { // Assume not banned if field is null
                         matchesFilter = true;
                     }
                     break;
-                case 2: // Người dùng bị khóa
+                case 2: // Banned Users
                     if (user.getIs_banned() != null && user.getIs_banned()) {
+                        matchesFilter = true;
+                    }
+                    break;
+                case 3: // Reported Users
+                    if (user.getUid() != null && flaggedUserIds.contains(user.getUid())) {
                         matchesFilter = true;
                     }
                     break;
@@ -324,14 +337,21 @@ public class UserManagementFragment extends Fragment {
                 tvUserName.setText(user.getDisplay_name());
                 tvUserEmail.setText(user.getEmail());
 
-                String statusText = "Trạng thái: " + user.getAccount_status();
+                // Update status text and color based on user's banned status
+                String statusText;
+                int statusColor;
+
                 if (user.getIs_banned() != null && user.getIs_banned()) {
-                    statusText = "Trạng thái: Bị khóa";
-                    tvUserStatus.setTextColor(itemView.getContext().getResources().getColor(android.R.color.holo_red_dark));
+                    statusText = itemView.getContext().getString(R.string.status_banned);
+                    statusColor = itemView.getContext().getResources().getColor(R.color.red_bold); // Use red_bold
                 } else {
-                    tvUserStatus.setTextColor(itemView.getContext().getResources().getColor(android.R.color.black));
+                    // Assuming default status is active if not banned
+                    statusText = itemView.getContext().getString(R.string.status_active);
+                    statusColor = itemView.getContext().getResources().getColor(R.color.green_bold); // Use green_bold
                 }
                 tvUserStatus.setText(statusText);
+                tvUserStatus.setTextColor(statusColor);
+
 
                 // Load profile picture
                 if (user.getProfile_picture_url() != null && !user.getProfile_picture_url().isEmpty()) {

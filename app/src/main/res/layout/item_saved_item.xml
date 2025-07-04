@@ -65,7 +65,7 @@
             android:layout_height="32dp"
             android:src="@drawable/ic_delete"
             android:contentDescription="@string/content_description_remove_saved_item"
-            app:tint="@color/red_bold"
+            app:tint="#E97878"
             android:padding="2dp"
             android:background="?attr/selectableItemBackgroundBorderless" />
 

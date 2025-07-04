@@ -261,6 +261,7 @@
     <string name="item_detail_title_example">Used Samsung Galaxy S22 Phone</string>
     <string name="item_detail_price_example">8,500,000</string>
     <string name="item_detail_seller_name_example">Mai Cao</string>
+    <string name="status_unknown">Unknown Status</string>
 
     <string name="toast_item_id_not_found">Item ID not found.</string>
     <string name="error_loading_item_details_empty_data">Failed to load item details: Empty data.</string>
@@ -605,7 +606,7 @@
     <string name="chat_detail_send_message_description">Send Message</string>
     <string name="no_conversations_yet">You don\'t have any conversations yet.</string>
 
-    !-- Chat Preview Item -->
+    <!-- Chat Preview Item -->
     <string name="chat_preview_other_user_name_placeholder">Other User Name</string>
     <string name="chat_preview_last_message_placeholder">This is the content of the last message in this conversation.</string>
     <string name="chat_preview_last_message_time_placeholder">10:30 AM</string>
@@ -633,4 +634,122 @@
     <string name="icon_inappropriate_desc">Inappropriate content icon</string>
     <string name="icon_flag_desc">Flag icon</string>
     <string name="border_image_preview">Image preview border</string>
+
+    <!-- Edit Item Strings (New/Updated) -->
+    <string name="edit_item_title">Edit Item</string>
+    <string name="update_item_button">Update Item</string>
+    <string name="bg_orange_yellow_gradient">Orange-Yellow Gradient Background</string>
+    <string name="ic_camera">Camera Icon</string>
+    <string name="bg_dashed_border">Dashed Border Background</string>
+
+    <!-- Offer History Strings -->
+    <string name="content_description_offer_history_back_button">Back button</string>
+    <string name="title_offer_history">Offer History</string>
+    <string name="text_no_offer_history">You don\'t have any offers yet.</string>
+    <string name="offer_item_title_placeholder">Product Name</string>
+    <string name="offer_price_placeholder">Offer Price: 900,000 VND</string>
+    <string name="offer_status_placeholder">Status: Pending</string>
+    <string name="offer_date_placeholder">Offer Date: 01/01/2024</string>
+    <string name="content_description_view_offer_details">View offer details</string>
+
+    <!-- Purchase History Strings -->
+    <string name="purchase_history_title">Purchase History</string>
+    <string name="no_purchase_history_message">You have no purchase transactions yet.</string>
+    <string name="purchase_item_title_placeholder">Purchased Item Name</string>
+    <string name="purchase_final_price_placeholder">Final Price: $1,000,000 VND</string>
+    <string name="purchase_date_placeholder">Purchase Date: 01/01/2024</string>
+    <string name="view_details_content_desc">View details</string>
+
+    <!-- Sales History Strings -->
+    <string name="sales_item_title_placeholder">Sold Item Name</string>
+    <string name="sales_final_price_placeholder">Final Price: %1$s VND</string>
+    <string name="sales_date_placeholder">Transaction Date: %1$s</string>
+    <string name="sales_history_title">Sales History</string>
+    <string name="no_sales_history_message">You have no sales transactions yet.</string>
+
+    <!-- Payment History Strings -->
+    <string name="payment_method_icon_desc">Payment Method Icon</string>
+    <string name="payment_method_placeholder">Credit Card</string>
+    <string name="payment_amount_placeholder">+1,200,000 VND</string>
+    <string name="payment_status_placeholder">Status: Completed</string>
+    <string name="payment_date_placeholder">Date: 2024-07-01 10:30</string>
+    <string name="transaction_id_placeholder">Transaction ID: trans_12345</string>
+    <string name="escrow_status_placeholder">Escrow: Disbursed</string>
+    <string name="payment_history_title">Payment History</string>
+    <string name="no_payments_message">You have no payment transactions yet.</string>
+
+    <!-- Fragment Payment Methods Strings -->
+    <string name="payment_methods_title">Payment Methods</string>
+    <string name="credit_card_icon_desc">Credit Card Icon</string>
+    <string name="credit_debit_cards_title">Credit/Debit Cards</string>
+    <string name="credit_debit_cards_subtitle">Add or manage your cards</string>
+    <string name="button_add_card">Add Card</string>
+    <string name="wallet_icon_desc">Wallet Icon</string>
+    <string name="upi_wallets_title">UPI &amp; Wallets</string>
+    <string name="upi_wallets_subtitle">Make instant payments</string>
+    <string name="button_link_upi">Link UPI</string>
+    <string name="your_saved_cards_section_title">Your Saved Cards</string>
+    <string name="no_saved_cards_message">You have no saved cards yet.</string>
+    <string name="recent_transactions_section_title">Recent Transactions</string>
+    <string name="no_recent_transactions_message">You have no recent transactions yet.</string>
+    <string name="secure_payment_item_title_placeholder">Classic Guitar</string>
+    <string name="secure_payment_amount_placeholder">$599.99</string>
+    <string name="step_hold_payment_title">Hold Payment</string>
+    <string name="step_hold_payment_subtitle">Your payment will be held securely.</string>
+    <string name="step_ship_item_title">Ship Item</string>
+    <string name="step_ship_item_subtitle">Seller ships the item.</string>
+    <string name="step_delivery_inspection_title">Delivery &amp; Inspection</string>
+    <string name="step_delivery_inspection_subtitle">You receive and approve the item.</string>
+    <string name="step_disburse_payment_title">Disburse Payment</string>
+    <string name="step_disburse_payment_subtitle">Payment is disbursed to the seller.</string>
+    <string name="button_proceed_to_payment_secure_placeholder">Proceed to Payment - $599.99</string>
+    <string name="number">Number</string>
+    <string name="payment_title">Payment</string>
+    <string name="payment_for_item_placeholder">Payment for: [Item Name]</string>
+    <string name="card_number_hint">Card Number</string>
+    <string name="expiry_date_hint">MM/YY</string>
+    <string name="cvc_hint">CVC</string>
+    <string name="card_holder_name_hint">Card Holder Name</string>
+    <string name="escrow_option_text">Use Escrow System</string>
+    <string name="pay_now_button">Pay Now</string>
+    <string name="button_proceed_to_payment_secure_format">Proceed to Payment - %1$s</string>
+
+    <!-- Item Recent Transaction Strings -->
+    <string name="recent_transaction_item_title_placeholder">Classic Camera</string>
+    <string name="recent_transaction_description_placeholder">Paid to John Smith</string>
+    <string name="recent_transaction_date_placeholder">June 15, 2023</string>
+    <string name="recent_transaction_amount_placeholder">-$249.99</string>
+    <string name="transaction_status_icon_desc">Transaction Status Icon</string>
+
+    <!-- Item Saved Card Strings -->
+    <string name="card_type_logo_desc">Card Type Logo</string>
+    <string name="default_badge_text">DEFAULT</string>
+    <string name="card_number_placeholder">•••• •••• •••• 4582</string>
+    <string name="card_holder_name_placeholder">NGUYEN VAN A</string>
+    <string name="card_expiry_placeholder">12/27</string>
+
+    <!-- Item Report Strings -->
+    <string name="report_type_placeholder">Type: User</string>
+    <string name="report_reason_placeholder">Reason: Inappropriate Content</string>
+    <string name="report_status_placeholder">Status: Pending</string>
+    <string name="report_timestamp_placeholder">Time: 20/06/2024 10:30</string>
+    <string name="report_management_title">Report Management</string>
+    <string name="no_reports_message">No reports found.</string>
+
+    <!-- Item User Management Strings -->
+    <string name="user_name_placeholder">User Name</string>
+    <string name="user_email_placeholder">email@example.com</string>
+    <string name="user_status_placeholder">Status: Active</string>
+    <string name="status_banned">Banned</string>
+    <string name="flag_status_desc">Flag status icon</string>
+
+    <!-- User Management Fragment Strings -->
+    <string name="user_management_title">User Management</string>
+    <string name="search_users_hint">Search users...</string>
+    <string name="filter_by_label">Filter by:</string>
+    <string name="no_users_found_message">No users found.</string>
+
+    <!-- User Profile Fragment Strings -->
+    <string name="view_user_listing">View user\'s listings</string>
+    <string name="total_transaction">Total transactions: 0</string>
 </resources>
