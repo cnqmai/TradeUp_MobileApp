@@ -23,6 +23,7 @@ import com.example.tradeup.R;
 import com.example.tradeup.model.Item;
 import com.example.tradeup.model.Transaction;
 import com.example.tradeup.model.User;
+import com.example.tradeup.utils.FirebaseHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -34,38 +35,39 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap; // Add this import
 import java.util.Locale;
+import java.util.Map; // Add this import
 import java.util.Objects;
 
-import de.hdodenhof.circleimageview.CircleImageView; // Assuming you use CircleImageView
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class TransactionDetailFragment extends Fragment {
 
     private static final String TAG = "TransactionDetailFragment";
 
-    // UI Elements
+    // UI elements
     private ImageView ivBackButton;
     private TextView tvTransactionDetailTitle;
     private ImageView ivTransactionItemImage;
-    private TextView tvTransactionItemTitle;
-    private TextView tvTransactionFinalPrice;
-    private CircleImageView ivBuyerProfilePic;
-    private TextView tvBuyerNameTransaction;
-    private CircleImageView ivSellerProfilePic;
-    private TextView tvSellerNameTransaction;
+    private TextView tvTransactionItemTitle, tvTransactionFinalPrice;
+    private CircleImageView ivBuyerProfilePic, ivSellerProfilePic;
+    private TextView tvBuyerNameTransaction, tvSellerNameTransaction;
     private TextView tvTransactionDate;
-    private Button btnMarkAsComplete;
+    private TextView tvTransactionStatus; // NEW: Display transaction status
+    private TextView tvEscrowStatus; // NEW: Display escrow status
+    private LinearLayout layoutConfirmationButtons; // NEW: Layout for confirmation buttons
 
-    // Data
+    private Button btnBuyerConfirmReceipt; // NEW: Buyer's confirmation button
+    private Button btnSellerConfirmDispatch; // NEW: Seller's confirmation button
+    private Button btnLeaveReview; // Existing, but logic will change
+
+    private NavController navController;
+    private FirebaseHelper firebaseHelper;
     private String transactionId;
     private Transaction currentTransaction;
     private String currentUserId;
-    private NavController navController;
-
-    // Firebase References
     private DatabaseReference transactionsRef;
-    private DatabaseReference itemsRef;
-    private DatabaseReference usersRef;
     private ValueEventListener transactionValueEventListener;
 
     public TransactionDetailFragment() {
@@ -75,34 +77,28 @@ public class TransactionDetailFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        firebaseHelper = new FirebaseHelper(requireContext());
         currentUserId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
         if (getArguments() != null) {
             transactionId = getArguments().getString("transactionId");
+            if (transactionId != null) {
+                transactionsRef = FirebaseDatabase.getInstance().getReference("transactions");
+            } else {
+                Log.e(TAG, "Transaction ID is null in arguments.");
+                if (isAdded()) Toast.makeText(requireContext(), getString(R.string.toast_error_transaction_id_missing), Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Log.e(TAG, "Arguments are null.");
+            if (isAdded()) Toast.makeText(requireContext(), getString(R.string.toast_error_transaction_id_missing), Toast.LENGTH_SHORT).show();
         }
-
-        transactionsRef = FirebaseDatabase.getInstance().getReference("transactions");
-        itemsRef = FirebaseDatabase.getInstance().getReference("items");
-        usersRef = FirebaseDatabase.getInstance().getReference("users");
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_transaction_detail, container, false);
-        initViews(view);
-        return view;
-    }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        navController = Navigation.findNavController(view);
-        setupListeners();
-        fetchTransactionDetails();
-    }
-
-    private void initViews(View view) {
         ivBackButton = view.findViewById(R.id.iv_back_button_transaction_detail);
         tvTransactionDetailTitle = view.findViewById(R.id.tv_transaction_detail_title);
         ivTransactionItemImage = view.findViewById(R.id.iv_transaction_item_image);
@@ -113,33 +109,80 @@ public class TransactionDetailFragment extends Fragment {
         ivSellerProfilePic = view.findViewById(R.id.iv_seller_profile_pic);
         tvSellerNameTransaction = view.findViewById(R.id.tv_seller_name_transaction);
         tvTransactionDate = view.findViewById(R.id.tv_transaction_date);
-        btnMarkAsComplete = view.findViewById(R.id.btn_mark_as_complete);
+        tvTransactionStatus = view.findViewById(R.id.tv_transaction_status); // NEW
+        tvEscrowStatus = view.findViewById(R.id.tv_escrow_status); // NEW
+        layoutConfirmationButtons = view.findViewById(R.id.layout_confirmation_buttons); // NEW
+
+        btnBuyerConfirmReceipt = view.findViewById(R.id.btn_buyer_confirm_receipt); // NEW
+        btnSellerConfirmDispatch = view.findViewById(R.id.btn_seller_confirm_dispatch); // NEW
+        btnLeaveReview = view.findViewById(R.id.btn_leave_review); // Existing
+
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        navController = Navigation.findNavController(view);
+
+        setupListeners();
+        fetchTransactionDetails();
     }
 
     private void setupListeners() {
-        ivBackButton.setOnClickListener(v -> navController.navigateUp());
-        btnMarkAsComplete.setOnClickListener(v -> showMarkAsCompleteConfirmationDialog());
+        ivBackButton.setOnClickListener(v -> {
+            if (navController != null) {
+                navController.navigateUp();
+            }
+        });
+
+        btnBuyerConfirmReceipt.setOnClickListener(v -> showConfirmationDialog(true)); // True for buyer
+        btnSellerConfirmDispatch.setOnClickListener(v -> showConfirmationDialog(false)); // False for seller
+
+        btnLeaveReview.setOnClickListener(v -> {
+            if (currentTransaction != null && currentTransaction.isArchived()) { // Only allow review if archived
+                String reviewedUserId = "";
+                if (currentUserId.equals(currentTransaction.getBuyer_id())) {
+                    reviewedUserId = currentTransaction.getSeller_id();
+                } else if (currentUserId.equals(currentTransaction.getSeller_id())) {
+                    reviewedUserId = currentTransaction.getBuyer_id();
+                }
+
+                if (!reviewedUserId.isEmpty()) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("transactionId", currentTransaction.getTransaction_id());
+                    bundle.putString("itemId", currentTransaction.getItem_id());
+                    bundle.putString("reviewedUserId", reviewedUserId);
+                    navController.navigate(R.id.action_transactionDetailFragment_to_ratingReviewFragment, bundle);
+                } else {
+                    Toast.makeText(getContext(), getString(R.string.toast_error_finding_user_to_review), Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(getContext(), getString(R.string.toast_transaction_not_completed_yet), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void fetchTransactionDetails() {
         if (transactionId == null) {
-            if (isAdded()) Toast.makeText(requireContext(), getString(R.string.toast_error_transaction_id_missing), Toast.LENGTH_SHORT).show();
-            navController.navigateUp();
+            Log.e(TAG, "Transaction ID is null, cannot fetch details.");
             return;
         }
 
         transactionValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (!isAdded()) return;
-
+                if (!isAdded()) {
+                    Log.w(TAG, "Fragment not added, skipping UI update.");
+                    return;
+                }
                 currentTransaction = snapshot.getValue(Transaction.class);
                 if (currentTransaction != null) {
-                    currentTransaction.setTransaction_id(snapshot.getKey());
                     updateUI(currentTransaction);
-                    fetchRelatedItemAndUserDetails(currentTransaction);
+                    fetchItemAndUserNames(currentTransaction.getItem_id(), currentTransaction.getBuyer_id(), currentTransaction.getSeller_id());
                 } else {
                     if (isAdded()) Toast.makeText(requireContext(), getString(R.string.toast_transaction_not_found), Toast.LENGTH_SHORT).show();
+                    Log.w(TAG, "Transaction data is null for ID: " + transactionId);
                     navController.navigateUp();
                 }
             }
@@ -147,17 +190,105 @@ public class TransactionDetailFragment extends Fragment {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 if (!isAdded()) return;
-                Log.e(TAG, "Failed to load transaction details: " + error.getMessage());
+                Log.e(TAG, "Error loading transaction: " + error.getMessage());
                 if (isAdded()) Toast.makeText(requireContext(), getString(R.string.toast_error_loading_transaction, error.getMessage()), Toast.LENGTH_SHORT).show();
-                navController.navigateUp();
             }
         };
         transactionsRef.child(transactionId).addValueEventListener(transactionValueEventListener);
     }
 
-    private void fetchRelatedItemAndUserDetails(Transaction transaction) {
+    private void updateUI(Transaction transaction) {
+        if (!isAdded()) return;
+
+        tvTransactionDetailTitle.setText(getString(R.string.transaction_detail_title));
+
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        currencyFormat.setMaximumFractionDigits(0);
+        tvTransactionFinalPrice.setText(currencyFormat.format(transaction.getFinal_price()));
+
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+            inputFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+            Date date = inputFormat.parse(transaction.getTransaction_date());
+            SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+            tvTransactionDate.setText(outputFormat.format(date));
+        } catch (ParseException e) {
+            Log.e(TAG, "Error parsing transaction date: " + transaction.getTransaction_date(), e);
+            tvTransactionDate.setText(transaction.getTransaction_date());
+        }
+
+        // NEW: Update transaction status and escrow status
+        tvTransactionStatus.setText(getString(R.string.transaction_status_display, transaction.isArchived() ? "Hoàn thành" : "Đang chờ"));
+        if (transaction.getEscrow_status() != null && !transaction.getEscrow_status().isEmpty()) {
+            tvEscrowStatus.setText(getString(R.string.escrow_status_display, transaction.getEscrow_status()));
+            tvEscrowStatus.setVisibility(View.VISIBLE);
+        } else {
+            tvEscrowStatus.setVisibility(View.GONE);
+        }
+
+        // Manage button visibility based on roles and escrow status
+        boolean isBuyer = currentUserId.equals(transaction.getBuyer_id());
+        boolean isSeller = currentUserId.equals(transaction.getSeller_id());
+
+        // Reset button visibility
+        layoutConfirmationButtons.setVisibility(View.GONE);
+        btnBuyerConfirmReceipt.setVisibility(View.GONE);
+        btnSellerConfirmDispatch.setVisibility(View.GONE);
+        btnLeaveReview.setVisibility(View.GONE);
+
+        if ("held".equals(transaction.getEscrow_status())) {
+            layoutConfirmationButtons.setVisibility(View.VISIBLE); // Show the confirmation button layout
+
+            // Money is held in escrow
+            if (isBuyer) {
+                if (!transaction.getBuyer_confirmed_receipt()) {
+                    btnBuyerConfirmReceipt.setVisibility(View.VISIBLE);
+                    btnBuyerConfirmReceipt.setText(getString(R.string.button_confirm_receipt));
+                    btnBuyerConfirmReceipt.setEnabled(true);
+                } else {
+                    btnBuyerConfirmReceipt.setVisibility(View.VISIBLE);
+                    btnBuyerConfirmReceipt.setText(getString(R.string.button_receipt_confirmed));
+                    btnBuyerConfirmReceipt.setEnabled(false);
+                }
+            }
+
+            if (isSeller) {
+                if (!transaction.getSeller_confirmed_dispatch()) {
+                    btnSellerConfirmDispatch.setVisibility(View.VISIBLE);
+                    btnSellerConfirmDispatch.setText(getString(R.string.button_confirm_dispatch));
+                    btnSellerConfirmDispatch.setEnabled(true);
+                } else {
+                    btnSellerConfirmDispatch.setVisibility(View.VISIBLE);
+                    btnSellerConfirmDispatch.setText(getString(R.string.button_dispatch_confirmed));
+                    btnSellerConfirmDispatch.setEnabled(false);
+                }
+            }
+
+            // If both confirmed, allow review (and money should be released by backend)
+            if (transaction.getBuyer_confirmed_receipt() && transaction.getSeller_confirmed_dispatch()) {
+                btnLeaveReview.setVisibility(View.VISIBLE);
+                layoutConfirmationButtons.setVisibility(View.GONE); // Hide confirmation buttons if completed
+            }
+
+        } else if ("released".equals(transaction.getEscrow_status()) || transaction.isArchived()) {
+            // Money released or transaction archived (completed directly)
+            btnLeaveReview.setVisibility(View.VISIBLE);
+            layoutConfirmationButtons.setVisibility(View.GONE);
+        } else if ("not_applicable".equals(transaction.getEscrow_status())) {
+            // No escrow, assume completed directly
+            btnLeaveReview.setVisibility(View.VISIBLE);
+            layoutConfirmationButtons.setVisibility(View.GONE);
+        }
+        // Handle other escrow statuses like "refunded", "disputed" if you implement them
+    }
+
+
+    private void fetchItemAndUserNames(String itemId, String buyerId, String sellerId) {
+        DatabaseReference itemsRef = FirebaseDatabase.getInstance().getReference("items");
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
+
         // Fetch Item details
-        itemsRef.child(transaction.getItem_id()).addListenerForSingleValueEvent(new ValueEventListener() {
+        itemsRef.child(itemId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!isAdded()) return;
@@ -174,23 +305,23 @@ public class TransactionDetailFragment extends Fragment {
                         ivTransactionItemImage.setImageResource(R.drawable.img_placeholder);
                     }
                 } else {
+                    Log.e(TAG, "Item not found for transaction: " + itemId);
                     tvTransactionItemTitle.setText(getString(R.string.item_not_found));
                     ivTransactionItemImage.setImageResource(R.drawable.img_placeholder);
-                    Log.e(TAG, "Item not found for transaction: " + transaction.getItem_id());
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 if (!isAdded()) return;
-                Log.e(TAG, "Failed to load item for transaction: " + error.getMessage());
+                Log.e(TAG, "Failed to load item details: " + error.getMessage());
                 tvTransactionItemTitle.setText(getString(R.string.error_loading_item));
                 ivTransactionItemImage.setImageResource(R.drawable.img_error);
             }
         });
 
         // Fetch Buyer details
-        usersRef.child(transaction.getBuyer_id()).addListenerForSingleValueEvent(new ValueEventListener() {
+        usersRef.child(buyerId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!isAdded()) return;
@@ -200,16 +331,16 @@ public class TransactionDetailFragment extends Fragment {
                     if (buyer.getProfile_picture_url() != null && !buyer.getProfile_picture_url().isEmpty()) {
                         Glide.with(requireContext())
                                 .load(buyer.getProfile_picture_url())
-                                .placeholder(R.drawable.img_placeholder)
-                                .error(R.drawable.img_error)
+                                .placeholder(R.drawable.img_profile_placeholder)
+                                .error(R.drawable.img_profile_placeholder)
                                 .into(ivBuyerProfilePic);
                     } else {
-                        ivBuyerProfilePic.setImageResource(R.drawable.img_placeholder);
+                        ivBuyerProfilePic.setImageResource(R.drawable.img_profile_placeholder);
                     }
                 } else {
+                    Log.e(TAG, "Buyer not found for ID: " + buyerId);
                     tvBuyerNameTransaction.setText(getString(R.string.unknown_user));
-                    ivBuyerProfilePic.setImageResource(R.drawable.img_placeholder);
-                    Log.e(TAG, "Buyer not found for ID: " + transaction.getBuyer_id());
+                    ivBuyerProfilePic.setImageResource(R.drawable.img_profile_placeholder);
                 }
             }
 
@@ -223,7 +354,7 @@ public class TransactionDetailFragment extends Fragment {
         });
 
         // Fetch Seller details
-        usersRef.child(transaction.getSeller_id()).addListenerForSingleValueEvent(new ValueEventListener() {
+        usersRef.child(sellerId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!isAdded()) return;
@@ -233,16 +364,16 @@ public class TransactionDetailFragment extends Fragment {
                     if (seller.getProfile_picture_url() != null && !seller.getProfile_picture_url().isEmpty()) {
                         Glide.with(requireContext())
                                 .load(seller.getProfile_picture_url())
-                                .placeholder(R.drawable.img_placeholder)
-                                .error(R.drawable.img_error)
+                                .placeholder(R.drawable.img_profile_placeholder)
+                                .error(R.drawable.img_profile_placeholder)
                                 .into(ivSellerProfilePic);
                     } else {
-                        ivSellerProfilePic.setImageResource(R.drawable.img_placeholder);
+                        ivSellerProfilePic.setImageResource(R.drawable.img_profile_placeholder);
                     }
                 } else {
+                    Log.e(TAG, "Seller not found for ID: " + sellerId);
                     tvSellerNameTransaction.setText(getString(R.string.unknown_user));
-                    ivSellerProfilePic.setImageResource(R.drawable.img_placeholder);
-                    Log.e(TAG, "Seller not found for ID: " + transaction.getSeller_id());
+                    ivSellerProfilePic.setImageResource(R.drawable.img_profile_placeholder);
                 }
             }
 
@@ -256,73 +387,142 @@ public class TransactionDetailFragment extends Fragment {
         });
     }
 
-    private void updateUI(Transaction transaction) {
-        if (!isAdded()) return;
-
-        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.US);
-        currencyFormatter.setMaximumFractionDigits(2);
-
-        // Update final price
-        if (transaction.getFinal_price() != null) {
-            tvTransactionFinalPrice.setText(getString(R.string.final_price_display, currencyFormatter.format(transaction.getFinal_price())));
-        } else {
-            tvTransactionFinalPrice.setText(getString(R.string.final_price_display, getString(R.string.price_not_available_short)));
-        }
-
-        // Update transaction date
-        tvTransactionDate.setText(formatDate(transaction.getTransaction_date()));
-
-        // Show/hide "Mark as Complete" button
-        // Only show if the transaction is NOT archived and the current user is either the buyer or seller
-        if (!transaction.isArchived() && (currentUserId.equals(transaction.getBuyer_id()) || currentUserId.equals(transaction.getSeller_id()))) {
-            btnMarkAsComplete.setVisibility(View.VISIBLE);
-        } else {
-            btnMarkAsComplete.setVisibility(View.GONE);
-        }
-    }
-
-    private String formatDate(String timestamp) {
-        if (timestamp == null || timestamp.isEmpty()) return "";
-        try {
-            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
-            inputFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
-            Date date = inputFormat.parse(timestamp);
-            SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-            return outputFormat.format(date);
-        } catch (ParseException e) {
-            Log.e(TAG, "Error parsing transaction date: " + timestamp, e);
-            return timestamp;
-        }
-    }
-
-    private void showMarkAsCompleteConfirmationDialog() {
-        if (!isAdded()) return;
-        new AlertDialog.Builder(requireContext())
-                .setTitle(R.string.dialog_title_confirm_complete)
-                .setMessage(R.string.dialog_message_confirm_complete)
-                .setPositiveButton(R.string.button_yes, (dialog, which) -> markTransactionAsComplete())
-                .setNegativeButton(R.string.button_no, null)
-                .show();
-    }
-
-    private void markTransactionAsComplete() {
-        if (currentTransaction == null || currentTransaction.getTransaction_id() == null) {
-            if (isAdded()) Toast.makeText(requireContext(), getString(R.string.toast_error_transaction_data_missing), Toast.LENGTH_SHORT).show();
+    private void showConfirmationDialog(boolean isBuyerConfirming) {
+        if (currentTransaction == null || transactionId == null) {
+            Toast.makeText(getContext(), getString(R.string.toast_error_transaction_data_missing), Toast.LENGTH_SHORT).show();
             return;
         }
 
-        transactionsRef.child(currentTransaction.getTransaction_id()).child("archived").setValue(true)
-                .addOnSuccessListener(aVoid -> {
-                    if (isAdded()) Toast.makeText(requireContext(), getString(R.string.toast_transaction_marked_complete), Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "Transaction " + currentTransaction.getTransaction_id() + " marked as complete.");
-                    // Optionally navigate back after marking as complete
-                    navController.navigateUp();
+        String title, message;
+        if (isBuyerConfirming) {
+            title = getString(R.string.dialog_title_confirm_receipt);
+            message = getString(R.string.dialog_message_confirm_receipt);
+        } else {
+            title = getString(R.string.dialog_title_confirm_dispatch);
+            message = getString(R.string.dialog_message_confirm_dispatch);
+        }
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(getString(R.string.button_confirm), (dialog, which) -> {
+                    performConfirmation(isBuyerConfirming);
                 })
-                .addOnFailureListener(e -> {
-                    if (isAdded()) Toast.makeText(requireContext(), getString(R.string.toast_error_marking_complete, e.getMessage()), Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, "Failed to mark transaction as complete: " + e.getMessage());
-                });
+                .setNegativeButton(getString(R.string.button_cancel), (dialog, which) -> dialog.cancel())
+                .show();
     }
+
+    private void performConfirmation(boolean isBuyerConfirming) {
+        if (currentTransaction == null || transactionId == null) {
+            Toast.makeText(getContext(), getString(R.string.toast_error_transaction_data_missing), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Map<String, Object> updates = new HashMap<>();
+        if (isBuyerConfirming) {
+            updates.put("buyer_confirmed_receipt", true);
+        } else {
+            updates.put("seller_confirmed_dispatch", true);
+        }
+
+        firebaseHelper.updateTransactionEscrowStatusAndConfirmations(transactionId, updates, new FirebaseHelper.DbWriteCallback() {
+            @Override
+            public void onSuccess() {
+                if (isAdded()) {
+                    Toast.makeText(getContext(), isBuyerConfirming ? getString(R.string.toast_receipt_confirmed) : getString(R.string.toast_dispatch_confirmed), Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, (isBuyerConfirming ? "Buyer" : "Seller") + " confirmed for transaction " + transactionId);
+
+                    // Re-fetch transaction to get updated state and check for completion
+                    firebaseHelper.getTransactionById(transactionId, new FirebaseHelper.DbReadCallback<Transaction>() {
+                        @Override
+                        public void onSuccess(Transaction updatedTransaction) {
+                            if (updatedTransaction != null && updatedTransaction.getBuyer_confirmed_receipt() && updatedTransaction.getSeller_confirmed_dispatch()) {
+                                // Both parties have confirmed, now release escrow and mark as archived
+                                releaseEscrowAndArchiveTransaction(updatedTransaction);
+                            } else {
+                                // Update UI to reflect current confirmation status
+                                updateUI(updatedTransaction);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(String errorMessage) {
+                            Log.e(TAG, "Failed to re-fetch transaction after confirmation: " + errorMessage);
+                            if (isAdded()) Toast.makeText(getContext(), getString(R.string.toast_error_reloading_transaction_status), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                if (isAdded()) Toast.makeText(getContext(), getString(R.string.toast_error_confirming_transaction, errorMessage), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Failed to confirm transaction: " + errorMessage);
+            }
+        });
+    }
+
+    private void releaseEscrowAndArchiveTransaction(Transaction transaction) {
+        if (transaction == null || transaction.getTransaction_id() == null) {
+            Log.e(TAG, "Cannot release escrow: transaction data missing.");
+            return;
+        }
+
+        // 1. Update Transaction status to "released" and archived=true
+        Map<String, Object> transactionUpdates = new HashMap<>();
+        transactionUpdates.put("escrow_status", "released");
+        transactionUpdates.put("archived", true);
+        transactionUpdates.put("completion_timestamp", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).format(new Date()));
+
+        firebaseHelper.updateTransactionEscrowStatusAndConfirmations(transaction.getTransaction_id(), transactionUpdates, new FirebaseHelper.DbWriteCallback() {
+            @Override
+            public void onSuccess() {
+                Log.d(TAG, "Transaction " + transaction.getTransaction_id() + " escrow released and archived.");
+                if (isAdded()) Toast.makeText(getContext(), getString(R.string.toast_transaction_completed_and_escrow_released), Toast.LENGTH_LONG).show();
+
+                // 2. Update associated Payment's escrow status to "released"
+                if (transaction.getPayment_id() != null) { // Assuming Transaction model now has payment_id
+                    firebaseHelper.updatePaymentEscrowStatus(transaction.getPayment_id(), "released", new FirebaseHelper.DbWriteCallback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d(TAG, "Payment " + transaction.getPayment_id() + " escrow status updated to 'released'.");
+                        }
+                        @Override
+                        public void onFailure(String errorMessage) {
+                            Log.e(TAG, "Failed to update payment escrow status: " + errorMessage);
+                        }
+                    });
+                }
+
+                // 3. Mark the item as "Sold"
+                firebaseHelper.markItemAsSold(transaction.getItem_id(), new FirebaseHelper.DbWriteCallback() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d(TAG, "Item " + transaction.getItem_id() + " marked as Sold.");
+                        // No toast here, as the main transaction completion toast is sufficient
+                    }
+
+                    @Override
+                    public void onFailure(String errorMessage) {
+                        Log.e(TAG, "Failed to mark item as Sold during escrow release: " + errorMessage);
+                        if (isAdded()) Toast.makeText(getContext(), getString(R.string.toast_error_marking_item_sold_escrow, errorMessage), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                // Update UI after completion
+                updateUI(transaction); // Re-render UI based on the updated transaction state
+                btnLeaveReview.setVisibility(View.VISIBLE); // Show review button
+                layoutConfirmationButtons.setVisibility(View.GONE); // Hide confirmation buttons layout
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Log.e(TAG, "Failed to release escrow and archive transaction: " + errorMessage);
+                if (isAdded()) Toast.makeText(getContext(), getString(R.string.toast_error_completing_transaction_escrow, errorMessage), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
     @Override
     public void onDestroyView() {
@@ -342,6 +542,11 @@ public class TransactionDetailFragment extends Fragment {
         ivSellerProfilePic = null;
         tvSellerNameTransaction = null;
         tvTransactionDate = null;
-        btnMarkAsComplete = null;
+        tvTransactionStatus = null;
+        tvEscrowStatus = null;
+        layoutConfirmationButtons = null;
+        btnBuyerConfirmReceipt = null;
+        btnSellerConfirmDispatch = null;
+        btnLeaveReview = null;
     }
 }

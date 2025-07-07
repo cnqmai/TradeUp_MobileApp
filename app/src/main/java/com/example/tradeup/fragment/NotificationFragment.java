@@ -19,7 +19,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.tradeup.R;
 import com.example.tradeup.adapter.NotificationAdapter;
+import com.example.tradeup.model.Item;
 import com.example.tradeup.model.Notification;
+import com.example.tradeup.model.Transaction;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -271,6 +273,97 @@ public class NotificationFragment extends Fragment implements NotificationAdapte
                     } else {
                         Toast.makeText(requireContext(), getString(R.string.toast_offer_id_not_found), Toast.LENGTH_SHORT).show();
                         Log.e(TAG, "Related ID (offerId) is null in notification for offer type.");
+                    }
+                    break;
+                case "payment_required": // <-- ĐÂY LÀ TRƯỜNG HỢP CẦN KIỂM TRA
+                    String transactionId = notification.getRelated_id(); // Lấy transactionId từ related_id
+                    if (transactionId != null) {
+                        // Cần fetch thông tin giao dịch từ Firebase để có đủ dữ liệu cho PaymentFragment
+                        FirebaseDatabase.getInstance().getReference("transactions").child(transactionId)
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot transactionSnapshot) {
+                                        Transaction transaction = transactionSnapshot.getValue(Transaction.class);
+                                        if (transaction != null) {
+                                            // Kiểm tra xem người dùng hiện tại có phải là người mua của giao dịch này không
+                                            if (currentUserId.equals(transaction.getBuyer_id())) {
+                                                // *** THÊM LOGIC KIỂM TRA TRẠNG THÁI GIAO DỊCH ĐÃ HOÀN TẤT CHƯA ***
+                                                if (transaction.getCompletion_timestamp() != null) {
+                                                    // Giao dịch đã hoàn tất, không cho phép thanh toán lại
+                                                    Toast.makeText(requireContext(), getString(R.string.toast_transaction_already_completed), Toast.LENGTH_LONG).show();
+                                                    // Tùy chọn: Điều hướng đến TransactionDetailFragment để xem chi tiết
+                                                    // Bundle completedTransactionBundle = new Bundle();
+                                                    // completedTransactionBundle.putString("transactionId", transactionId);
+                                                    // navController.navigate(R.id.action_notificationFragment_to_transactionDetailFragment, completedTransactionBundle);
+                                                } else {
+                                                    // Giao dịch CHƯA hoàn tất, tiến hành thanh toán
+                                                    // Bây giờ, fetch thông tin Item bằng itemId từ transaction
+                                                    String itemId = transaction.getItem_id();
+                                                    if (itemId != null) {
+                                                        FirebaseDatabase.getInstance().getReference("items").child(itemId)
+                                                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                    @Override
+                                                                    public void onDataChange(@NonNull DataSnapshot itemSnapshot) {
+                                                                        Item item = itemSnapshot.getValue(Item.class);
+                                                                        if (item != null) {
+                                                                            // Chuẩn bị các đối số cho PaymentFragment
+                                                                            // Bundle bundle = new Bundle(); // Không khởi tạo lại bundle ở đây
+                                                                            bundle.putString("itemId", transaction.getItem_id());
+                                                                            bundle.putString("transactionId", transaction.getTransaction_id());
+                                                                            bundle.putString("sellerId", transaction.getSeller_id());
+                                                                            bundle.putString("buyerId", transaction.getBuyer_id());
+
+                                                                            // Lấy URL của hình ảnh đầu tiên từ danh sách
+                                                                            if (item.getPhotos() != null && !item.getPhotos().isEmpty()) {
+                                                                                bundle.putString("itemImageUrl", item.getPhotos().get(0));
+                                                                                Log.d(TAG, "Fetched itemImageUrl from Item: " + item.getPhotos().get(0));
+                                                                            } else {
+                                                                                bundle.putString("itemImageUrl", null);
+                                                                                Log.d(TAG, "Item has no image URLs.");
+                                                                            }
+
+                                                                            Long priceFromFirebase = transaction.getFinal_price();
+                                                                            Log.d(TAG, "Fetched final_price from Firebase: " + (priceFromFirebase != null ? priceFromFirebase : "null"));
+                                                                            bundle.putLong("finalPrice", priceFromFirebase != null ? priceFromFirebase : 0L);
+                                                                            bundle.putString("itemTitle", transaction.getItem_title()); // Giả sử Transaction model có item_title hoặc lấy từ item.getName()
+
+                                                                            // Điều hướng trực tiếp đến PaymentFragment
+                                                                            navController.navigate(R.id.action_notificationFragment_to_paymentFragment, bundle);
+                                                                        } else {
+                                                                            Toast.makeText(requireContext(), getString(R.string.item_not_found), Toast.LENGTH_SHORT).show();
+                                                                            Log.e(TAG, "Item not found for transaction: " + transactionId + " with itemId: " + itemId);
+                                                                        }
+                                                                    }
+
+                                                                    @Override
+                                                                    public void onCancelled(@NonNull DatabaseError error) {
+                                                                        Log.e(TAG, "Failed to load item for payment notification: " + error.getMessage());
+                                                                        Toast.makeText(requireContext(), getString(R.string.error_loading_item), Toast.LENGTH_SHORT).show();
+                                                                    }
+                                                                });
+                                                    } else {
+                                                        Toast.makeText(requireContext(), getString(R.string.toast_item_id_missing_in_transaction), Toast.LENGTH_SHORT).show();
+                                                        Log.e(TAG, "Item ID is null in transaction: " + transactionId);
+                                                    }
+                                                }
+                                            } else {
+                                                // Nếu người dùng hiện tại không phải người mua (ví dụ: người bán click thông báo này)
+                                                Toast.makeText(requireContext(), getString(R.string.toast_payment_notification_seller_info), Toast.LENGTH_LONG).show();
+                                            }
+                                        } else {
+                                            Toast.makeText(requireContext(), getString(R.string.toast_transaction_not_found), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+                                        Log.e(TAG, "Failed to load transaction for payment notification: " + error.getMessage());
+                                        Toast.makeText(requireContext(), getString(R.string.toast_error_loading_transaction_for_payment), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    } else {
+                        Toast.makeText(requireContext(), getString(R.string.toast_transaction_id_missing), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "Related ID (transactionId) is null for payment required notification.");
                     }
                     break;
                 case "promotion":

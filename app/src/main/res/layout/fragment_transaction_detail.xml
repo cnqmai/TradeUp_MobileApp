@@ -7,7 +7,6 @@
     android:background="@color/orange_skin"
     tools:context=".fragment.TransactionDetailFragment">
 
-    <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_transaction_detail"
         android:layout_width="0dp"
@@ -46,9 +45,7 @@
 
             <View
                 android:layout_width="48dp"
-                android:layout_height="48dp" /> <!-- Spacer to balance back button -->
-
-        </LinearLayout>
+                android:layout_height="48dp" /> </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
     <ScrollView
@@ -65,7 +62,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Transaction Item Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -133,7 +129,6 @@
                         android:background="@color/gray"
                         android:layout_marginVertical="12dp" />
 
-                    <!-- Buyer Info -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -145,7 +140,7 @@
                             android:id="@+id/iv_buyer_profile_pic"
                             android:layout_width="32dp"
                             android:layout_height="32dp"
-                            android:src="@drawable/img_placeholder"
+                            android:src="@drawable/img_profile_placeholder"
                             android:contentDescription="@string/profile_picture_content_desc"
                             android:layout_marginEnd="8dp" />
 
@@ -168,7 +163,6 @@
                             tools:text="Jane Doe" />
                     </LinearLayout>
 
-                    <!-- Seller Info -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -180,7 +174,7 @@
                             android:id="@+id/iv_seller_profile_pic"
                             android:layout_width="32dp"
                             android:layout_height="32dp"
-                            android:src="@drawable/img_placeholder"
+                            android:src="@drawable/img_profile_placeholder"
                             android:contentDescription="@string/profile_picture_content_desc"
                             android:layout_marginEnd="8dp" />
 
@@ -203,7 +197,6 @@
                             tools:text="John Smith" />
                     </LinearLayout>
 
-                    <!-- Transaction Date -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -239,23 +232,84 @@
                             tools:text="2023-10-26 14:30" />
                     </LinearLayout>
 
-                </LinearLayout>
+                    <TextView
+                        android:id="@+id/tv_transaction_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/transaction_status_pending"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="4dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_escrow_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/escrow_status_held"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone" /> </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Mark as Complete Button -->
-            <Button
-                android:id="@+id/btn_mark_as_complete"
+            <LinearLayout
+                android:id="@+id/layout_confirmation_buttons"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/button_mark_as_complete"
-                android:backgroundTint="@color/green_bold"
-                android:textColor="@color/white"
-                android:textSize="16sp"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:background="@drawable/rounded_card_background"
+                android:elevation="4dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"> <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/confirm_transaction_title"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:layout_marginBottom="8dp" />
+
+                <Button
+                    android:id="@+id/btn_buyer_confirm_receipt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/button_buyer_confirm_receipt"
+                    android:backgroundTint="@color/orange_bold"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    android:paddingVertical="12dp"
+                    app:cornerRadius="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/btn_seller_confirm_dispatch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/button_seller_confirm_dispatch"
+                    android:backgroundTint="@color/orange_bold"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    android:paddingVertical="12dp"
+                    app:cornerRadius="8dp"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_leave_review"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_leave_review"
+                android:backgroundTint="#4CAF50"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
                 android:paddingVertical="12dp"
                 app:cornerRadius="8dp"
                 android:layout_marginTop="16dp"
-                android:visibility="gone" /> <!-- Initially hidden, shown for active transactions -->
-
-        </LinearLayout>
+                android:visibility="gone" /> </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -59,10 +59,10 @@ public class RecentTransactionAdapter extends RecyclerView.Adapter<RecentTransac
         String formattedAmount = currencyFormat.format(payment.getAmount());
 
         // Set amount and color based on payer/payee
-        if (currentUserId != null && currentUserId.equals(payment.getPayer_id())) {
+        if (currentUserId != null && currentUserId.equals(payment.getBuyer_id())) {
             holder.tvTransactionAmount.setText("-" + formattedAmount);
             holder.tvTransactionAmount.setTextColor(Color.RED);
-        } else if (currentUserId != null && currentUserId.equals(payment.getPayee_id())) {
+        } else if (currentUserId != null && currentUserId.equals(payment.getSeller_id())) {
             holder.tvTransactionAmount.setText("+" + formattedAmount);
             holder.tvTransactionAmount.setTextColor(context.getResources().getColor(R.color.green_bold, null));
         } else {
@@ -73,10 +73,8 @@ public class RecentTransactionAdapter extends RecyclerView.Adapter<RecentTransac
         // Set status icon and color
         if ("completed".equalsIgnoreCase(payment.getStatus())) {
             holder.ivTransactionStatusIcon.setImageResource(R.drawable.ic_check_circle);
-            holder.ivTransactionStatusIcon.setColorFilter(context.getResources().getColor(R.color.green_bold, null));
         } else {
             holder.ivTransactionStatusIcon.setImageResource(R.drawable.ic_cancel_circle);
-            holder.ivTransactionStatusIcon.setColorFilter(Color.RED);
         }
 
         // Format and display transaction date
@@ -143,11 +141,11 @@ public class RecentTransactionAdapter extends RecyclerView.Adapter<RecentTransac
         String otherUserId = null;
         String relation = "";
         if (currentUserId != null) {
-            if (currentUserId.equals(payment.getPayer_id())) {
-                otherUserId = payment.getPayee_id();
+            if (currentUserId.equals(payment.getBuyer_id())) {
+                otherUserId = payment.getSeller_id();
                 relation = "Paid to "; // English string
-            } else if (currentUserId != null && currentUserId.equals(payment.getPayee_id())) {
-                otherUserId = payment.getPayer_id();
+            } else if (currentUserId != null && currentUserId.equals(payment.getSeller_id())) {
+                otherUserId = payment.getBuyer_id();
                 relation = "Received from "; // English string
             }
         }

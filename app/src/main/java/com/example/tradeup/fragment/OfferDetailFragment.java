@@ -34,18 +34,23 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.Query; // Added for notification query
+import com.google.firebase.database.ServerValue; // Add this import
 
 import java.text.NumberFormat;
 import java.text.ParseException; // Added for time formatting
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.HashMap; // Add this import
 import java.util.Locale;
-import java.util.Map;
+import java.util.Map; // Add this import
 import java.util.Objects;
 import java.util.concurrent.TimeUnit; // Added for time formatting
 
 import de.hdodenhof.circleimageview.CircleImageView; // Assuming you use CircleImageView
+
+// Import the generated Directions class for this fragment
+import com.example.tradeup.fragment.OfferDetailFragmentDirections;
+
 
 public class OfferDetailFragment extends Fragment {
 
@@ -147,11 +152,11 @@ public class OfferDetailFragment extends Fragment {
         ivItemImageOfferDetail = view.findViewById(R.id.iv_item_image_offer_detail);
         tvItemTitleOfferDetail = view.findViewById(R.id.tv_item_title_offer_detail);
         tvItemOriginalPriceOfferDetail = view.findViewById(R.id.tv_item_original_price_offer_detail);
-        tvOfferAmount = view.findViewById(R.id.tv_offer_amount); // Existing ID, now for prominent offer price
-        tvOfferStatus = view.findViewById(R.id.tv_offer_status); // Existing ID, now for status tag
+        tvOfferAmount = view.findViewById(R.id.tv_offer_amount); // Existing ID, repurposed for prominent offer price
+        tvOfferStatus = view.findViewById(R.id.tv_offer_status); // Existing ID, repurposed as status tag
 
         ivSenderProfilePicOfferDetail = view.findViewById(R.id.iv_sender_profile_pic_offer_detail);
-        tvBuyerName = view.findViewById(R.id.tv_buyer_name); // Existing ID, now for sender name (was tv_buyer_name)
+        tvBuyerName = view.findViewById(R.id.tv_buyer_name); // Existing ID, repurposed for sender name (was tv_buyer_name)
         tvOfferTimeOfferDetail = view.findViewById(R.id.tv_offer_time_offer_detail); // New ID
 
         // Action Buttons
@@ -315,8 +320,8 @@ public class OfferDetailFragment extends Fragment {
                     if (sender.getProfile_picture_url() != null && !sender.getProfile_picture_url().isEmpty()) {
                         Glide.with(requireContext())
                                 .load(sender.getProfile_picture_url())
-                                .placeholder(R.drawable.img_placeholder)
-                                .error(R.drawable.img_error)
+                                .placeholder(R.drawable.img_profile_placeholder)
+                                .error(R.drawable.img_profile_placeholder)
                                 .into(ivSenderProfilePicOfferDetail);
                     } else {
                         ivSenderProfilePicOfferDetail.setImageResource(R.drawable.img_placeholder);
@@ -428,6 +433,8 @@ public class OfferDetailFragment extends Fragment {
                     }
                     break;
                 case "accepted":
+                    // If offer is accepted, and current user is buyer, navigate to payment methods
+                    // This navigation is now triggered by createTransactionRecord after successful transaction creation
                     if (isAdded()) Toast.makeText(requireContext(), getString(R.string.toast_offer_accepted_status), Toast.LENGTH_SHORT).show();
                     break;
                 case "rejected":
@@ -514,12 +521,15 @@ public class OfferDetailFragment extends Fragment {
                     }
 
                     if ("accepted".equals(action)) {
-                        markItemAsSold(currentOffer.getItem_id());
-                        createOrUpdateTransactionRecord(currentOffer);
+                        // When offer is accepted, we create a transaction record
+                        // and then the buyer proceeds to payment.
+                        // The item status will be updated to "pending_escrow" or "Sold" after payment.
+                        createTransactionRecord(currentOffer); // Create transaction record here
                         upsertOfferNotification(recipientId, currentOffer.getItem_id(), offerId,
                                 getString(R.string.notification_title_offer_accepted),
                                 getString(R.string.notification_body_offer_accepted),
                                 "offer_accepted", true);
+                        // Navigation to payment will happen in createTransactionRecord
                     } else if ("rejected".equals(action)) {
                         upsertOfferNotification(recipientId, currentOffer.getItem_id(), offerId,
                                 getString(R.string.notification_title_offer_rejected),
@@ -594,7 +604,7 @@ public class OfferDetailFragment extends Fragment {
 
                     upsertOfferNotification(currentOffer.getBuyer_id(), currentOffer.getItem_id(), offerId,
                             getString(R.string.notification_title_counter_offer),
-                            getString(R.string.notification_body_counter_offer, counterPrice, "%s"), // Pass counterPrice here
+                            getString(R.string.notification_body_counter_offer, NumberFormat.getCurrencyInstance(Locale.US).format(counterPrice)),
                             "counter_offer", false);
                 })
                 .addOnFailureListener(e -> {
@@ -613,7 +623,9 @@ public class OfferDetailFragment extends Fragment {
         builder.setTitle(getString(R.string.dialog_title_respond_to_counter_offer));
 
         final EditText input = new EditText(requireContext());
-        String counterPrice = (currentOffer.getCounter_price() != null) ? String.valueOf(currentOffer.getCounter_price()) : getString(R.string.price_not_available_short);
+        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.US);
+        currencyFormatter.setMaximumFractionDigits(0);
+        String counterPrice = (currentOffer.getCounter_price() != null) ? currencyFormatter.format(currentOffer.getCounter_price()) : getString(R.string.price_not_available_short);
         input.setHint(getString(R.string.hint_enter_new_offer_price_with_counter, counterPrice));
         input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
         builder.setView(input);
@@ -662,12 +674,13 @@ public class OfferDetailFragment extends Fragment {
         offerRef.updateChildren(updates)
                 .addOnSuccessListener(aVoid -> {
                     // FIX: Correct string formatting
-                    if (isAdded()) Toast.makeText(requireContext(), getString(R.string.toast_new_offer_sent_value, newOfferPrice), Toast.LENGTH_SHORT).show();
+                    if (isAdded()) Toast.makeText(requireContext(), getString(R.string.toast_new_offer_sent_value, NumberFormat.getCurrencyInstance(Locale.US).format(newOfferPrice)), Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "Buyer responded to offer " + offerId + " with new price: " + newOfferPrice);
 
+                    // Đã sửa lỗi ở đây: Loại bỏ "%s" và đảm bảo chỉ có một tham số String
                     upsertOfferNotification(currentOffer.getSeller_id(), currentOffer.getItem_id(), offerId,
                             getString(R.string.notification_title_buyer_responded),
-                            getString(R.string.notification_body_buyer_responded, newOfferPrice, "%s"), // Pass newOfferPrice here
+                            getString(R.string.notification_body_buyer_responded, NumberFormat.getCurrencyInstance(Locale.US).format(newOfferPrice)),
                             "buyer_responded_offer", false);
                 })
                 .addOnFailureListener(e -> {
@@ -677,30 +690,7 @@ public class OfferDetailFragment extends Fragment {
     }
 
 
-    private void markItemAsSold(String itemId) {
-        if (!isAdded()) {
-            Log.w(TAG, "Fragment not added to context, cannot mark item as sold.");
-            return;
-        }
-
-        if (itemId == null || itemId.isEmpty()) {
-            Log.e(TAG, "Cannot mark item as sold: item ID is null or empty.");
-            return;
-        }
-
-        DatabaseReference itemRef = FirebaseDatabase.getInstance().getReference("items").child(itemId);
-        itemRef.child("status").setValue("Sold") // Changed to "Sold" to match common practice
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Item " + itemId + " marked as sold.");
-                    if (isAdded()) Toast.makeText(requireContext(), getString(R.string.toast_item_marked_as_sold), Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to mark item " + itemId + " as sold: " + e.getMessage());
-                    if (isAdded()) Toast.makeText(requireContext(), getString(R.string.toast_error_marking_item_sold), Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    private void createOrUpdateTransactionRecord(Offer offer) {
+    private void createTransactionRecord(Offer offer) {
         if (!isAdded()) {
             Log.w(TAG, "Fragment not added to context, cannot create transaction record.");
             return;
@@ -714,25 +704,57 @@ public class OfferDetailFragment extends Fragment {
         DatabaseReference transactionsRef = FirebaseDatabase.getInstance().getReference("transactions");
         String transactionId = transactionsRef.push().getKey();
 
-        // Assuming you have a constructor or setter for Transaction model
-        Transaction transaction = new Transaction();
-        transaction.setItem_id(offer.getItem_id());
-        transaction.setBuyer_id(offer.getBuyer_id());
-        transaction.setSeller_id(offer.getSeller_id());
-        transaction.setFinal_price(offer.getOffer_price()); // Final price is the accepted offer price
-        transaction.setOffer_id(offerId);
-        transaction.setTransaction_date(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date()));
-        transaction.setArchived(false);
+        // Initialize transaction with escrow_status as "pending"
+        Transaction transaction = new Transaction(
+                transactionId, // Pass the generated transactionId
+                offer.getItem_id(),
+                offer.getBuyer_id(),
+                offer.getSeller_id(),
+                offer.getOffer_price(), // Final price is the accepted offer price
+                offerId,
+                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date()),
+                false, // Not archived initially
+                offeredItem != null ? offeredItem.getTitle() : getString(R.string.default_item_title_for_transaction)
+        );
+
+        // Set initial escrow status for the transaction
+        transaction.setEscrow_status("pending"); // Will be updated to "held" after payment
+        transaction.setBuyer_confirmed_receipt(false);
+        transaction.setSeller_confirmed_dispatch(false);
+        transaction.setCompletion_timestamp(null);
+
 
         if (transactionId != null) {
             transactionsRef.child(transactionId).setValue(transaction)
                     .addOnSuccessListener(aVoid -> {
                         Log.d(TAG, "Transaction record created: " + transactionId);
                         if (isAdded()) Toast.makeText(requireContext(), getString(R.string.toast_transaction_recorded), Toast.LENGTH_SHORT).show();
+
+                        // Now, update the offer to link to this new transaction
+                        Map<String, Object> offerUpdates = new HashMap<>();
+                        offerUpdates.put("transaction_id", transactionId); // Assuming Offer model has transaction_id
+                        offerRef.updateChildren(offerUpdates)
+                                .addOnSuccessListener(v -> Log.d(TAG, "Offer " + offerId + " linked to transaction " + transactionId))
+                                .addOnFailureListener(e -> Log.e(TAG, "Failed to link offer to transaction: " + e.getMessage()));
+
+                        // --- START FIX for Seller Acceptance Flow ---
+
+                        // THAY VÀO ĐÓ: Gửi thông báo đến người mua để họ tiến hành thanh toán
+                        upsertOfferNotification(
+                                currentOffer.getBuyer_id(), // Người nhận là người mua
+                                currentOffer.getItem_id(),  // ID của mặt hàng
+                                transactionId,              // related_id sẽ là transactionId
+                                getString(R.string.notification_title_payment_required), // Tiêu đề thông báo
+                                getString(R.string.notification_body_payment_required, offeredItem != null ? offeredItem.getTitle() : "the item", NumberFormat.getCurrencyInstance(Locale.US).format(currentOffer.getOffer_price())), // Nội dung thông báo
+                                "payment_required",         // Loại thông báo mới: yêu cầu thanh toán
+                                false // true nếu bạn muốn nó tự mở màn hình khi click, nhưng chúng ta sẽ xử lý chi tiết trong NotificationFragment
+                        );
+                        // --- END FIX for Seller Acceptance Flow ---
+
                     })
                     .addOnFailureListener(e -> {
-                        Log.e(TAG, "Failed to create transaction record: " + e.getMessage());
-                        if (isAdded()) Toast.makeText(requireContext(), getString(R.string.toast_error_recording_transaction), Toast.LENGTH_SHORT).show();
+                        if (isAdded()) Toast.makeText(requireContext(), getString(R.string.toast_error_creating_transaction, e.getMessage()), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "Error creating transaction: " + e.getMessage());
                     });
         }
     }

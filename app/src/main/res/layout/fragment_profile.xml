@@ -773,7 +773,8 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:paddingVertical="12dp"
-                        android:paddingHorizontal="2dp">
+                        android:paddingHorizontal="2dp"
+                        android:visibility="gone">
 
                         <FrameLayout
                             android:layout_width="36dp"

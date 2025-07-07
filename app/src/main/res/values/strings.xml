@@ -394,6 +394,7 @@
     <string name="edit_button">Edit</string>
     <string name="delete_button">Delete</string>
     <string name="change_status_button">Change Status</string>
+    <string name="view_analytics_button">View Analytics</string>
 
     <!-- Transaction History Fragment Strings -->
     <string name="transaction_history_title">Transaction History</string>
@@ -417,7 +418,6 @@
     <string name="sold_on_date">Sold on %1$s</string>
     <string name="date_not_available">Date N/A</string>
     <string name="status_completed">Completed</string>
-    <string name="status_active">Active</string>
     <string name="item_not_found">Item not found</string>
     <string name="error_loading_item">Error loading item</string>
     <string name="invalid_item_id">Invalid Item ID</string>
@@ -559,11 +559,11 @@
     <string name="notification_title_offer_rejected">Offer Rejected!</string>
     <string name="notification_body_offer_rejected">Your offer for "%s" has been rejected.</string>
     <string name="notification_title_counter_offer">Counter Offer Received!</string>
-    <string name="notification_body_counter_offer">The seller has made a counter offer of %1$d for "%s".</string>
+    <string name="notification_body_counter_offer">User made a counter offer: %1$s</string>
     <string name="notification_title_buyer_responded">Buyer Responded!</string>
-    <string name="notification_body_buyer_responded">The buyer has made a new offer of %1$d for "%s".</string>
+    <string name="toast_new_offer_sent_value">New offer sent: %1$s</string>
+    <string name="notification_body_buyer_responded">Buyer responded with new offer: %1$s</string>
     <string name="price_not_available_short">N/A</string>
-    <string name="toast_new_offer_sent_value">New offer sent: %1$d</string>
     <string name="dialog_title_respond_to_counter_offer">Respond to Counter Offer</string>
     <string name="hint_enter_new_offer_price_with_counter">Enter your new offer price (counter: %1$s)</string>
     <string name="hint_enter_counter_offer_price_with_current">Enter counter offer price (current: %1$s)</string>
@@ -573,6 +573,14 @@
     <string name="filter_button_clicked">Filter button clicked.</string>
     <string name="toast_error_loading_offer_details">Error loading offer details.</string>
     <string name="toast_counter_offer_sent_value">Counter offer sent: %s</string>
+    <string name="notification_body_proceed_payment">Your offer for %1$s has been accepted. Please proceed to payment.</string>
+    <string name="toast_error_creating_transaction">Error creating transaction: %1$s</string>
+    <string name="notification_title_payment_required">Payment Required!</string>
+    <string name="notification_body_payment_required">Your offer for %1$s (%2$s) has been accepted. Please proceed to payment.</string>
+    <string name="toast_payment_notification_seller_info">This payment notification is for the buyer of the item.</string>
+    <string name="toast_error_loading_transaction_for_payment">Error loading transaction details for payment.</string>
+    <string name="toast_transaction_id_missing">Transaction ID missing for this notification.</string>
+    <string name="default_item_title_for_transaction">Unknown Item</string>
 
     <!-- Transaction Detail Fragment Strings -->
     <string name="transaction_detail_title">Transaction Details</string>
@@ -590,6 +598,36 @@
     <string name="toast_transaction_not_found">Transaction not found.</string>
     <string name="toast_error_loading_transaction">Error loading transaction: %1$s</string>
     <string name="toast_error_transaction_data_missing">Transaction data is missing.</string>
+    <string name="transaction_status_pending">Status: Pending</string>
+    <string name="escrow_status_held">Escrow: Held</string>
+    <string name="confirm_transaction_title">Confirm Transaction</string>
+    <string name="button_buyer_confirm_receipt">I have received the item</string>
+    <string name="button_seller_confirm_dispatch">I have dispatched the item</string>
+    <string name="button_leave_review">Leave a Review</string>
+    <string name="transaction_status_display">Status: %1$s</string>
+    <string name="escrow_status_display">Escrow: %1$s</string>
+
+    <string name="button_confirm_receipt">Confirm Receipt</string>
+    <string name="button_receipt_confirmed">Receipt Confirmed</string>
+    <string name="button_confirm_dispatch">Confirm Dispatch</string>
+    <string name="button_dispatch_confirmed">Dispatch Confirmed</string>
+    <string name="dialog_title_confirm_receipt">Confirm Receipt</string>
+    <string name="dialog_message_confirm_receipt">Are you sure you want to confirm receipt of this item? This action cannot be undone.</string>
+    <string name="dialog_title_confirm_dispatch">Confirm Dispatch</string>
+    <string name="dialog_message_confirm_dispatch">Are you sure you want to confirm dispatch of this item? This action cannot be undone.</string>
+
+    <string name="toast_receipt_confirmed">Receipt confirmed successfully!</string>
+    <string name="toast_dispatch_confirmed">Dispatch confirmed successfully!</string>
+    <string name="toast_error_reloading_transaction_status">Error reloading transaction status.</string>
+    <string name="toast_error_confirming_transaction">Failed to confirm transaction: %1$s</string>
+    <string name="toast_transaction_completed_and_escrow_released">Transaction completed and escrow released!</string>
+    <string name="toast_error_marking_item_sold_escrow">Error marking item as sold: %1$s</string>
+    <string name="toast_error_completing_transaction_escrow">Error completing transaction: %1$s</string>
+
+    <string name="toast_error_finding_user_to_review">Could not find user to review.</string>
+    <string name="toast_transaction_not_completed_yet">Transaction not completed yet.</string>
+
+    <string name="button_confirm">Confirm</string>
 
     <!-- Reused existing strings -->
     <string name="img_placeholder">Placeholder image</string>
@@ -714,6 +752,38 @@
     <string name="pay_now_button">Pay Now</string>
     <string name="button_proceed_to_payment_secure_format">Proceed to Payment - %1$s</string>
 
+    <!-- Payment -->
+    <string name="select_payment_method">Select Payment Method</string>
+    <string name="payment_method_card">Credit/Debit Card</string>
+    <string name="payment_method_upi">UPI (Bank Transfer)</string>
+    <string name="payment_method_wallet">E-Wallet</string>
+    <string name="upi_id_hint">Enter your UPI ID (e.g., yourname@bank)</string>
+    <string name="wallet_phone_number_hint">Enter E-Wallet phone number</string>
+    <string name="toast_simulating_upi_payment">Simulating UPI payment...</string>
+    <string name="toast_simulating_wallet_payment">Simulating E-Wallet payment...</string>
+    <string name="toast_enter_upi_id">Please enter UPI ID.</string>
+    <string name="toast_invalid_upi_id">Invalid UPI ID. Please check again.</string>
+    <string name="toast_enter_wallet_phone">Please enter E-Wallet phone number.</string>
+    <string name="toast_invalid_wallet_phone">Invalid E-Wallet phone number. Please check again.</string>
+    <string name="toast_select_payment_method">Please select a payment method.</string>
+    <string name="toast_transaction_failed">Transaction failed: %1$s</string>
+    <string name="toast_payment_success">Payment successful!</string>
+    <string name="toast_transaction_error">Transaction creation error. Please try again.</string>
+    <string name="toast_payment_failed">Payment failed: %1$s</string>
+    <string name="toast_payment_error">Payment error. Please try again.</string>
+    <string name="toast_simulating_card_payment">Simulating card payment...</string>
+    <string name="toast_invalid_card_details">Invalid card details. Please check again.</string>
+    <string name="toast_fill_card_details">Please fill in all card details.</string>
+    <string name="button_pay_now_format">Pay Now %1$s</string>
+    <string name="toast_login_required">Please log in to proceed.</string>
+    <string name="toast_invalid_payment_details">Invalid payment details.</string>
+    <string name="toast_missing_item_details">Missing item details.</string>
+    <string name="item_details_title">Item Details</string>
+    <string name="cvv_hint">CVV</string>
+    <string name="upi_id_wallet_phone_hint">Enter UPI ID or E-Wallet Phone Number</string>
+    <string name="toast_transaction_already_completed">Transaction already completed</string>
+    <string name="toast_item_id_missing_in_transaction">ID item missing in transaction.</string>
+
     <!-- Item Recent Transaction Strings -->
     <string name="recent_transaction_item_title_placeholder">Classic Camera</string>
     <string name="recent_transaction_description_placeholder">Paid to John Smith</string>
@@ -740,7 +810,6 @@
     <string name="user_name_placeholder">User Name</string>
     <string name="user_email_placeholder">email@example.com</string>
     <string name="user_status_placeholder">Status: Active</string>
-    <string name="status_banned">Banned</string>
     <string name="flag_status_desc">Flag status icon</string>
 
     <!-- User Management Fragment Strings -->
@@ -752,4 +821,209 @@
     <!-- User Profile Fragment Strings -->
     <string name="view_user_listing">View user\'s listings</string>
     <string name="total_transaction">Total transactions: 0</string>
+
+    <string name="admin_dashboard_title">Admin Dashboard</string>
+    <string name="notifications_icon_desc">Notifications icon</string>
+    <string name="admin_profile_pic_desc">Admin profile picture</string>
+
+    <string name="overview_section_title">Overview</string>
+    <string name="user_group_icon_desc">User group icon</string>
+    <string name="active_users_label">Active Users</string>
+    <string name="trade_icon_desc">Trade icon</string>
+    <string name="todays_trades_label">Today\'s Trades</string>
+    <string name="revenue_icon_desc">Revenue icon</string>
+    <string name="revenue_label">Revenue</string>
+    <string name="new_user_icon_desc">New user icon</string>
+    <string name="new_users_label">New Users</string>
+
+    <string name="performance_section_title">Performance</string>
+    <string name="chart_today">Today</string>
+    <string name="chart_week">Week</string>
+    <string name="chart_month">Month</string>
+    <string name="chart_placeholder_text">Chart data will appear here</string>
+
+    <string name="recent_activity_section_title">Recent Activity</string>
+    <string name="no_recent_activity_message">No recent activity found.</string>
+
+    <string name="quick_actions_section_title">Quick Actions</string>
+    <string name="manage_users_icon_desc">Manage users icon</string>
+    <string name="manage_users_label">Manage Users</string>
+    <string name="view_reports_icon_desc">View reports icon</string>
+    <string name="view_reports_label">View Reports</string>
+    <string name="settings_icon_desc">Settings icon</string>
+    <string name="settings_label">Settings</string>
+    <string name="support_icon_desc">Support icon</string>
+    <string name="support_label">Support</string>
+
+    <!-- Recent Activity Item Strings -->
+    <string name="activity_type_new_user">New User</string>
+    <string name="activity_type_new_item">New Item</string>
+    <string name="activity_type_new_offer">New Offer</string>
+    <string name="activity_type_transaction_completed">Transaction Completed</string>
+    <string name="activity_type_report_filed">Report Filed</string>
+    <string name="activity_type_offer_accepted">Offer Accepted</string>
+    <string name="activity_type_offer_rejected">Offer Rejected</string>
+    <string name="activity_type_item_updated">Item Updated</string>
+    <string name="activity_type_user_banned">User Banned</string>
+    <string name="activity_type_user_unbanned">User Unbanned</string>
+    <string name="activity_type_unknown">Unknown Activity</string>
+
+    <string name="activity_description_new_user">%1$s joined the platform.</string>
+    <string name="activity_description_new_item">%1$s posted a new item: %2$s.</string>
+    <string name="activity_description_new_offer">%1$s made an offer on %2$s.</string>
+    <string name="activity_description_transaction_completed">Transaction for %1$s completed.</string>
+    <string name="activity_description_report_filed">%1$s filed a report against %2$s.</string>
+    <string name="activity_description_offer_accepted">%1$s accepted offer for %2$s.</string>
+    <string name="activity_description_offer_rejected">%1$s rejected offer for %2$s.</string>
+    <string name="activity_description_item_updated">%1$s updated item: %2$s.</string>
+    <string name="activity_description_user_banned">%1$s was banned.</string>
+    <string name="activity_description_user_unbanned">%1$s was unbanned.</string>
+    <string name="activity_description_unknown">An unknown activity occurred.</string>
+    <string name="activity_time_ago">%1$s ago</string>
+    <string name="activity_time_format">dd/MM/yyyy HH:mm</string>
+    <string name="activity_icon_desc">Activity icon</string>
+
+    <!-- Activity Descriptions -->
+    <string name="activity_description_new_user_id">User %1$s joined TradeUp</string>
+    <string name="activity_description_new_item_id">%1$s listed a new item: %2$s</string>
+    <string name="activity_description_new_offer_id">%1$s made an offer on item: %2$s</string>
+    <string name="activity_description_transaction_completed_id">Transaction completed for item: %1$s</string>
+    <string name="activity_description_report_filed_id">%1$s reported %2$s: %3$s</string>
+    <string name="activity_description_offer_accepted_id">%1$s accepted offer on item: %2$s</string>
+    <string name="activity_description_offer_rejected_id">%1$s rejected offer on item: %2$s</string>
+    <string name="activity_description_item_updated_id">%1$s updated item: %2$s</string>
+    <string name="activity_description_user_banned_id">User %1$s has been banned</string>
+    <string name="activity_description_user_unbanned_id">User %1$s has been unbanned</string>
+
+    <!-- Rating Review -->
+    <string name="rate_your_experience_title">Rate Your Experience</string>
+    <string name="reviewed_user_profile_picture_content_description">Reviewed user profile picture</string>
+    <string name="default_user_name">Sarah Johnson</string>
+    <string name="transaction_product_info_placeholder">Product: Product Name • Transaction Date</string>
+    <string name="how_was_your_experience_question">How was your experience?</string>
+    <string name="share_experience_hint">Share your experience (optional)</string>
+    <string name="character_count_placeholder">0/500</string>
+    <string name="submit_review_button_text">Submit Review</string>
+
+    <!-- Review Moderation -->
+    <string name="review_moderation_label">Review Moderation</string>
+    <string name="review_moderation_icon_desc">Review moderation icon</string>
+    <string name="moderation_reviewer_info_placeholder">Alex M. reported Sarah J.</string>
+    <string name="moderation_review_status_pending">Pending</string>
+    <string name="moderation_time_ago_placeholder">1 hour ago</string>
+    <string name="moderation_review_comment_placeholder">Inappropriate content that needs to be reviewed and decided if it should be approved or rejected.</string> <string name="moderation_button_approve">Approve</string>
+    <string name="moderation_button_reject">Reject</string>
+
+    <!-- Report Detail Fragment Strings -->
+    <string name="report_detail_toolbar_title">Report Details</string>
+    <string name="back_button_content_description">Back button</string>
+    <string name="report_info_card_title">Report Information</string>
+    <string name="report_id_label">Report ID:</string>
+    <string name="report_type_label">Type:</string>
+    <string name="report_reason_label">Reason:</string>
+    <string name="report_status_label">Status:</string>
+    <string name="report_timestamp_label">Time:</string>
+    <string name="report_id_placeholder">#12345</string>
+    <string name="reported_entity_card_title">Reported Entity Information</string>
+    <string name="reported_entity_id_label">ID:</string>
+    <string name="reported_entity_name_label">Name:</string>
+    <string name="reported_entity_status_label">Status:</string>
+    <string name="reported_entity_id_placeholder">user123</string>
+    <string name="reported_entity_name_placeholder">John Doe</string>
+    <string name="reported_entity_status_placeholder">Active</string>
+    <string name="view_reported_entity_button_text">View Details</string>
+    <string name="reporter_info_card_title">Reporter Information</string>
+    <string name="reporter_id_label">ID:</string>
+    <string name="reporter_name_label">Name:</string>
+    <string name="reporter_id_placeholder">reporter456</string>
+    <string name="reporter_name_placeholder">Jane Smith</string>
+    <string name="view_reporter_profile_button_text">View Profile</string>
+    <string name="admin_actions_card_title">Admin Actions</string>
+    <string name="delete_content_button_text">Delete Content/Account</string>
+    <string name="ban_user_button_text">Ban/Suspend User</string>
+    <string name="warn_user_button_text">Warn User</string>
+    <string name="mark_resolved_button_text">Mark as Resolved</string>
+    <string name="admin_notes_section_title">Admin Notes</string>
+    <string name="admin_notes_hint">Add notes about this report…</string>
+    <string name="save_admin_notes_button_text">Save Notes</string>
+
+    <string name="toast_cannot_view_reported_entity_details">Cannot view reported object details.</string>
+    <string name="toast_cannot_view_reporter_profile">Cannot view reporter profile.</string>
+    <string name="toast_report_id_not_found">Report ID not found.</string>
+    <string name="toast_report_not_found">Report not found.</string>
+    <string name="toast_error_loading_report_details">Error loading report details: </string>
+    <string name="dialog_title_delete_content">Delete Content</string>
+    <string name="dialog_message_delete_content">Are you sure you want to delete this content/account? This action cannot be undone.</string>
+    <string name="dialog_title_ban_user">Ban/Suspend User</string>
+    <string name="dialog_message_ban_user">Are you sure you want to ban/suspend this user?</string>
+    <string name="dialog_title_warn_user">Warn User</string>
+    <string name="dialog_message_warn_user">Are you sure you want to send a warning to this user?</string>
+    <string name="dialog_title_mark_resolved">Mark as Resolved</string>
+    <string name="dialog_message_mark_resolved">Are you sure you want to mark this report as resolved?</string>
+    <string name="dialog_confirm_button">Confirm</string>
+    <string name="dialog_cancel_button">Cancel</string>
+    <string name="toast_no_object_id_to_delete">No object ID found to delete.</string>
+    <string name="toast_user_account_marked_deleted_banned">User account marked as deleted and banned.</string>
+    <string name="toast_error_marking_user_account_deleted">Error marking account as deleted: </string>
+    <string name="toast_item_deleted">Listing deleted.</string>
+    <string name="toast_error_deleting_item">Error deleting listing: </string>
+    <string name="toast_chat_and_messages_deleted">Chat and related messages deleted.</string>
+    <string name="toast_error_deleting_chat_messages">Error deleting chat messages: </string>
+    <string name="toast_error_deleting_chat">Error deleting chat: </string>
+    <string name="toast_invalid_report_type_for_deletion">Invalid report type for content deletion.</string>
+    <string name="toast_no_user_to_ban">No user to ban.</string>
+    <string name="toast_ban_action_only_for_user_reports">Ban action only applies to user reports.</string>
+    <string name="toast_user_banned">User banned:</string>
+    <string name="toast_error_banning_user">Error banning user: </string>
+    <string name="toast_no_user_to_warn">No user to warn.</string>
+    <string name="toast_warn_action_only_for_user_reports">Warning action only applies to user reports.</string>
+    <string name="toast_warning_sent_to_user">Warning sent to user:</string>
+    <string name="toast_admin_notes_saved">Admin notes saved.</string>
+    <string name="toast_error_saving_notes">Error saving notes: </string>
+    <string name="toast_error_updating_report_status">Error updating report status: </string>
+
+    <string name="reported_entity_card_title_user">Reported User Information</string>
+    <string name="reported_entity_card_title_item">Reported Listing Information</string>
+    <string name="reported_entity_card_title_chat">Reported Chat Information</string>
+    <string name="not_found">Not found</string>
+    <string name="error_loading">Error loading</string>
+    <string name="status_banned">Banned</string>
+    <string name="status_active">Active</string>
+    <string name="reported_item_title_label">Listing Title:</string>
+    <string name="not_applicable_short">N/A</string>
+    <string name="and">and</string>
+    <string name="reported_chat_participants_label">Chat between:</string>
+    <string name="status_reported">Reported</string>
+    <string name="status_normal">Normal</string>
+    <string name="report_status_marked_resolved">Report marked as resolved.</string>
+    <string name="report_status_user_warned">User has been warned.</string>
+    <string name="button_text_resolved">Resolved</string>
+    <string name="button_text_mark_as_resolved">Mark as Resolved</string>
+    <string name="not_available">Not available</string>
+    <string name="report_status_user_account_marked_deleted">Account marked as deleted.</string>
+    <string name="report_status_item_deleted">Listing has been deleted.</string>
+    <string name="report_status_chat_deleted">Chat has been deleted.</string>
+    <string name="report_status_user_banned">User has been banned.</string>
+
+    <!-- Strings for ItemAnalyticsFragment -->
+    <string name="back_button_description">Back button</string>
+    <string name="item_analytics_title">Item Analytics</string>
+    <string name="item_thumbnail_description">Item thumbnail image</string>
+    <string name="item_status_placeholder">Status: For Sale</string>
+    <string name="analytics_stats_title">Analytics Statistics</string>
+    <string name="views_icon_description">Views icon</string>
+    <string name="chats_icon_description">Chats icon</string>
+    <string name="offers_icon_description">Offers icon</string>
+    <string name="performance_chart_placeholder">Performance Chart (Coming Soon)</string>
+    <string name="performance_chart_icon_description">Performance chart icon</string>
+
+    <!-- Review Moderation -->
+    <string name="back_button_description_moderation">Back button</string>
+    <string name="total_reviews_label">Total Reviews</string>
+    <string name="reviews_for_moderation_title">Reviews for Moderation</string>
+    <string name="pending_reviews_label">Pending</string>
+    <string name="approved_reviews_label">Approved</string>
+    <string name="rejected_reviews_label">Rejected</string>
+    <string name="no_reviews_for_moderation">No reviews for moderation.</string>
+
 </resources>

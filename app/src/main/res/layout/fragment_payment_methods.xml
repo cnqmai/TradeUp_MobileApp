@@ -34,11 +34,10 @@
                 app:tint="@color/gray" />
 
             <TextView
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/payment_methods_title"
-                android:textColor="@color/black"
+                android:textColor="@color/orange_bold"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:gravity="center_horizontal" />

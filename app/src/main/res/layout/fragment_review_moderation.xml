@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F8F8F8"
+    android:background="@color/orange_skin"
     tools:context=".fragment.ReviewModerationFragment">
 
     <!-- Toolbar -->
@@ -24,17 +24,15 @@
             android:layout_height="48dp"
             android:padding="14dp"
             android:src="@drawable/ic_arrow_back"
-            android:contentDescription="Nút quay lại"
             app:tint="@android:color/black" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Review Moderation"
-            android:textColor="@android:color/black"
+            android:text="@string/reviews_for_moderation_title"
+            android:textColor="@color/orange_bold"
             android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_gravity="center" />
+            android:textStyle="bold" />
 
         <ImageView
             android:id="@+id/iv_filter_button_moderation"
@@ -42,10 +40,9 @@
             android:layout_height="48dp"
             android:padding="14dp"
             android:src="@drawable/ic_filter"
-            android:contentDescription="Nút lọc"
             android:layout_gravity="end"
             android:layout_marginEnd="16dp"
-            app:tint="@android:color/black"
+            app:tint="@color/orange_bold"
             tools:visibility="visible"/>
     </androidx.appcompat.widget.Toolbar>
 
@@ -70,26 +67,29 @@
                 app:cardElevation="2dp"
                 android:layout_marginEnd="8dp"
                 android:padding="16dp">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Total Reviews"
-                        android:textSize="14sp"
-                        android:textColor="@android:color/darker_gray"/>
+                        android:text="@string/total_reviews_label"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="14sp" />
+
                     <TextView
                         android:id="@+id/tv_total_reviews"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="0"
+                        android:text="@string/number"
+                        android:textColor="@android:color/black"
                         android:textSize="24sp"
-                        android:textStyle="bold"
-                        android:textColor="@android:color/black"/>
+                        android:textStyle="bold" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -108,7 +108,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Pending"
+                        android:text="@string/pending_reviews_label"
                         android:textSize="14sp"
                         android:textColor="@android:color/darker_gray"/>
                     <TextView
@@ -116,7 +116,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="0"
+                        android:text="@string/number"
                         android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="@android:color/black"/>
@@ -145,7 +145,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Approved"
+                        android:text="@string/approved_reviews_label"
                         android:textSize="14sp"
                         android:textColor="@android:color/darker_gray"/>
                     <TextView
@@ -153,7 +153,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="0"
+                        android:text="@string/number"
                         android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="@android:color/black"/>
@@ -175,7 +175,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Rejected"
+                        android:text="@string/rejected_reviews_label"
                         android:textSize="14sp"
                         android:textColor="@android:color/darker_gray"/>
                     <TextView
@@ -183,7 +183,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="0"
+                        android:text="@string/number"
                         android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="@android:color/black"/>
@@ -197,7 +197,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Reviews for Moderation"
+        android:text="@string/reviews_for_moderation_title"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="@android:color/black"
@@ -218,7 +218,7 @@
         android:id="@+id/tv_no_reviews_moderation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Không có đánh giá nào cần kiểm duyệt."
+        android:text="@string/no_reviews_for_moderation"
         android:visibility="gone"
         android:layout_gravity="center"
         android:layout_marginTop="32dp"

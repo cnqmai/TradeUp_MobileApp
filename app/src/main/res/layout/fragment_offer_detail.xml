@@ -139,8 +139,8 @@
                                 android:layout_height="wrap_content"
                                 android:textStyle="bold"
                                 android:textSize="18sp"
-                                android:textColor="@color/blue_bold"
-                                tools:text="Offer: $149.99" />
+                                android:textColor="@color/green_bold"
+                                tools:text="@string/price_label" />
 
                         </LinearLayout>
 

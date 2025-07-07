@@ -406,7 +406,7 @@ public class ProfileFragment extends Fragment {
         rowMyListings.setOnClickListener(v -> {
             if (navController != null && isAdded()) {
                 // Navigate to MyItemsFragment, which is the start destination of sell_nav_graph
-                navController.navigate(R.id.sell_nav_graph);
+                navController.navigate(R.id.action_profileFragment_to_myItemsFragment);
             } else {
                 Log.e("ProfileFragment", "NavController is null or fragment not added for My Listings navigation.");
                 if (isAdded()) {
@@ -442,7 +442,7 @@ public class ProfileFragment extends Fragment {
         // NEW: Admin Dashboard Listener
         rowAdminDashboard.setOnClickListener(v -> {
             if (navController != null) {
-                navController.navigate(R.id.action_profileFragment_to_admin_nav_graph); // Navigate to the nested graph
+                navController.navigate(R.id.action_profileFragment_to_adminDashboardHomeFragment); // Navigate to the nested graph
             }
         });
 
@@ -483,12 +483,11 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        rowItemAnalytics.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Vui lòng chọn tin đăng để xem phân tích.", Toast.LENGTH_SHORT).show();
-            if (navController != null) {
-                navController.navigate(R.id.action_profileFragment_to_myItemsFragment);
-            }
-        });
+        //rowItemAnalytics.setOnClickListener(v -> {
+        //    if (navController != null) {
+        //        navController.navigate(R.id.action_profileFragment_to_myItemsFragment);
+        //    }
+        //});
     }
 
     private void showImageSourceDialog() {

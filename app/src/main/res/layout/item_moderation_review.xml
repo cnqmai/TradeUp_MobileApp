@@ -14,7 +14,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Header: Reviewer, Reviewee, Status, Timestamp -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -30,8 +29,7 @@
                 android:textStyle="bold"
                 android:textSize="15sp"
                 android:textColor="@android:color/black"
-                tools:text="Alex M. reported Sarah J."/>
-
+                tools:text="@string/moderation_reviewer_info_placeholder"/>
             <TextView
                 android:id="@+id/tv_review_status_tag"
                 android:layout_width="wrap_content"
@@ -39,13 +37,12 @@
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="4dp"
                 android:background="@drawable/tag_pending"
-                android:text="pending"
+                android:text="@string/moderation_review_status_pending"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 android:textStyle="bold"/>
         </LinearLayout>
 
-        <!-- Rating Stars -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -69,10 +66,9 @@
                 android:layout_marginStart="8dp"
                 android:textColor="@android:color/darker_gray"
                 android:textSize="12sp"
-                tools:text="1 hour ago"/>
+                tools:text="@string/moderation_time_ago_placeholder"/>
         </LinearLayout>
 
-        <!-- Review Comment -->
         <TextView
             android:id="@+id/tv_review_comment"
             android:layout_width="match_parent"
@@ -82,9 +78,8 @@
             android:layout_marginBottom="16dp"
             android:maxLines="3"
             android:ellipsize="end"
-            tools:text="Inappropriate content that needs to be reviewed and decided if it should be approved or rejected."/>
+            tools:text="@string/moderation_review_comment_placeholder"/>
 
-        <!-- Moderation Buttons -->
         <LinearLayout
             android:id="@+id/ll_moderation_buttons"
             android:layout_width="match_parent"
@@ -92,28 +87,28 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <Button
-                android:id="@+id/btn_approve_review"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Approve"
-                android:backgroundTint="#4CAF50"
-                android:textColor="@android:color/white"
-                android:layout_marginEnd="8dp"
-                app:cornerRadius="8dp"/>
+        <Button
+            android:id="@+id/btn_approve_review"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/moderation_button_approve"
+            android:backgroundTint="@color/green"
+            android:textColor="#2C9D46"
+            android:layout_marginEnd="8dp"
+            app:cornerRadius="8dp"/>
 
-            <Button
-                android:id="@+id/btn_reject_review"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Reject"
-                android:backgroundTint="#F44336"
-                android:textColor="@android:color/white"
-                android:layout_marginStart="8dp"
-                app:cornerRadius="8dp"/>
-        </LinearLayout>
+        <Button
+            android:id="@+id/btn_reject_review"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/moderation_button_reject"
+            android:backgroundTint="@color/red_light"
+            android:textColor="@color/red_bold"
+            android:layout_marginStart="8dp"
+            app:cornerRadius="8dp"/>
+    </LinearLayout>
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

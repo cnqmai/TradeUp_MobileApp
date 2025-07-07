@@ -18,7 +18,7 @@ public class Report {
 
     // NEW: Các trường cho Admin
     private String admin_notes; // Ghi chú của quản trị viên về báo cáo
-    private Long resolved_timestamp; // Thời gian báo cáo được xử lý (sử dụng ServerValue.TIMESTAMP)
+    private String resolved_timestamp; // Thời gian báo cáo được xử lý (đã đổi sang String)
     private String admin_id; // ID của quản trị viên đã xử lý báo cáo
 
     public Report() {
@@ -121,11 +121,11 @@ public class Report {
         this.admin_notes = admin_notes;
     }
 
-    public Long getResolved_timestamp() {
+    public String getResolved_timestamp() { // Đã đổi sang String
         return resolved_timestamp;
     }
 
-    public void setResolved_timestamp(Long resolved_timestamp) {
+    public void setResolved_timestamp(String resolved_timestamp) { // Đã đổi sang String
         this.resolved_timestamp = resolved_timestamp;
     }
 

@@ -10,6 +10,14 @@
         android:name="com.example.tradeup.fragment.MyItemsFragment"
         android:label="My Items"
         tools:layout="@layout/fragment_my_items">
+
+        <!-- Add global actions that can be accessed from any fragment in this graph -->
+        <action
+            android:id="@+id/action_global_addItemFragment"
+            app:destination="@id/addItemFragment" />
+        <action
+            android:id="@+id/action_global_editItemFragment"
+            app:destination="@id/editItemFragment" />
         <action
             android:id="@+id/action_myItemsFragment_to_addItemFragment"
             app:destination="@id/addItemFragment" />
@@ -28,17 +36,6 @@
             android:id="@+id/action_myItemsFragment_to_salesHistoryFragment"
             app:destination="@id/salesHistoryFragment" />
     </fragment>
-
-    <!-- Removed from here as it's now in nav_graph.xml -->
-    <!-- <fragment
-    android:id="@+id/itemAnalyticsFragment"
-    android:name="com.example.tradeup.fragment.ItemAnalyticsFragment"
-    android:label="Phân tích Tin đăng"
-    tools:layout="@layout/fragment_item_analytics">
-    <argument
-        android:name="itemId"
-        app:argType="string" />
-    </fragment> -->
 
     <fragment
         android:id="@+id/addItemFragment"

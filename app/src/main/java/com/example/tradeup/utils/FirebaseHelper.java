@@ -11,7 +11,8 @@ import com.example.tradeup.model.Location;
 import com.example.tradeup.model.Payment;
 import com.example.tradeup.model.SavedCard;
 import com.example.tradeup.model.User;
-import com.example.tradeup.model.Item;
+import com.example.tradeup.model.Transaction; // Ensure this is the correct Transaction model
+import com.example.tradeup.model.Item; // Ensure this is the correct Item model
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -25,7 +26,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ServerValue;
+// import com.google.firebase.database.Transaction; // Removed ambiguity, use fully qualified name if needed for Handler
 import java.util.concurrent.atomic.AtomicInteger;
 
 import java.time.OffsetDateTime;
@@ -40,7 +42,7 @@ import java.util.Objects;
 public class FirebaseHelper {
 
     private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
+    private DatabaseReference mDatabase; // Using mDatabase consistently
     private static final String TAG = "FirebaseHelper";
     private static final DateTimeFormatter ISO_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
     private Context context;
@@ -74,9 +76,14 @@ public class FirebaseHelper {
         mDatabase = FirebaseDatabase.getInstance().getReference();
     }
 
-    // REMOVED DUPLICATE: public FirebaseUser getCurrentUser() { return mAuth.getCurrentUser(); }
-    // REMOVED DUPLICATE: public String getCurrentUserId() { ... }
-    // REMOVED DUPLICATE: public void signOut() { mAuth.signOut(); }
+    public FirebaseUser getCurrentUser() { return mAuth.getCurrentUser(); }
+
+    public String getCurrentUserId() {
+        FirebaseUser user = mAuth.getCurrentUser();
+        return user != null ? user.getUid() : null;
+    }
+
+    public void signOut() { mAuth.signOut(); }
 
 
     // New method to create or update user profile in Realtime Database
@@ -289,20 +296,6 @@ public class FirebaseHelper {
                 });
     }
 
-    // Method to sign out
-    public void signOut() {
-        mAuth.signOut();
-    }
-
-    public FirebaseUser getCurrentUser() {
-        return mAuth.getCurrentUser();
-    }
-
-    public String getCurrentUserId() {
-        FirebaseUser user = mAuth.getCurrentUser();
-        return user != null ? user.getUid() : null;
-    }
-
     // New method to get user profile from Realtime Database
     public void getUserProfile(String uid, DbReadCallback<User> callback) {
         mDatabase.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -367,7 +360,7 @@ public class FirebaseHelper {
 
     // --- Item Management ---
 
-    // NEW: Add item to Realtime Database (FR-2.1)
+    // Add item to Realtime Database (FR-2.1)
     public void addItem(String itemId, Item item, DbWriteCallback callback) {
         if (mAuth.getCurrentUser() == null) {
             callback.onFailure("User not authenticated.");
@@ -399,7 +392,7 @@ public class FirebaseHelper {
                 });
     }
 
-    // NEW: Update item in Realtime Database (for editing and status changes) (FR-2.2.1, FR-2.2.2)
+    // Update item in Realtime Database (for editing and status changes) (FR-2.2.1, FR-2.2.2)
     public void updateItem(String itemId, Map<String, Object> updates, DbWriteCallback callback) {
         if (mAuth.getCurrentUser() == null) {
             callback.onFailure("User not authenticated.");
@@ -415,7 +408,7 @@ public class FirebaseHelper {
                 });
     }
 
-    // NEW: Delete item from Realtime Database (FR-2.2.1)
+    // Delete item from Realtime Database (FR-2.2.1)
     public void deleteItem(String itemId, DbWriteCallback callback) {
         if (mAuth.getCurrentUser() == null) {
             callback.onFailure("User not authenticated.");
@@ -441,7 +434,7 @@ public class FirebaseHelper {
                 });
     }
 
-    // NEW: Get item by ID (for editing or viewing details)
+    // Get item by ID (for editing or viewing details)
     public void getItem(String itemId, DbReadCallback<Item> callback) {
         mDatabase.child("items").child(itemId).get()
                 .addOnCompleteListener(task -> {
@@ -458,7 +451,7 @@ public class FirebaseHelper {
                 });
     }
 
-    // NEW: Get user's items (for "My Listings") (FR-2.2.1)
+    // Get user's items (for "My Listings") (FR-2.2.1)
     public void getUserItems(String userId, DbReadCallback<List<Item>> callback) {
         mDatabase.child("items").orderByChild("user_id").equalTo(userId).get()
                 .addOnCompleteListener(task -> {
@@ -479,19 +472,19 @@ public class FirebaseHelper {
                 });
     }
 
-    // NEW: Update views for an item (FR-2.2.3)
+    // Update views for an item (FR-2.2.3)
     public void incrementItemView(String itemId, DbWriteCallback callback) {
-        mDatabase.child("analytics").child(itemId).child("views").runTransaction(new Transaction.Handler() {
+        mDatabase.child("analytics").child(itemId).child("views").runTransaction(new com.google.firebase.database.Transaction.Handler() { // Use fully qualified name
             @NonNull
             @Override
-            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+            public com.google.firebase.database.Transaction.Result doTransaction(@NonNull MutableData currentData) { // Use fully qualified name
                 Integer views = currentData.getValue(Integer.class);
                 if (views == null) {
                     currentData.setValue(1); // First view
                 } else {
                     currentData.setValue(views + 1);
                 }
-                return Transaction.success(currentData);
+                return com.google.firebase.database.Transaction.success(currentData); // Use fully qualified name
             }
 
             @Override
@@ -515,7 +508,7 @@ public class FirebaseHelper {
         return mDatabase.child("users").child(userId);
     }
 
-    // NEW: Get analytics for an item (FR-2.2.3)
+    // Get analytics for an item (FR-2.2.3)
     public void getItemAnalytics(String itemId, DbReadCallback<Map<String, Object>> callback) {
         mDatabase.child("analytics").child(itemId).get()
                 .addOnCompleteListener(task -> {
@@ -534,17 +527,17 @@ public class FirebaseHelper {
 
     // You can add more methods here for other interactions like incrementing chats_started, offers_made
     public void incrementChatsStarted(String itemId, DbWriteCallback callback) {
-        mDatabase.child("analytics").child(itemId).child("chats_started").runTransaction(new Transaction.Handler() {
+        mDatabase.child("analytics").child(itemId).child("chats_started").runTransaction(new com.google.firebase.database.Transaction.Handler() { // Use fully qualified name
             @NonNull
             @Override
-            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+            public com.google.firebase.database.Transaction.Result doTransaction(@NonNull MutableData currentData) { // Use fully qualified name
                 Integer chats = currentData.getValue(Integer.class);
                 if (chats == null) {
                     currentData.setValue(1);
                 } else {
                     currentData.setValue(chats + 1);
                 }
-                return Transaction.success(currentData);
+                return com.google.firebase.database.Transaction.success(currentData); // Use fully qualified name
             }
 
             @Override
@@ -560,7 +553,7 @@ public class FirebaseHelper {
         });
     }
 
-    // NEW: Add Payment to 'payments' node and update 'payment_history'
+    // Add Payment to 'payments' node and update 'payment_history'
     public void addPayment(Payment payment, DbWriteCallback callback) {
         String generatedPaymentId = payment.getPayment_id();
         if (generatedPaymentId == null) {
@@ -569,25 +562,26 @@ public class FirebaseHelper {
         }
         // Make variables effectively final
         final String finalPaymentId = generatedPaymentId;
-        final String payerId = payment.getPayer_id();
-        final String payeeId = payment.getPayee_id();
+        // FIX: Use getBuyer_id() and getSeller_id() instead of getPayer_id() and getPayee_id()
+        final String buyerId = payment.getBuyer_id();
+        final String sellerId = payment.getSeller_id();
 
         mDatabase.child("payments").child(finalPaymentId).setValue(payment)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        mDatabase.child("payment_history").child(payerId).child(finalPaymentId).setValue(true)
-                                .addOnCompleteListener(payerTask -> {
-                                    if (payerTask.isSuccessful()) {
-                                        mDatabase.child("payment_history").child(payeeId).child(finalPaymentId).setValue(true)
-                                                .addOnCompleteListener(payeeTask -> {
-                                                    if (payeeTask.isSuccessful()) {
+                        mDatabase.child("payment_history").child(buyerId).child(finalPaymentId).setValue(true)
+                                .addOnCompleteListener(buyerTask -> {
+                                    if (buyerTask.isSuccessful()) {
+                                        mDatabase.child("payment_history").child(sellerId).child(finalPaymentId).setValue(true)
+                                                .addOnCompleteListener(sellerTask -> {
+                                                    if (sellerTask.isSuccessful()) {
                                                         callback.onSuccess();
                                                     } else {
-                                                        callback.onFailure("Failed to update payee's payment history: " + payeeTask.getException().getMessage());
+                                                        callback.onFailure("Failed to update seller's payment history: " + sellerTask.getException().getMessage());
                                                     }
                                                 });
                                     } else {
-                                        callback.onFailure("Failed to update payer's payment history: " + payerTask.getException().getMessage());
+                                        callback.onFailure("Failed to update buyer's payment history: " + buyerTask.getException().getMessage());
                                     }
                                 });
                     } else {
@@ -596,7 +590,7 @@ public class FirebaseHelper {
                 });
     }
 
-    // NEW: Get Payment by ID
+    // Get Payment by ID
     public void getPaymentById(String paymentId, DbReadCallback<Payment> callback) {
         mDatabase.child("payments").child(paymentId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -615,7 +609,7 @@ public class FirebaseHelper {
         });
     }
 
-    // NEW: Update transaction with payment_id
+    // Update transaction with payment_id
     public void updateTransactionPaymentId(String transactionId, String paymentId, DbWriteCallback callback) {
         Map<String, Object> updates = new HashMap<>();
         updates.put("payment_id", paymentId);
@@ -629,12 +623,12 @@ public class FirebaseHelper {
                 });
     }
 
-    // NEW: Get Transaction by ID (needed by RecentTransactionAdapter)
-    public void getTransactionById(String transactionId, DbReadCallback<com.example.tradeup.model.Transaction> callback) { // ĐÃ SỬA: Dùng model.Transaction
+    // Get Transaction by ID (needed by RecentTransactionAdapter and TransactionDetailFragment)
+    public void getTransactionById(String transactionId, DbReadCallback<Transaction> callback) {
         mDatabase.child("transactions").child(transactionId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                com.example.tradeup.model.Transaction transaction = snapshot.getValue(com.example.tradeup.model.Transaction.class); // ĐÃ SỬA: Dùng model.Transaction
+                Transaction transaction = snapshot.getValue(Transaction.class);
                 callback.onSuccess(transaction);
             }
 
@@ -645,7 +639,7 @@ public class FirebaseHelper {
         });
     }
 
-    // NEW: Add SavedCard to 'saved_cards' node and update 'user_saved_cards'
+    // Add SavedCard to 'saved_cards' node and update 'user_saved_cards'
     public void addSavedCard(SavedCard card, DbWriteCallback callback) {
         String generatedCardId = card.getCard_id();
         if (generatedCardId == null) {
@@ -673,7 +667,7 @@ public class FirebaseHelper {
                 });
     }
 
-    // NEW: Get SavedCards for a specific user
+    // Get SavedCards for a specific user
     public void getSavedCardsForUser(String userId, DbReadCallback<List<SavedCard>> callback) {
         mDatabase.child("user_saved_cards").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -784,6 +778,7 @@ public class FirebaseHelper {
         }
     }
 
+    // Method to update item status to "Sold"
     public void markItemAsSold(String itemId, DbWriteCallback callback) {
         Map<String, Object> updates = new HashMap<>();
         updates.put("status", "Sold");
@@ -797,18 +792,51 @@ public class FirebaseHelper {
                 });
     }
 
-    // Trong FirebaseHelper.java
-
+    // Method to update transaction status (general purpose, might not be used directly for escrow flow)
     public void updateTransactionStatus(String transactionId, String newStatus, DbWriteCallback callback) {
-        DatabaseReference transactionRef = FirebaseDatabase.getInstance().getReference("transactions").child(transactionId);
+        DatabaseReference transactionRef = mDatabase.child("transactions").child(transactionId);
         transactionRef.child("status").setValue(newStatus)
                 .addOnSuccessListener(aVoid -> callback.onSuccess())
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
+    // Method to update item status (general purpose, used for "pending_escrow")
     public void updateItemStatus(String itemId, String newStatus, DbWriteCallback callback) {
-        DatabaseReference itemRef = FirebaseDatabase.getInstance().getReference("items").child(itemId);
+        DatabaseReference itemRef = mDatabase.child("items").child(itemId);
         itemRef.child("status").setValue(newStatus)
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    // Method to update transaction escrow status and confirmations
+    public void updateTransactionEscrowStatusAndConfirmations(String transactionId, Map<String, Object> updates, DbWriteCallback callback) {
+        if (transactionId == null || transactionId.isEmpty()) {
+            callback.onFailure("Transaction ID cannot be null or empty.");
+            return;
+        }
+        mDatabase.child("transactions").child(transactionId).updateChildren(updates)
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    // Method to update payment escrow status
+    public void updatePaymentEscrowStatus(String paymentId, String newEscrowStatus, DbWriteCallback callback) {
+        if (paymentId == null || paymentId.isEmpty() || newEscrowStatus == null || newEscrowStatus.isEmpty()) {
+            callback.onFailure("Payment ID or new escrow status cannot be null or empty.");
+            return;
+        }
+        mDatabase.child("payments").child(paymentId).child("escrow_status").setValue(newEscrowStatus)
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    // Ensure you have addTransaction method (if not already present)
+    public void addTransaction(Transaction transaction, DbWriteCallback callback) {
+        if (transaction.getTransaction_id() == null || transaction.getTransaction_id().isEmpty()) {
+            callback.onFailure("Transaction ID cannot be null or empty.");
+            return;
+        }
+        mDatabase.child("transactions").child(transaction.getTransaction_id()).setValue(transaction)
                 .addOnSuccessListener(aVoid -> callback.onSuccess())
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }

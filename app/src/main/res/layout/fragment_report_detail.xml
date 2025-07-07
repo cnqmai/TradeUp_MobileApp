@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F0F2F5"
+    android:background="@color/orange_skin"
     tools:context=".fragment.ReportDetailFragment">
 
     <!-- Toolbar -->
@@ -24,14 +24,14 @@
             android:layout_height="48dp"
             android:padding="14dp"
             android:src="@drawable/ic_arrow_back"
-            android:contentDescription="Nút quay lại"
+            android:contentDescription="@string/back_button_content_description"
             app:tint="@android:color/black" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Chi tiết Báo cáo"
-            android:textColor="@android:color/black"
+            android:text="@string/report_detail_toolbar_title"
+            android:textColor="@color/orange_bold"
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginStart="16dp" />
@@ -49,7 +49,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Report Information Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -66,7 +65,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Thông tin Báo cáo"
+                        android:text="@string/report_info_card_title"
                         android:textStyle="bold"
                         android:textSize="18sp"
                         android:textColor="@android:color/black"
@@ -76,7 +75,8 @@
                         android:id="@+id/tv_detail_report_id"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="ID Báo cáo: #12345"
+                        android:text="@string/report_id_label"
+                        tools:text="@string/report_id_label"
                         android:textSize="14sp"
                         android:textColor="@android:color/darker_gray"
                         android:layout_marginBottom="4dp" />
@@ -85,7 +85,8 @@
                         android:id="@+id/tv_detail_report_type"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Loại: Người dùng"
+                        android:text="@string/report_type_label"
+                        tools:text="@string/report_type_label"
                         android:textSize="14sp"
                         android:textColor="@android:color/black"
                         android:layout_marginBottom="4dp" />
@@ -94,7 +95,8 @@
                         android:id="@+id/tv_detail_report_reason"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Lý do: Nội dung không phù hợp"
+                        android:text="@string/report_reason_label"
+                        tools:text="@string/report_reason_label"
                         android:textSize="14sp"
                         android:textColor="@android:color/black"
                         android:layout_marginBottom="4dp" />
@@ -103,7 +105,8 @@
                         android:id="@+id/tv_detail_report_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Trạng thái: Đang chờ xử lý"
+                        android:text="@string/report_status_label"
+                        tools:text="@string/report_status_label"
                         android:textSize="14sp"
                         android:textColor="@color/design_default_color_primary"
                         android:layout_marginBottom="4dp" />
@@ -112,14 +115,14 @@
                         android:id="@+id/tv_detail_report_timestamp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Thời gian: 20/06/2024 10:30"
+                        android:text="@string/report_timestamp_label"
+                        tools:text="@string/report_timestamp_label"
                         android:textSize="12sp"
                         android:textColor="@android:color/darker_gray" />
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Reported Entity Information Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -137,7 +140,7 @@
                         android:id="@+id/tv_reported_entity_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Thông tin Người bị báo cáo"
+                        android:text="@string/reported_entity_card_title"
                         android:textStyle="bold"
                         android:textSize="18sp"
                         android:textColor="@android:color/black"
@@ -147,7 +150,8 @@
                         android:id="@+id/tv_reported_entity_id"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="ID: user123"
+                        android:text="@string/reported_entity_id_label"
+                        tools:text="@string/reported_entity_id_label"
                         android:textSize="14sp"
                         android:textColor="@android:color/black"
                         android:layout_marginBottom="4dp" />
@@ -156,17 +160,19 @@
                         android:id="@+id/tv_reported_entity_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tên: John Doe"
+                        android:text="@string/reported_entity_name_label"
+                        tools:text="@string/reported_entity_name_label"
                         android:textSize="14sp"
                         android:textColor="@android:color/black"
                         android:layout_marginBottom="4dp"
-                        android:visibility="gone"/> <!-- Initially hidden, shown if applicable -->
+                        android:visibility="gone"/>
 
                     <TextView
                         android:id="@+id/tv_reported_entity_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Trạng thái: Hoạt động"
+                        android:text="@string/reported_entity_status_label"
+                        tools:text="@string/reported_entity_status_label"
                         android:textSize="14sp"
                         android:textColor="@android:color/black"
                         android:layout_marginBottom="4dp"
@@ -176,8 +182,8 @@
                         android:id="@+id/btn_view_reported_entity"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Xem chi tiết"
-                        android:backgroundTint="#4285F4"
+                        android:text="@string/view_reported_entity_button_text"
+                        android:backgroundTint="@color/orange_bold"
                         android:textColor="@android:color/white"
                         android:textSize="12sp"
                         android:paddingHorizontal="12dp"
@@ -188,7 +194,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Reporter Information Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -205,17 +210,18 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Thông tin Người báo cáo"
+                        android:text="@string/reporter_info_card_title"
                         android:textStyle="bold"
                         android:textSize="18sp"
                         android:textColor="@android:color/black"
-                        android:layout_marginBottom="8dp" />
+                        android:layout_marginBottom="15dp" />
 
                     <TextView
                         android:id="@+id/tv_reporter_id"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="ID: reporter456"
+                        android:text="@string/reporter_id_label"
+                        tools:text="@string/reporter_id_label"
                         android:textSize="14sp"
                         android:textColor="@android:color/black"
                         android:layout_marginBottom="4dp" />
@@ -224,7 +230,8 @@
                         android:id="@+id/tv_reporter_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tên: Jane Smith"
+                        android:text="@string/reporter_name_label"
+                        tools:text="@string/reporter_name_label"
                         android:textSize="14sp"
                         android:textColor="@android:color/black"
                         android:layout_marginBottom="4dp"
@@ -234,8 +241,8 @@
                         android:id="@+id/btn_view_reporter_profile"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Xem hồ sơ"
-                        android:backgroundTint="#4285F4"
+                        android:text="@string/view_reporter_profile_button_text"
+                        android:backgroundTint="@color/orange_bold"
                         android:textColor="@android:color/white"
                         android:textSize="12sp"
                         android:paddingHorizontal="12dp"
@@ -246,7 +253,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Admin Actions Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -263,7 +269,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Hành động Quản trị viên"
+                        android:text="@string/admin_actions_card_title"
                         android:textStyle="bold"
                         android:textSize="18sp"
                         android:textColor="@android:color/black"
@@ -273,8 +279,8 @@
                         android:id="@+id/btn_delete_content"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Xóa Nội dung/Tài khoản"
-                        android:backgroundTint="#D32F2F"
+                        android:text="@string/delete_content_button_text"
+                        android:backgroundTint="@color/red_bold"
                         android:textColor="@android:color/white"
                         android:textSize="16sp"
                         android:paddingVertical="12dp"
@@ -285,8 +291,8 @@
                         android:id="@+id/btn_ban_user"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Khóa/Tạm khóa Người dùng"
-                        android:backgroundTint="#FBC02D"
+                        android:text="@string/ban_user_button_text"
+                        android:backgroundTint="@color/yellow_star"
                         android:textColor="@android:color/black"
                         android:textSize="16sp"
                         android:paddingVertical="12dp"
@@ -297,8 +303,8 @@
                         android:id="@+id/btn_warn_user"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Cảnh báo Người dùng"
-                        android:backgroundTint="#1976D2"
+                        android:text="@string/warn_user_button_text"
+                        android:backgroundTint="@color/blue_bold"
                         android:textColor="@android:color/white"
                         android:textSize="16sp"
                         android:paddingVertical="12dp"
@@ -309,8 +315,8 @@
                         android:id="@+id/btn_mark_resolved"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Đánh dấu đã xử lý"
-                        android:backgroundTint="#388E3C"
+                        android:text="@string/mark_resolved_button_text"
+                        android:backgroundTint="@color/green_bold"
                         android:textColor="@android:color/white"
                         android:textSize="16sp"
                         android:paddingVertical="12dp"
@@ -319,7 +325,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Admin Notes Section (Optional) -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -336,11 +341,11 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Ghi chú Quản trị viên"
+                        android:text="@string/admin_notes_section_title"
                         android:textStyle="bold"
                         android:textSize="18sp"
                         android:textColor="@android:color/black"
-                        android:layout_marginBottom="8dp" />
+                        android:layout_marginBottom="15dp" />
 
                     <EditText
                         android:id="@+id/et_admin_notes"
@@ -348,7 +353,7 @@
                         android:layout_height="wrap_content"
                         android:minHeight="100dp"
                         android:gravity="top"
-                        android:hint="Thêm ghi chú về báo cáo này..."
+                        android:hint="@string/admin_notes_hint"
                         android:padding="12dp"
                         android:background="@drawable/rounded_edittext_background"
                         android:layout_marginBottom="8dp" />
@@ -357,9 +362,9 @@
                         android:id="@+id/btn_save_admin_notes"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Lưu Ghi chú"
+                        android:text="@string/save_admin_notes_button_text"
                         android:layout_gravity="end"
-                        android:backgroundTint="#03A9F4"
+                        android:backgroundTint="@color/orange_bold"
                         android:textColor="@android:color/white"
                         android:textSize="14sp"
                         android:paddingHorizontal="12dp"
@@ -371,5 +376,4 @@
 
         </LinearLayout>
     </ScrollView>
-
 </LinearLayout>

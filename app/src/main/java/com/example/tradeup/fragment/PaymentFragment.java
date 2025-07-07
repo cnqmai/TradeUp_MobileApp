@@ -8,6 +8,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout; // Import LinearLayout
+import android.widget.RadioButton;    // Import RadioButton
+import android.widget.RadioGroup;   // Import RadioGroup
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,20 +20,25 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.bumptech.glide.Glide; // Make sure Glide is imported if you use it for image loading
 import com.example.tradeup.R;
 import com.example.tradeup.model.Item;
 import com.example.tradeup.model.Payment;
 import com.example.tradeup.model.Transaction;
 import com.example.tradeup.utils.FirebaseHelper;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout; // Import TextInputLayout
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -42,246 +50,339 @@ public class PaymentFragment extends Fragment {
 
     private static final String TAG = "PaymentFragment";
 
-    private NavController navController;
-    private FirebaseHelper firebaseHelper;
-    private String currentUserId;
-
-    // UI elements
-    private ImageView ivBackButton;
-    private TextView tvItemTitle, tvPaymentAmountDisplay;
-    private TextInputEditText etCardNumber, etExpiryDate, etCvc, etCardHolderName;
+    private ImageView ivBack, ivItemImage;
+    private TextView tvItemTitle, tvItemPrice;
+    private TextInputEditText etCardNumber, etExpiryDate, etCvv, etCardHolderName, etUpiWalletInput; // Added etUpiWalletInput
     private CheckBox cbEscrowOption;
     private Button btnPayNow;
 
-    // Data passed from previous fragment (e.g., from ItemDetailFragment or OfferDetailFragment)
-    private String itemId;
-    private String transactionId; // If payment is for an existing transaction
-    private String sellerId;
-    private String buyerId;
-    private Long finalPrice; // SỬA ĐỔI TẠI ĐÂY: Từ double thành Long
-    private String itemTitle;
+    private NavController navController;
+    private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
 
+    // Added for payment method selection
+    private RadioGroup rgPaymentMethods;
+    private RadioButton rbCreditDebitCard, rbUpi, rbWallet;
+    private LinearLayout layoutCardDetails;
+    private LinearLayout layoutUpiWalletDetails; // New layout for UPI/Wallet input
+    private TextInputLayout tilUpiWalletInput; // New TextInputLayout for UPI/Wallet input
+
+    private String receivedItemId;
+    private String receivedItemTitle;
+    private Long receivedFinalPrice;
+    private String receivedBuyerId;
+    private String receivedSellerId;
+    private String receivedOfferId;
+    private boolean isOfferPayment; // New flag to distinguish item purchase vs offer acceptance
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        firebaseHelper = new FirebaseHelper(requireContext());
-        currentUserId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-
-        // Retrieve arguments
-        if (getArguments() != null) {
-            PaymentFragmentArgs args = PaymentFragmentArgs.fromBundle(getArguments());
-            itemId = args.getItemId();
-            transactionId = args.getTransactionId();
-            sellerId = args.getSellerId();
-            buyerId = args.getBuyerId();
-            finalPrice = args.getFinalPrice(); // Lấy giá trị Long
-            itemTitle = args.getItemTitle();
-
-            Log.d(TAG, "PaymentFragment received args: " +
-                    "itemId=" + itemId + ", transactionId=" + transactionId +
-                    ", sellerId=" + sellerId + ", buyerId=" + buyerId +
-                    ", finalPrice=" + finalPrice + ", itemTitle=" + itemTitle);
-        } else {
-            Log.e(TAG, "No arguments passed to PaymentFragment.");
-            if (isAdded()) {
-                Toast.makeText(requireContext(), "Lỗi: Không có thông tin thanh toán.", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_payment, container, false);
 
-        ivBackButton = view.findViewById(R.id.iv_back_button_payment);
-        tvItemTitle = view.findViewById(R.id.tv_payment_item_title);
-        tvPaymentAmountDisplay = view.findViewById(R.id.tv_payment_amount_display);
-        etCardNumber = view.findViewById(R.id.et_card_number);
-        etExpiryDate = view.findViewById(R.id.et_expiry_date);
-        etCvc = view.findViewById(R.id.et_cvc);
-        etCardHolderName = view.findViewById(R.id.et_card_holder_name);
-        cbEscrowOption = view.findViewById(R.id.cb_escrow_option);
-        btnPayNow = view.findViewById(R.id.btn_pay_now);
+        mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+
+        initViews(view);
+        setupListeners();
+        retrieveArguments();
+        setupPaymentDisplay();
 
         return view;
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        navController = Navigation.findNavController(view);
+    private void initViews(View view) {
+        ivBack = view.findViewById(R.id.iv_back_button_payment);
+        ivItemImage = view.findViewById(R.id.iv_item_image);
+        tvItemTitle = view.findViewById(R.id.tv_item_title);
+        tvItemPrice = view.findViewById(R.id.tv_item_price);
 
-        // Populate UI with received data
-        if (itemTitle != null) {
-            tvItemTitle.setText("Thanh toán cho: " + itemTitle);
-        } else {
-            tvItemTitle.setText("Thanh toán cho một giao dịch");
-        }
+        // Card details
+        etCardNumber = view.findViewById(R.id.et_card_number);
+        etExpiryDate = view.findViewById(R.id.et_expiry_date);
+        etCvv = view.findViewById(R.id.et_cvv);
+        etCardHolderName = view.findViewById(R.id.et_card_holder_name);
 
-        // Định dạng giá trị Long cho hiển thị
-        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-        currencyFormat.setMaximumFractionDigits(0); // Đảm bảo không có số thập phân
-        if (finalPrice != null) {
-            tvPaymentAmountDisplay.setText(String.format(Locale.getDefault(), "Số tiền: %s", currencyFormat.format(finalPrice)));
-        } else {
-            tvPaymentAmountDisplay.setText("Số tiền: N/A");
-        }
+        // Payment method selection
+        rgPaymentMethods = view.findViewById(R.id.rg_payment_methods);
+        rbCreditDebitCard = view.findViewById(R.id.rb_credit_debit_card);
+        rbUpi = view.findViewById(R.id.rb_upi);
+        rbWallet = view.findViewById(R.id.rb_wallet);
+        layoutCardDetails = view.findViewById(R.id.layout_card_details);
+        layoutUpiWalletDetails = view.findViewById(R.id.layout_upi_wallet_details); // Initialize new layout
+        tilUpiWalletInput = view.findViewById(R.id.til_upi_wallet_input); // Initialize new TextInputLayout
+        etUpiWalletInput = view.findViewById(R.id.et_upi_wallet_input); // Initialize new EditText
 
+        cbEscrowOption = view.findViewById(R.id.cb_escrow_option);
+        btnPayNow = view.findViewById(R.id.btn_pay_now);
 
-        setupListeners();
-    }
-
-    private void setupListeners() {
-        ivBackButton.setOnClickListener(v -> {
-            if (navController != null) {
-                navController.popBackStack();
-            }
-        });
-
-        btnPayNow.setOnClickListener(v -> {
-            processPayment();
-        });
-
-        // Add input formatting for expiry date (MM/YY)
         etExpiryDate.addTextChangedListener(new ExpiryDateTextWatcher(etExpiryDate));
     }
 
-    private void processPayment() {
-        String cardNumber = Objects.requireNonNull(etCardNumber.getText()).toString().trim();
-        String expiryDate = Objects.requireNonNull(etExpiryDate.getText()).toString().trim();
-        String cvc = Objects.requireNonNull(etCvc.getText()).toString().trim();
-        String cardHolderName = Objects.requireNonNull(etCardHolderName.getText()).toString().trim();
-        boolean useEscrow = cbEscrowOption.isChecked();
+    private void setupListeners() {
+        ivBack.setOnClickListener(v -> navController.navigateUp());
+        btnPayNow.setOnClickListener(v -> processPayment());
 
-        // Basic validation (for simulation)
-        if (cardNumber.isEmpty() || expiryDate.isEmpty() || cvc.isEmpty() || cardHolderName.isEmpty()) {
-            Toast.makeText(getContext(), "Vui lòng điền đầy đủ thông tin thẻ.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (cardNumber.length() != 16 || !expiryDate.matches("(0[1-9]|1[0-2])/([0-9]{2})") || (cvc.length() != 3 && cvc.length() != 4)) {
-            Toast.makeText(getContext(), "Thông tin thẻ không hợp lệ.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // --- SIMULATED STRIPE PAYMENT FLOW ---
-        // In a real app, you would send card details (or a token) to your backend.
-        // The backend would then create a PaymentIntent with Stripe and return its client secret.
-        // You would then use Stripe.confirmPayment to complete the payment on the client side.
-
-        Toast.makeText(getContext(), "Đang xử lý thanh toán...", Toast.LENGTH_LONG).show();
-
-        // Simulate network delay
-        new android.os.Handler().postDelayed(() -> {
-            // Simulate successful payment
-            String paymentStatus = "completed";
-            String simulatedStripePaymentIntentId = "pi_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16); // Mock ID
-
-            // Record payment in Firebase
-            recordPayment(paymentStatus, simulatedStripePaymentIntentId, useEscrow);
-
-        }, 2000); // 2 second delay
-    }
-
-    private void recordPayment(String status, String stripePaymentIntentId, boolean escrowEnabled) {
-        final String paymentId = FirebaseDatabase.getInstance().getReference("payments").push().getKey();
-        if (paymentId == null) {
-            Toast.makeText(getContext(), "Lỗi: Không thể tạo ID thanh toán.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String currentTimestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date());
-
-        Payment newPayment = new Payment(
-                paymentId,
-                finalPrice, // Giá trị Long
-                "VND",
-                "Credit Card",
-                status,
-                currentTimestamp,
-                transactionId,
-                buyerId,
-                sellerId,
-                escrowEnabled,
-                escrowEnabled ? "pending" : null,
-                stripePaymentIntentId
-        );
-
-        firebaseHelper.addPayment(newPayment, new FirebaseHelper.DbWriteCallback() {
-            @Override
-            public void onSuccess() {
-                if (isAdded()) {
-                    Toast.makeText(getContext(), "Thanh toán thành công!", Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "Payment recorded successfully: " + paymentId);
-
-                    if (transactionId != null) {
-                        firebaseHelper.updateTransactionPaymentId(transactionId, paymentId, new FirebaseHelper.DbWriteCallback() {
-                            @Override
-                            public void onSuccess() {
-                                Log.d(TAG, "Transaction " + transactionId + " updated with payment ID " + paymentId);
-                                if (escrowEnabled) {
-                                    firebaseHelper.updateTransactionStatus(transactionId, "payment_held", new FirebaseHelper.DbWriteCallback() {
-                                        @Override
-                                        public void onSuccess() {
-                                            Log.d(TAG, "Transaction " + transactionId + " status updated to 'payment_held'.");
-                                        }
-
-                                        @Override
-                                        public void onFailure(String errorMessage) {
-                                            Log.e(TAG, "Failed to update transaction status to 'payment_held': " + errorMessage);
-                                        }
-                                    });
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(String errorMessage) {
-                                Log.e(TAG, "Failed to update transaction with payment ID: " + errorMessage);
-                            }
-                        });
-                    }
-
-                    if (itemId != null && !escrowEnabled) {
-                        firebaseHelper.markItemAsSold(itemId, new FirebaseHelper.DbWriteCallback() {
-                            @Override
-                            public void onSuccess() {
-                                Log.d(TAG, "Item " + itemId + " marked as Sold.");
-                            }
-
-                            @Override
-                            public void onFailure(String errorMessage) {
-                                Log.e(TAG, "Failed to mark item as Sold: " + errorMessage);
-                            }
-                        });
-                    } else if (itemId != null && escrowEnabled) {
-                        firebaseHelper.updateItemStatus(itemId, "pending_escrow", new FirebaseHelper.DbWriteCallback() {
-                            @Override
-                            public void onSuccess() {
-                                Log.d(TAG, "Item " + itemId + " status updated to 'pending_escrow'.");
-                            }
-
-                            @Override
-                            public void onFailure(String errorMessage) {
-                                Log.e(TAG, "Failed to update item status to 'pending_escrow': " + errorMessage);
-                            }
-                        });
-                    }
-
-                    if (navController != null) {
-                        navController.popBackStack();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-                if (isAdded()) {
-                    Toast.makeText(getContext(), "Thanh toán thất bại: " + errorMessage, Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, "Failed to record payment: " + errorMessage);
-                }
+        rgPaymentMethods.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.rb_credit_debit_card) {
+                layoutCardDetails.setVisibility(View.VISIBLE);
+                layoutUpiWalletDetails.setVisibility(View.GONE);
+            } else if (checkedId == R.id.rb_upi) {
+                layoutCardDetails.setVisibility(View.GONE);
+                layoutUpiWalletDetails.setVisibility(View.VISIBLE);
+                tilUpiWalletInput.setHint(getString(R.string.upi_id_hint)); // Set specific hint for UPI
+                etUpiWalletInput.setInputType(android.text.InputType.TYPE_CLASS_TEXT); // UPI IDs can be alphanumeric
+            } else if (checkedId == R.id.rb_wallet) {
+                layoutCardDetails.setVisibility(View.GONE);
+                layoutUpiWalletDetails.setVisibility(View.VISIBLE);
+                tilUpiWalletInput.setHint(getString(R.string.wallet_phone_number_hint)); // Set specific hint for Wallet
+                etUpiWalletInput.setInputType(android.text.InputType.TYPE_CLASS_PHONE); // Phone number for wallet
             }
         });
+    }
+
+    private void retrieveArguments() {
+        if (getArguments() != null) {
+            receivedItemId = getArguments().getString("itemId");
+            receivedItemTitle = getArguments().getString("itemTitle");
+            receivedFinalPrice = getArguments().getLong("finalPrice", 0L);
+            String itemImageUrl = getArguments().getString("itemImageUrl");
+            receivedBuyerId = getArguments().getString("buyerId");
+            receivedSellerId = getArguments().getString("sellerId");
+            receivedOfferId = getArguments().getString("offerId");
+            isOfferPayment = getArguments().getBoolean("isOfferPayment", false); // Default to false if not set
+
+            if (itemImageUrl != null && !itemImageUrl.isEmpty()) {
+                Log.d(TAG, "Attempting to load image with URL: " + itemImageUrl); // Thêm dòng này
+                Glide.with(this).load(itemImageUrl).into(ivItemImage);
+            } else {
+                Log.d(TAG, "itemImageUrl is null or empty, loading placeholder."); // Thêm dòng này
+                ivItemImage.setImageResource(R.drawable.img_placeholder);
+            }
+        } else {
+            Toast.makeText(getContext(), getString(R.string.toast_missing_item_details), Toast.LENGTH_SHORT).show();
+            navController.navigateUp();
+        }
+    }
+
+    private void setupPaymentDisplay() {
+        if (receivedItemTitle != null) {
+            tvItemTitle.setText(receivedItemTitle);
+        }
+        if (receivedFinalPrice != null) {
+            NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+            currencyFormat.setMaximumFractionDigits(0);
+            tvItemPrice.setText(currencyFormat.format(receivedFinalPrice));
+            btnPayNow.setText(String.format(Locale.getDefault(), getString(R.string.button_pay_now_format), currencyFormat.format(receivedFinalPrice)));
+        }
+    }
+
+    private void processPayment() {
+        if (mAuth.getCurrentUser() == null) {
+            Toast.makeText(getContext(), getString(R.string.toast_login_required), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String currentUserId = mAuth.getCurrentUser().getUid();
+
+        if (receivedItemId == null || receivedItemTitle == null || receivedFinalPrice == null || receivedFinalPrice <= 0 || receivedBuyerId == null || receivedSellerId == null) {
+            Toast.makeText(getContext(), getString(R.string.toast_invalid_payment_details), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String paymentMethod;
+        String paymentDetails = ""; // To store card last four, UPI ID, or Wallet phone number
+
+        int selectedPaymentMethodId = rgPaymentMethods.getCheckedRadioButtonId();
+        if (selectedPaymentMethodId == R.id.rb_credit_debit_card) {
+            paymentMethod = "Credit/Debit Card";
+            String cardNumber = Objects.requireNonNull(etCardNumber.getText()).toString().trim();
+            String expiryDate = Objects.requireNonNull(etExpiryDate.getText()).toString().trim();
+            String cvv = Objects.requireNonNull(etCvv.getText()).toString().trim();
+            String cardHolderName = Objects.requireNonNull(etCardHolderName.getText()).toString().trim();
+
+            if (cardNumber.isEmpty() || expiryDate.isEmpty() || cvv.isEmpty() || cardHolderName.isEmpty()) {
+                Toast.makeText(getContext(), getString(R.string.toast_fill_card_details), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (cardNumber.length() < 16 || !isValidExpiryDate(expiryDate) || cvv.length() < 3) {
+                Toast.makeText(getContext(), getString(R.string.toast_invalid_card_details), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            paymentDetails = "XXXX XXXX XXXX " + cardNumber.substring(cardNumber.length() - 4); // Store last four digits
+            // In a real app, you would tokenize the card here and send to payment gateway backend.
+            Toast.makeText(getContext(), getString(R.string.toast_simulating_card_payment), Toast.LENGTH_LONG).show();
+
+        } else if (selectedPaymentMethodId == R.id.rb_upi) {
+            paymentMethod = "UPI";
+            String upiId = Objects.requireNonNull(etUpiWalletInput.getText()).toString().trim();
+            if (upiId.isEmpty()) {
+                Toast.makeText(getContext(), getString(R.string.toast_enter_upi_id), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // Basic UPI ID validation (e.g., contains @)
+            if (!upiId.contains("@") || upiId.length() < 5) { // Simple validation, could be more robust
+                Toast.makeText(getContext(), getString(R.string.toast_invalid_upi_id), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            paymentDetails = upiId;
+            Toast.makeText(getContext(), getString(R.string.toast_simulating_upi_payment), Toast.LENGTH_LONG).show();
+
+        } else if (selectedPaymentMethodId == R.id.rb_wallet) {
+            paymentMethod = "Wallet";
+            String walletPhoneNumber = Objects.requireNonNull(etUpiWalletInput.getText()).toString().trim();
+            if (walletPhoneNumber.isEmpty()) {
+                Toast.makeText(getContext(), getString(R.string.toast_enter_wallet_phone), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // Basic phone number validation
+            if (walletPhoneNumber.length() < 8 || !walletPhoneNumber.matches("^[0-9]+$")) { // Simple numeric phone validation
+                Toast.makeText(getContext(), getString(R.string.toast_invalid_wallet_phone), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            paymentDetails = walletPhoneNumber;
+            Toast.makeText(getContext(), getString(R.string.toast_simulating_wallet_payment), Toast.LENGTH_LONG).show();
+
+        } else {
+            Toast.makeText(getContext(), getString(R.string.toast_select_payment_method), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Simulate payment success and record payment/transaction
+        // In a real app, this would come after successful payment gateway response.
+        recordPaymentAndTransaction(currentUserId, paymentMethod, paymentDetails);
+    }
+
+    private boolean isValidExpiryDate(String expiryDate) {
+        if (!expiryDate.matches("\\d{2}/\\d{2}")) return false;
+        try {
+            int month = Integer.parseInt(expiryDate.substring(0, 2));
+            int year = Integer.parseInt(expiryDate.substring(3, 5)) + 2000; // Assuming 2-digit year like YY
+
+            if (month < 1 || month > 12) return false;
+
+            Date now = new Date();
+            SimpleDateFormat yearFormat = new SimpleDateFormat("yy", Locale.getDefault());
+            SimpleDateFormat monthFormat = new SimpleDateFormat("MM", Locale.getDefault());
+            int currentYear = Integer.parseInt(yearFormat.format(now)) + 2000;
+            int currentMonth = Integer.parseInt(monthFormat.format(now));
+
+            if (year < currentYear) return false;
+            if (year == currentYear && month < currentMonth) return false;
+
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private void recordPaymentAndTransaction(String userId, String paymentMethod, String paymentDetails) {
+        String paymentId = mDatabase.child("payments").push().getKey();
+        if (paymentId == null) {
+            Toast.makeText(getContext(), getString(R.string.toast_payment_error), Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Failed to generate payment ID.");
+            return;
+        }
+
+        // 1. Create Payment Record
+        String paymentStatus = "completed"; // Simulate success
+        Map<String, Object> paymentData = new HashMap<>();
+        paymentData.put("payment_id", paymentId);
+        paymentData.put("user_id", userId);
+        paymentData.put("item_id", receivedItemId);
+        paymentData.put("amount", receivedFinalPrice);
+        paymentData.put("method", paymentMethod);
+        paymentData.put("details", paymentDetails); // Store last 4 digits for card, or UPI ID/Wallet #
+        paymentData.put("status", paymentStatus);
+        paymentData.put("timestamp", ServerValue.TIMESTAMP); // Use Firebase ServerValue.TIMESTAMP for accurate server time
+
+        mDatabase.child("payments").child(paymentId).setValue(paymentData)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Payment record created: " + paymentId);
+                    // 2. Create Transaction Record
+                    createTransaction(userId, paymentId, cbEscrowOption.isChecked());
+                    // 3. Record in payment_history for the user
+                    recordPaymentInHistory(userId, paymentId);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to create payment record: " + e.getMessage());
+                    Toast.makeText(getContext(), getString(R.string.toast_payment_failed, e.getMessage()), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void createTransaction(String currentUserId, String paymentId, boolean useEscrow) {
+        String transactionId = mDatabase.child("transactions").push().getKey();
+        if (transactionId == null) {
+            Toast.makeText(getContext(), getString(R.string.toast_transaction_error), Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Failed to generate transaction ID.");
+            return;
+        }
+
+        Transaction transaction = new Transaction(
+                transactionId,
+                receivedItemId,
+                receivedBuyerId,
+                receivedSellerId,
+                receivedFinalPrice,
+                receivedOfferId, // Pass the offerId
+                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(new Date()),
+                false, // not archived
+                receivedItemTitle // item_title
+        );
+
+        transaction.setPayment_id(paymentId); // Link payment to transaction
+
+        if (useEscrow) {
+            transaction.setEscrow_status("held"); // Funds are held in escrow
+            transaction.setBuyer_confirmed_receipt(false);
+            transaction.setSeller_confirmed_dispatch(false);
+        } else {
+            transaction.setEscrow_status("n/a"); // Not applicable if escrow is not used
+            transaction.setBuyer_confirmed_receipt(true); // Immediate completion if no escrow
+            transaction.setSeller_confirmed_dispatch(true); // Immediate completion if no escrow
+            String currentTimestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).format(new Date());
+            transaction.setCompletion_timestamp(currentTimestamp);
+        }
+
+        mDatabase.child("transactions").child(transactionId).setValue(transaction)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Transaction created: " + transactionId);
+
+                    // Update item status to sold/inactive
+                    mDatabase.child("items").child(receivedItemId).child("status").setValue("sold")
+                            .addOnSuccessListener(v -> Log.d(TAG, "Item status updated to sold for " + receivedItemId))
+                            .addOnFailureListener(e -> Log.e(TAG, "Failed to update item status: " + e.getMessage()));
+
+                    // If it was an offer payment, update offer status
+                    if (isOfferPayment && receivedOfferId != null) {
+                        mDatabase.child("offers").child(receivedOfferId).child("status").setValue("accepted")
+                                .addOnSuccessListener(v -> Log.d(TAG, "Offer status updated to accepted for " + receivedOfferId))
+                                .addOnFailureListener(e -> Log.e(TAG, "Failed to update offer status: " + e.getMessage()));
+
+                        // Decline other offers for the same item (simplified: you might need a query here)
+                        // For a real app, query all offers for this item and mark others as 'declined'
+                    }
+
+                    Toast.makeText(getContext(), getString(R.string.toast_payment_success), Toast.LENGTH_LONG).show();
+                    // Navigate to a confirmation screen or back to previous fragment
+                    // Example:
+                    // Bundle bundle = new Bundle();
+                    // bundle.putString("transactionId", transactionId);
+                    // navController.navigate(R.id.action_paymentFragment_to_paymentConfirmationFragment, bundle);
+                    navController.navigateUp(); // Or navigate to a success fragment
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to create transaction record: " + e.getMessage());
+                    Toast.makeText(getContext(), getString(R.string.toast_transaction_failed, e.getMessage()), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void recordPaymentInHistory(String userId, String paymentId) {
+        // Add the payment ID to the user's payment_history node
+        mDatabase.child("payment_history").child(userId).child(paymentId).setValue(true) // Use true as placeholder value, payment details are in /payments
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Payment ID " + paymentId + " recorded in user " + userId + "'s history."))
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to record payment ID in history: " + e.getMessage()));
     }
 
     private static class ExpiryDateTextWatcher implements android.text.TextWatcher {

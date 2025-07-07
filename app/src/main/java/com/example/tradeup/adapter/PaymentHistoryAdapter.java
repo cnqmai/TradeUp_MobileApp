@@ -70,11 +70,11 @@ public class PaymentHistoryAdapter extends RecyclerView.Adapter<PaymentHistoryAd
         String formattedAmount = currencyFormat.format(payment.getAmount());
 
         // Determine if user is payer or payee and set amount color/sign
-        if (currentUserId != null && currentUserId.equals(payment.getPayer_id())) {
+        if (currentUserId != null && currentUserId.equals(payment.getBuyer_id())) {
             // User is the payer (money going out)
             holder.tvPaymentAmount.setText("-" + formattedAmount);
             holder.tvPaymentAmount.setTextColor(Color.RED);
-        } else if (currentUserId != null && currentUserId.equals(payment.getPayee_id())) {
+        } else if (currentUserId != null && currentUserId.equals(payment.getSeller_id())) {
             // User is the payee (money coming in)
             holder.tvPaymentAmount.setText("+" + formattedAmount);
             holder.tvPaymentAmount.setTextColor(context.getResources().getColor(R.color.green_bold, null));
@@ -103,10 +103,13 @@ public class PaymentHistoryAdapter extends RecyclerView.Adapter<PaymentHistoryAd
         holder.tvTransactionId.setText("Mã giao dịch: " + payment.getTransaction_id());
 
         // Show escrow status if enabled
-        if (payment.isEscrow_enabled()) {
+        Boolean isEscrowEnabled = payment.getIs_escrow();
+
+        if (isEscrowEnabled != null && isEscrowEnabled) { // Dòng 106 mới sẽ là dòng này hoặc tương tự
             holder.tvEscrowStatus.setVisibility(View.VISIBLE);
             holder.tvEscrowStatus.setText("Ký quỹ: " + payment.getEscrow_status());
         } else {
+            // Nếu isEscrowEnabled là null hoặc false, ẩn View đi
             holder.tvEscrowStatus.setVisibility(View.GONE);
         }
     }

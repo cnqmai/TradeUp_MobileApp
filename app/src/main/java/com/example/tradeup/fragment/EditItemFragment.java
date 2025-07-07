@@ -28,6 +28,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import android.location.Location; // For android.location.Location
 import android.os.Looper;
+import android.widget.Toolbar;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -90,8 +91,9 @@ public class EditItemFragment extends Fragment {
     private TextInputEditText etTitle, etDescription, etPrice, etLocation, etItemBehavior, etTags;
     private Spinner spinnerCategory, spinnerCondition;
     private Button btnGetLocationGps, btnUpdateItem;
-    private LinearLayout llAddImagePlaceholder;
+    private LinearLayout llEditAddImagePlaceholder;
     private LinearLayout llImagePreviews;
+    private ImageView ivBackButton;
 
     // Helpers
     private FirebaseHelper firebaseHelper;
@@ -113,6 +115,7 @@ public class EditItemFragment extends Fragment {
     private LocationRequest locationRequest; // Request for location updates
     private double currentLat; // Declared missing variable
     private double currentLng; // Declared missing variable
+
 
     // ActivityResultLaunchers for permissions and results
     private ActivityResultLauncher<String> requestLocationPermissionLauncher; // Declared missing variable
@@ -186,6 +189,7 @@ public class EditItemFragment extends Fragment {
     }
 
     private void initViews(View view) {
+        ivBackButton = view.findViewById(R.id.iv_back_button_edit_item);
         etTitle = view.findViewById(R.id.et_edit_title);
         etDescription = view.findViewById(R.id.et_edit_description);
         etPrice = view.findViewById(R.id.et_edit_price);
@@ -199,7 +203,7 @@ public class EditItemFragment extends Fragment {
         btnGetLocationGps = view.findViewById(R.id.btn_edit_get_location_gps);
         btnUpdateItem = view.findViewById(R.id.btn_update_item);
 
-        llAddImagePlaceholder = view.findViewById(R.id.ll_add_image_placeholder);
+        llEditAddImagePlaceholder = view.findViewById(R.id.ll_edit_add_image_placeholder);
         llImagePreviews = view.findViewById(R.id.ll_edit_image_previews);
     }
 
@@ -216,8 +220,13 @@ public class EditItemFragment extends Fragment {
     }
 
     private void setupListeners() {
+        ivBackButton.setOnClickListener(v -> {
+            if (navController != null) {
+                navController.navigateUp();
+            }
+        });
         btnGetLocationGps.setOnClickListener(v -> requestLocationPermission());
-        llAddImagePlaceholder.setOnClickListener(v -> showImagePickerDialog());
+        llEditAddImagePlaceholder.setOnClickListener(v -> showImagePickerDialog());
         btnUpdateItem.setOnClickListener(v -> {
             if (validateInputs()) {
                 uploadNewImagesAndSubmitUpdate();
@@ -635,7 +644,7 @@ public class EditItemFragment extends Fragment {
         }
 
         // Show add image icon if total images are less than MAX_IMAGES
-        llAddImagePlaceholder.setVisibility((selectedImageUris.size() + existingImageUrls.size()) < MAX_IMAGES ? View.VISIBLE : View.GONE);
+        llEditAddImagePlaceholder.setVisibility((selectedImageUris.size() + existingImageUrls.size()) < MAX_IMAGES ? View.VISIBLE : View.GONE);
     }
 
     private void addImageViewToLayout(Uri uri, boolean isExisting, int index) {

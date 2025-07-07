@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
+    android:layout_marginHorizontal="10dp"
     android:layout_marginVertical="8dp"
     app:cardCornerRadius="8dp"
     app:cardElevation="4dp">
@@ -162,7 +162,7 @@
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:textColor="@color/yellow_bold"
                 android:backgroundTint="@color/yellow"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 android:layout_marginEnd="8dp"
                 android:paddingVertical="8dp"/>
 
@@ -175,7 +175,7 @@
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:textColor="@color/red_bold"
                 android:backgroundTint="@color/red"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 android:layout_marginEnd="8dp"
                 android:paddingVertical="8dp"/>
 
@@ -188,8 +188,22 @@
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:textColor="@color/green_bold"
                 android:backgroundTint="@color/green"
-                android:textSize="14sp"
+                android:textSize="12sp"
+                android:layout_marginEnd="8dp"
                 android:paddingVertical="8dp"/>
+
+            <!-- NEW: Nút xem phân tích -->
+            <Button
+                android:id="@+id/btn_view_analytics"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:textSize="12sp"
+                android:text="@string/view_analytics_button"
+                android:backgroundTint="@color/orange_skin"
+                android:textColor="@color/orange_bold"
+                android:paddingVertical="8dp" />
         </LinearLayout>
 
     </LinearLayout>

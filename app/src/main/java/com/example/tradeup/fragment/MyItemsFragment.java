@@ -57,7 +57,8 @@ public class MyItemsFragment extends Fragment {
         void onItemClick(Item item);
         void onEditClick(Item item);
         void onItemDeleted();
-        void onItemStatusChanged(Item item); // Thêm callback này cho việc thay đổi trạng thái
+        void onItemStatusChanged(Item item);
+        void onViewAnalyticsClick(Item item); // NEW: Thêm callback cho nút phân tích
     }
 
     @Nullable
@@ -69,8 +70,7 @@ public class MyItemsFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recycler_my_items);
         textNoItems = view.findViewById(R.id.text_no_items);
         btnAddNewItemEmptyState = view.findViewById(R.id.btn_add_new_item_empty_state);
-        // Nút post new ở top bar
-        Button btnPostNew = view.findViewById(R.id.btn_post_new); // Khởi tạo nút "Post New"
+        Button btnPostNew = view.findViewById(R.id.btn_post_new);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -88,7 +88,6 @@ public class MyItemsFragment extends Fragment {
             startActivity(intent);
         }
 
-        // Khởi tạo adapter và gán cho RecyclerView ngay lập tức
         adapter = new MyItemsAdapter(items, firebaseHelper, new OnItemActionCallback() {
             @Override
             public void onItemClick(Item item) {
@@ -106,9 +105,20 @@ public class MyItemsFragment extends Fragment {
                 if (navController != null) {
                     Bundle bundle = new Bundle();
                     bundle.putString("itemId", item.getId());
-                    navController.navigate(R.id.action_myItemsFragment_to_editItemFragment, bundle);
+                    // Use global action instead
+                    navController.navigate(R.id.action_global_editItemFragment, bundle);
+                }
+            }
+
+            @Override
+            public void onViewAnalyticsClick(Item item) { // NEW: Triển khai callback cho nút phân tích
+                Log.d(TAG, "onViewAnalyticsClick callback received for item: " + item.getId() + ". Navigating to ItemAnalyticsFragment.");
+                if (navController != null) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("itemId", item.getId());
+                    navController.navigate(R.id.action_myItemsFragment_to_itemAnalyticsFragment, bundle);
                 } else {
-                    Log.e(TAG, "NavController is null on edit click.");
+                    Log.e(TAG, "NavController is null on View Analytics click.");
                 }
             }
 
@@ -121,23 +131,18 @@ public class MyItemsFragment extends Fragment {
             @Override
             public void onItemStatusChanged(Item item) {
                 Log.d(TAG, "onItemStatusChanged callback received for item: " + item.getId() + ". Reloading items.");
-                // Thay vì loadMyItems() toàn bộ, bạn có thể tìm và cập nhật item cụ thể trong list
-                // và gọi adapter.notifyItemChanged(position) để hiệu quả hơn.
-                // Tuy nhiên, để đơn giản và đảm bảo dữ liệu đồng bộ, loadMyItems() vẫn là một lựa chọn an toàn.
                 loadMyItems();
             }
         });
         recyclerView.setAdapter(adapter);
         Log.d(TAG, "RecyclerView adapter initialized and set in onCreateView.");
 
-        // Listener cho nút "Post New" trên top bar
         if (btnPostNew != null) {
             btnPostNew.setOnClickListener(v -> {
                 Log.d(TAG, "btnPostNew clicked. Navigating to AddItemFragment.");
                 if (navController != null) {
-                    navController.navigate(MyItemsFragmentDirections.actionMyItemsFragmentToAddItemFragment());
-                } else {
-                    Log.e(TAG, "NavController is null on Post New click.");
+                    // Use global action instead
+                    navController.navigate(R.id.action_global_addItemFragment);
                 }
             });
         }
@@ -181,7 +186,6 @@ public class MyItemsFragment extends Fragment {
         btnAddNewItemEmptyState = null;
         adapter = null;
         navController = null;
-        // firebaseHelper không cần đặt null ở đây vì nó không phải là View hay Adapter
     }
 
     private void loadMyItems() {
@@ -210,15 +214,13 @@ public class MyItemsFragment extends Fragment {
                     Log.d(TAG, "Items list is empty. Showing no items message and add button.");
                     textNoItems.setVisibility(View.VISIBLE);
                     recyclerView.setVisibility(View.GONE);
-                    btnAddNewItemEmptyState.setVisibility(View.VISIBLE); // Hiển thị nút "Post New Listing"
+                    btnAddNewItemEmptyState.setVisibility(View.VISIBLE);
                 } else {
                     Log.d(TAG, "Items list is NOT empty. Showing RecyclerView.");
                     textNoItems.setVisibility(View.GONE);
                     recyclerView.setVisibility(View.VISIBLE);
-                    btnAddNewItemEmptyState.setVisibility(View.GONE); // Ẩn nút "Post New Listing" nếu có item
+                    btnAddNewItemEmptyState.setVisibility(View.GONE);
                 }
-                // Nút "Post New" trên top bar luôn hiển thị, không bị ảnh hưởng bởi trạng thái rỗng
-                // (Không cần xử lý ở đây vì nó nằm ngoài phần empty state)
             }
 
             @Override
@@ -269,25 +271,24 @@ public class MyItemsFragment extends Fragment {
         static class ItemViewHolder extends RecyclerView.ViewHolder {
             ImageView ivItemImage;
             TextView tvItemTitle, tvItemPrice, tvItemStatus;
-            // Thay thế tvItemAnalytics bằng các TextView riêng biệt
             TextView tvItemViews, tvItemChats, tvItemOffers;
             Button btnEditItem, btnDeleteItem, btnChangeStatus;
+            Button btnViewAnalytics; // NEW: Khai báo nút phân tích
 
             private FirebaseHelper firebaseHelper;
             private OnItemActionCallback callback;
-            private List<Item> itemsList; // Tham chiếu đến danh sách items của adapter
+            private List<Item> itemsList;
 
             public ItemViewHolder(@NonNull View itemView, FirebaseHelper firebaseHelper, OnItemActionCallback callback, List<Item> itemsList) {
                 super(itemView);
                 this.firebaseHelper = firebaseHelper;
                 this.callback = callback;
-                this.itemsList = itemsList; // Gán tham chiếu
+                this.itemsList = itemsList;
 
                 ivItemImage = itemView.findViewById(R.id.iv_item_image);
                 tvItemTitle = itemView.findViewById(R.id.tv_item_title);
                 tvItemPrice = itemView.findViewById(R.id.tv_item_price);
                 tvItemStatus = itemView.findViewById(R.id.tv_item_status);
-                // Khởi tạo các TextView mới
                 tvItemViews = itemView.findViewById(R.id.tv_item_views);
                 tvItemChats = itemView.findViewById(R.id.tv_item_chats);
                 tvItemOffers = itemView.findViewById(R.id.tv_item_offers);
@@ -295,6 +296,7 @@ public class MyItemsFragment extends Fragment {
                 btnEditItem = itemView.findViewById(R.id.btn_edit_item);
                 btnDeleteItem = itemView.findViewById(R.id.btn_delete_item);
                 btnChangeStatus = itemView.findViewById(R.id.btn_change_status);
+                btnViewAnalytics = itemView.findViewById(R.id.btn_view_analytics); // NEW: Khởi tạo nút phân tích
                 Log.d(TAG, "ItemViewHolder initialized.");
             }
 
@@ -304,9 +306,9 @@ public class MyItemsFragment extends Fragment {
 
                 NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
                 currencyFormatter.setMaximumFractionDigits(0);
-                tvItemPrice.setText(currencyFormatter.format(item.getPrice())); // Không thêm "Giá: " vào đây
+                tvItemPrice.setText(currencyFormatter.format(item.getPrice()));
 
-                tvItemStatus.setText(item.getStatus()); // Không thêm "Trạng thái: " vào đây
+                tvItemStatus.setText(item.getStatus());
 
                 if (item.getPhotos() != null && !item.getPhotos().isEmpty()) {
                     Object firstPhoto = item.getPhotos().get(0);
@@ -350,7 +352,6 @@ public class MyItemsFragment extends Fragment {
                             offersMade = ((Number) analyticsData.get("offers_made")).longValue();
                         }
 
-                        // Cập nhật các TextView riêng biệt
                         tvItemViews.setText(String.valueOf(views));
                         tvItemChats.setText(String.valueOf(chatsStarted));
                         tvItemOffers.setText(String.valueOf(offersMade));
@@ -359,7 +360,6 @@ public class MyItemsFragment extends Fragment {
                     @Override
                     public void onFailure(String errorMessage) {
                         Log.e(TAG, "getItemAnalytics onFailure for item " + item.getId() + ": " + errorMessage);
-                        // Đặt giá trị mặc định khi lỗi
                         tvItemViews.setText("N/A");
                         tvItemChats.setText("N/A");
                         tvItemOffers.setText("N/A");
@@ -381,6 +381,14 @@ public class MyItemsFragment extends Fragment {
                 btnChangeStatus.setOnClickListener(v -> {
                     Log.d(TAG, "Change Status button clicked for item: " + item.getId());
                     showChangeStatusDialog(item);
+                });
+
+                // NEW: Thiết lập OnClickListener cho nút "View Analytics"
+                btnViewAnalytics.setOnClickListener(v -> {
+                    Log.d(TAG, "View Analytics button clicked for item: " + item.getId());
+                    if (callback != null) {
+                        callback.onViewAnalyticsClick(item); // Gọi callback mới
+                    }
                 });
 
                 itemView.setOnClickListener(v -> {
@@ -479,9 +487,9 @@ public class MyItemsFragment extends Fragment {
                     public void onSuccess() {
                         Log.d(TAG, "Status updated successfully for item " + itemId + " to " + newStatus);
                         Toast.makeText(itemView.getContext(), itemView.getContext().getString(R.string.toast_status_updated_success, newStatus), Toast.LENGTH_SHORT).show();
-                        item.setStatus(newStatus); // Cập nhật trạng thái của item trong model
+                        item.setStatus(newStatus);
                         if (callback != null) {
-                            callback.onItemStatusChanged(item); // Gọi callback để Fragment cập nhật UI
+                            callback.onItemStatusChanged(item);
                         }
                     }
 

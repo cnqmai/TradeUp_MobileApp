@@ -11,7 +11,7 @@
         android:title="Search" />
 
     <item
-        android:id="@+id/sellFragment"
+        android:id="@+id/myItemsFragment"
         android:icon="@drawable/ic_sell"
         android:title="Sell" />
 

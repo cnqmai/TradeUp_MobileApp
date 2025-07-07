@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F0F2F5"
+    android:background="@color/orange_skin"
     tools:context=".fragment.ItemAnalyticsFragment">
 
     <!-- Toolbar -->
@@ -24,14 +24,14 @@
             android:layout_height="48dp"
             android:padding="14dp"
             android:src="@drawable/ic_arrow_back"
-            android:contentDescription="Nút quay lại"
+            android:contentDescription="@string/back_button_description"
             app:tint="@android:color/black" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Phân tích Tin đăng"
-            android:textColor="@android:color/black"
+            android:text="@string/item_analytics_title"
+            android:textColor="@color/orange_bold"
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginStart="16dp" />
@@ -70,7 +70,8 @@
                         android:scaleType="centerCrop"
                         android:src="@drawable/img_placeholder"
                         android:background="@drawable/rounded_corners_background"
-                        android:layout_marginEnd="16dp" />
+                        android:layout_marginEnd="16dp"
+                        android:contentDescription="@string/item_thumbnail_description" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -82,7 +83,7 @@
                             android:id="@+id/tv_item_title"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Tên Tin đăng"
+                            android:text="@string/item_title_placeholder"
                             android:textSize="18sp"
                             android:textStyle="bold"
                             android:textColor="@android:color/black" />
@@ -91,7 +92,7 @@
                             android:id="@+id/tv_item_price"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Giá: 1.000.000 VNĐ"
+                            android:text="@string/item_price_placeholder"
                             android:textSize="16sp"
                             android:textColor="@android:color/darker_gray"
                             android:layout_marginTop="4dp" />
@@ -100,9 +101,9 @@
                             android:id="@+id/tv_item_status"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Trạng thái: Đang bán"
+                            android:text="@string/item_status_placeholder"
                             android:textSize="14sp"
-                            android:textColor="@color/design_default_color_primary"
+                            android:textColor="@color/green_bold"
                             android:layout_marginTop="4dp" />
 
                     </LinearLayout>
@@ -126,7 +127,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Số liệu Thống kê"
+                        android:text="@string/analytics_stats_title"
                         android:textStyle="bold"
                         android:textSize="18sp"
                         android:textColor="@android:color/black"
@@ -142,12 +143,13 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_visibility_on"
-                            app:tint="@android:color/darker_gray"
-                            android:layout_marginEnd="8dp" />
+                            app:tint="@color/orange_bold"
+                            android:layout_marginEnd="8dp"
+                            android:contentDescription="@string/views_icon_description" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Lượt xem:"
+                            android:text="@string/views_label"
                             android:textSize="16sp"
                             android:textColor="@android:color/black" />
                         <TextView
@@ -155,7 +157,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="0"
+                            android:text="@string/number"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="@android:color/black"
@@ -172,12 +174,13 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_message"
-                            app:tint="@android:color/darker_gray"
-                            android:layout_marginEnd="8dp" />
+                            app:tint="@color/orange_bold"
+                            android:layout_marginEnd="8dp"
+                            android:contentDescription="@string/chats_icon_description" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Lượt trò chuyện:"
+                            android:text="@string/chats_label"
                             android:textSize="16sp"
                             android:textColor="@android:color/black" />
                         <TextView
@@ -185,7 +188,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="0"
+                            android:text="@string/number"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="@android:color/black"
@@ -201,12 +204,13 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_promotion"
-                            app:tint="@android:color/darker_gray"
-                            android:layout_marginEnd="8dp" />
+                            app:tint="@color/orange_bold"
+                            android:layout_marginEnd="8dp"
+                            android:contentDescription="@string/offers_icon_description" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Lượt đề nghị:"
+                            android:text="@string/offers_label"
                             android:textSize="16sp"
                             android:textColor="@android:color/black" />
                         <TextView
@@ -214,7 +218,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="0"
+                            android:text="@string/number"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="@android:color/black"
@@ -241,14 +245,14 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Biểu đồ hiệu suất (Sắp ra mắt)"
+                        android:text="@string/performance_chart_placeholder"
                         android:textSize="16sp"
                         android:textColor="@android:color/darker_gray" />
                     <ImageView
                         android:layout_width="80dp"
                         android:layout_height="80dp"
                         android:src="@drawable/chart_placeholder"
-                        android:contentDescription="Biểu đồ hiệu suất"
+                        android:contentDescription="@string/performance_chart_icon_description"
                         android:alpha="0.5"
                         android:layout_marginTop="8dp"/>
                 </LinearLayout>

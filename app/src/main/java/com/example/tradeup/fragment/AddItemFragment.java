@@ -85,6 +85,7 @@ public class AddItemFragment extends Fragment {
     private Button btnGetLocationGps, btnPreviewItem, btnSubmitItem;
     private LinearLayout llAddImagePlaceholder; // Changed from ImageView to LinearLayout
     private LinearLayout llImagePreviews;
+    private ImageView ivBackButton;
 
     // Helpers
     private FirebaseHelper firebaseHelper;
@@ -143,6 +144,7 @@ public class AddItemFragment extends Fragment {
     }
 
     private void initViews(View view) {
+        ivBackButton = view.findViewById(R.id.iv_back_button_add_item);
         etTitle = view.findViewById(R.id.et_title);
         etDescription = view.findViewById(R.id.et_description);
         etPrice = view.findViewById(R.id.et_price);
@@ -174,6 +176,11 @@ public class AddItemFragment extends Fragment {
     }
 
     private void setupListeners() {
+        ivBackButton.setOnClickListener(v -> {
+            if (navController != null) {
+                navController.navigateUp();
+            }
+        });
         btnGetLocationGps.setOnClickListener(v -> requestLocationPermission());
         llAddImagePlaceholder.setOnClickListener(v -> showImagePickerDialog()); // Changed listener
         btnPreviewItem.setOnClickListener(v -> {
@@ -660,6 +667,7 @@ public class AddItemFragment extends Fragment {
         }
 
         String userId = currentUser.getUid();
+        String userDisplayName = currentUser.getDisplayName() != null ? currentUser.getDisplayName() : "Người dùng không xác định";
         String title = Objects.requireNonNull(etTitle.getText()).toString().trim();
         String description = Objects.requireNonNull(etDescription.getText()).toString().trim();
         Long price = Long.parseLong(Objects.requireNonNull(etPrice.getText()).toString().trim());

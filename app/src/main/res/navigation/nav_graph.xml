@@ -5,12 +5,6 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/homeFragment">
 
-    <!-- Included Navigation Graph for Sell Flow -->
-    <include app:graph="@navigation/sell_nav_graph" />
-
-    <!-- Included Navigation Graph for Admin Dashboard -->
-    <include app:graph="@navigation/admin_nav_graph" />
-
     <!-- Fragment: Home -->
     <fragment
         android:id="@+id/homeFragment"
@@ -28,19 +22,34 @@
         app:destination="@id/notificationFragment" />
     </fragment>
 
-    <!-- Fragment: Admin Dashboard Home (Currently using HomeFragment class) -->
+    <!-- Fragment: Admin Dashboard Home (Sử dụng AdminDashboardHomeFragment) -->
     <fragment
         android:id="@+id/adminDashboardHomeFragment"
-        android:name="com.example.tradeup.fragment.HomeFragment"
-        android:label="Home"
+        android:name="com.example.tradeup.fragment.AdminDashboardHomeFragment"
+        android:label="Admin Dashboard"
         tools:layout="@layout/fragment_admin_dashboard_home">
+        <action
+            android:id="@+id/action_adminDashboardHomeFragment_to_reviewModerationFragment"
+            app:destination="@id/reviewModerationFragment" />
+        <action
+            android:id="@+id/action_adminDashboardHomeFragment_to_reportListFragment"
+            app:destination="@id/reportListFragment" />
+        <action
+            android:id="@+id/action_adminDashboardHomeFragment_to_userManagementFragment"
+            app:destination="@id/userManagementFragment" />
+        <action
+            android:id="@+id/action_adminDashboardHomeFragment_to_salesHistoryFragment"
+            app:destination="@id/salesHistoryFragment" />
+        <action
+            android:id="@+id/action_adminDashboardHomeFragment_to_notificationFragment"
+            app:destination="@id/notificationFragment" />
     </fragment>
 
     <!-- Fragment: Notifications -->
     <fragment
         android:id="@+id/notificationFragment"
         android:name="com.example.tradeup.fragment.NotificationFragment"
-        android:label="Thông báo"
+        android:label="Notifications"
         tools:layout="@layout/fragment_notifications">
         <action
             android:id="@+id/action_notificationFragment_to_chatDetailFragment"
@@ -51,24 +60,77 @@
         <action
             android:id="@+id/action_notificationFragment_to_offerDetailFragment"
             app:destination="@id/offerDetailFragment" />
+        <action
+            android:id="@+id/action_notificationFragment_to_paymentFragment"
+            app:destination="@id/paymentFragment">
+            <argument
+                android:name="itemId"
+                app:argType="string"
+                app:nullable="true" />
+            <argument
+                android:name="transactionId"
+                app:argType="string" />
+            <argument
+                android:name="sellerId"
+                app:argType="string"
+                app:nullable="true" />
+            <argument
+                android:name="buyerId"
+                app:argType="string"
+                app:nullable="true" />
+            <argument
+                android:name="finalPrice"
+                app:argType="long"
+                android:defaultValue="0L" />
+            <argument
+                android:name="itemTitle"
+                app:argType="string"
+                app:nullable="true" />
+        </action>
+        <action
+            android:id="@+id/action_notificationFragment_to_transactionDetailFragment"
+            app:destination="@id/transactionDetailFragment">
+            <argument
+                android:name="transactionId"
+                app:argType="string" />
+        </action>
     </fragment>
 
     <!-- Fragment: Offer Detail -->
     <fragment
         android:id="@+id/offerDetailFragment"
         android:name="com.example.tradeup.fragment.OfferDetailFragment"
-        android:label="OfferDetailFragment">
-        <argument
-            android:name="offerId"
+        android:label="OfferDetailFragment"
+        tools:layout="@layout/fragment_offer_detail">
+        <action
+            android:id="@+id/action_offerDetailFragment_to_paymentMethodsFragment"
+            app:destination="@id/paymentMethodsFragment">
+            <argument
+                android:name="itemId"
+                app:argType="string" />
+            <argument
+                android:name="transactionId"
+                app:argType="string" />
+            <argument
+                android:name="sellerId"
+                app:argType="string" />
+            <argument
+                android:name="buyerId"
+                app:argType="string" />
+            <argument
+                android:name="offerPrice"
+                app:argType="long" />
+            <argument
+            android:name="itemTitle"
             app:argType="string" />
+        </action>
     </fragment>
 
     <!-- Fragment: Favorites -->
     <fragment
         android:id="@+id/favoritesFragment"
         android:name="com.example.tradeup.fragment.FavoritesFragment"
-        android:label="FavoritesFragment" >
-    </fragment>
+        android:label="Favorites" />
 
     <!-- Fragment: Search -->
     <fragment
@@ -81,14 +143,7 @@
             app:destination="@id/itemDetailFragment" />
     </fragment>
 
-    <!-- Fragment: Sell -->
-    <fragment
-        android:id="@+id/sellFragment"
-        android:name="com.example.tradeup.fragment.SellFragment"
-        android:label="Sell"
-        tools:layout="@layout/fragment_sell" />
-
-    <!-- Fragment: Item Detail -->
+    <!-- Fragment: Item Detail (Hợp nhất các actions và arguments) -->
     <fragment
         android:id="@+id/itemDetailFragment"
         android:name="com.example.tradeup.fragment.ItemDetailFragment"
@@ -100,6 +155,9 @@
         <action
             android:id="@+id/action_itemDetailFragment_to_chatDetailFragment"
             app:destination="@id/chatDetailFragment" />
+        <action
+            android:id="@+id/action_itemDetailFragment_to_editItemFragment"
+            app:destination="@id/editItemFragment" />
     </fragment>
 
     <!-- Fragment: Chat List -->
@@ -109,11 +167,11 @@
         android:label="Messages"
         tools:layout="@layout/fragment_chat_list" />
 
-    <!-- Fragment: Chat Detail -->
+    <!-- Fragment: Chat Detail (Hợp nhất các actions và arguments) -->
     <fragment
         android:id="@+id/chatDetailFragment"
         android:name="com.example.tradeup.fragment.ChatDetailFragment"
-        android:label="Trò chuyện"
+        android:label="Chat"
         tools:layout="@layout/fragment_chat_detail">
         <argument
             android:name="chatId"
@@ -125,7 +183,6 @@
             android:name="otherUserName"
             app:argType="string"
             app:nullable="true" />
-        <!-- NEW: Action to UserProfileFragment -->
         <action
             android:id="@+id/action_chatDetailFragment_to_userProfileFragment"
             app:destination="@id/userProfileFragment" />
@@ -140,16 +197,19 @@
         <action
             android:id="@+id/action_profileFragment_to_transactionHistoryFragment"
             app:destination="@id/transactionHistoryFragment" />
-        <!-- Action to the nested Admin Dashboard Graph -->
+        <!-- Action để đi tới MyItemsFragment (từ sell_nav_graph) -->
         <action
-            android:id="@+id/action_profileFragment_to_admin_nav_graph"
-            app:destination="@id/admin_nav_graph" />
+            android:id="@+id/action_profileFragment_to_myItemsFragment"
+            app:destination="@id/myItemsFragment" />
+        <!-- Action để đi tới SavedItemsFragment (từ admin_nav_graph) -->
         <action
             android:id="@+id/action_profileFragment_to_savedItemsFragment"
             app:destination="@id/savedItemsFragment" />
+        <!-- Action để đi tới OfferHistoryFragment (từ admin_nav_graph) -->
         <action
             android:id="@+id/action_profileFragment_to_offerHistoryFragment"
             app:destination="@id/offerHistoryFragment" />
+        <!-- Action để đi tới SalesHistoryFragment (từ admin_nav_graph) -->
         <action
             android:id="@+id/action_profileFragment_to_salesHistoryFragment"
             app:destination="@id/salesHistoryFragment" />
@@ -157,25 +217,25 @@
         <action
             android:id="@+id/action_profileFragment_to_purchaseHistoryFragment"
             app:destination="@id/purchaseHistoryFragment" />
-        <!-- Action để đi tới MyItemsFragment cho Item Analytics -->
-        <action
-            android:id="@+id/action_profileFragment_to_myItemsFragment"
-            app:destination="@id/myItemsFragment" />
-        <!-- NEW: Action to PaymentHistoryFragment -->
+        <!-- Action để đi tới PaymentHistoryFragment -->
         <action
             android:id="@+id/action_profileFragment_to_paymentHistoryFragment"
             app:destination="@id/paymentHistoryFragment" />
-        <!-- NEW: Action to PaymentMethodsFragment -->
+        <!-- Action để đi tới PaymentMethodsFragment -->
         <action
             android:id="@+id/action_profileFragment_to_paymentMethodsFragment"
             app:destination="@id/paymentMethodsFragment" />
+        <!-- Action để đi tới Admin Dashboard (giờ là một fragment trực tiếp) -->
+        <action
+            android:id="@+id/action_profileFragment_to_adminDashboardHomeFragment"
+            app:destination="@id/adminDashboardHomeFragment" />
     </fragment>
 
     <!-- Định nghĩa PurchaseHistoryFragment -->
     <fragment
         android:id="@+id/purchaseHistoryFragment"
         android:name="com.example.tradeup.fragment.PurchaseHistoryFragment"
-        android:label="Lịch sử Mua hàng"
+        android:label="Purchase History"
         tools:layout="@layout/fragment_purchase_history">
         <action
             android:id="@+id/action_purchaseHistoryFragment_to_itemDetailFragment"
@@ -186,7 +246,7 @@
     <fragment
         android:id="@+id/userListingsFragment"
         android:name="com.example.tradeup.fragment.UserListingsFragment"
-        android:label="Tin đăng của người dùng"
+        android:label="User Listings"
         tools:layout="@layout/fragment_user_listings">
         <argument
             android:name="userId"
@@ -196,11 +256,11 @@
             app:destination="@id/itemDetailFragment" />
     </fragment>
 
-    <!-- Fragment: User Profile (Other User's Profile) -->
+    <!-- Fragment: User Profile (Other User's Profile) (Hợp nhất các actions và arguments) -->
     <fragment
         android:id="@+id/userProfileFragment"
         android:name="com.example.tradeup.fragment.UserProfileFragment"
-        android:label="Hồ sơ người dùng"
+        android:label="User Profile"
         tools:layout="@layout/fragment_user_profile">
         <argument
             android:name="userId"
@@ -217,7 +277,7 @@
     <fragment
         android:id="@+id/transactionHistoryFragment"
         android:name="com.example.tradeup.fragment.TransactionHistoryFragment"
-        android:label="Lịch sử giao dịch"
+        android:label="Transaction History"
         tools:layout="@layout/fragment_transaction_history">
         <action
             android:id="@+id/action_transactionHistoryFragment_to_ratingReviewFragment"
@@ -227,20 +287,24 @@
             app:destination="@id/transactionDetailFragment" />
     </fragment>
 
+    <!-- Fragment: Transaction Detail -->
     <fragment
         android:id="@+id/transactionDetailFragment"
         android:name="com.example.tradeup.fragment.TransactionDetailFragment"
-        android:label="TransactionDetailFragment">
+        android:label="Transaction Details">
         <argument
             android:name="transactionId"
             app:argType="string" />
+        <action
+            android:id="@+id/action_transactionDetailFragment_to_ratingReviewFragment"
+            app:destination="@id/ratingReviewFragment" />
     </fragment>
 
     <!-- Fragment: Rating Review -->
     <fragment
         android:id="@+id/ratingReviewFragment"
         android:name="com.example.tradeup.fragment.RatingReviewFragment"
-        android:label="Đánh giá giao dịch"
+        android:label="Rate Transaction"
         tools:layout="@layout/fragment_rating_review">
         <argument
             android:name="transactionId"
@@ -253,62 +317,62 @@
             app:argType="string" />
     </fragment>
 
-    <!-- Fragment: Saved Items -->
+    <!-- Fragment: Saved Items (Hợp nhất các actions) -->
     <fragment
         android:id="@+id/savedItemsFragment"
         android:name="com.example.tradeup.fragment.SavedItemsFragment"
-        android:label="Mặt hàng đã lưu"
+        android:label="Saved Items"
         tools:layout="@layout/fragment_saved_items">
         <action
             android:id="@+id/action_savedItemsFragment_to_itemDetailFragment"
             app:destination="@id/itemDetailFragment" />
     </fragment>
 
-    <!-- Fragment: Offer History -->
+    <!-- Fragment: Offer History (Hợp nhất các actions) -->
     <fragment
         android:id="@+id/offerHistoryFragment"
         android:name="com.example.tradeup.fragment.OfferHistoryFragment"
-        android:label="Lịch sử Đề nghị"
+        android:label="Offer History"
         tools:layout="@layout/fragment_offer_history">
         <action
             android:id="@+id/action_offerHistoryFragment_to_itemDetailFragment"
             app:destination="@id/itemDetailFragment" />
     </fragment>
 
-    <!-- Fragment: Sales History -->
+    <!-- Fragment: Sales History (Hợp nhất các actions) -->
     <fragment
         android:id="@+id/salesHistoryFragment"
         android:name="com.example.tradeup.fragment.SalesHistoryFragment"
-        android:label="Lịch sử Bán hàng"
+        android:label="Sales History"
         tools:layout="@layout/fragment_sales_history">
         <action
             android:id="@+id/action_salesHistoryFragment_to_itemDetailFragment"
             app:destination="@id/itemDetailFragment" />
     </fragment>
 
-    <!-- Fragment: Item Analytics -->
+    <!-- Fragment: Item Analytics (Hợp nhất các actions và arguments) -->
     <fragment
         android:id="@+id/itemAnalyticsFragment"
         android:name="com.example.tradeup.fragment.ItemAnalyticsFragment"
-        android:label="Phân tích Tin đăng"
+        android:label="Item Analytics"
         tools:layout="@layout/fragment_item_analytics">
         <argument
             android:name="itemId"
             app:argType="string" />
     </fragment>
 
-    <!-- NEW: Fragment: Payment History -->
+    <!-- Fragment: Payment History -->
     <fragment
         android:id="@+id/paymentHistoryFragment"
         android:name="com.example.tradeup.fragment.PaymentHistoryFragment"
-        android:label="Lịch sử Thanh toán"
+        android:label="Payment History"
         tools:layout="@layout/fragment_payment_history" />
 
-    <!-- Trong nav_graph.xml -->
+    <!-- Fragment: Payment -->
     <fragment
         android:id="@+id/paymentFragment"
         android:name="com.example.tradeup.fragment.PaymentFragment"
-        android:label="Thanh toán"
+        android:label="Payment"
         tools:layout="@layout/fragment_payment">
         <argument
             android:name="itemId"
@@ -333,10 +397,11 @@
             app:nullable="true" />
     </fragment>
 
+    <!-- Fragment: Payment Methods -->
     <fragment
         android:id="@+id/paymentMethodsFragment"
         android:name="com.example.tradeup.fragment.PaymentMethodsFragment"
-        android:label="PaymentMethodsFragment">
+        android:label="Payment Methods">
         <argument
             android:name="itemId"
             app:argType="string"
@@ -370,4 +435,182 @@
             android:id="@+id/action_paymentMethodsFragment_to_paymentFragment"
             app:destination="@id/paymentFragment" />
     </fragment>
+
+    <!-- Fragment: My Items (Từ sell_nav_graph) -->
+    <fragment
+        android:id="@+id/myItemsFragment"
+        android:name="com.example.tradeup.fragment.MyItemsFragment"
+        android:label="My Items"
+        tools:layout="@layout/fragment_my_items">
+        <action
+            android:id="@+id/action_myItemsFragment_to_addItemFragment"
+            app:destination="@id/addItemFragment" />
+        <action
+            android:id="@+id/action_myItemsFragment_to_itemDetailFragment"
+            app:destination="@id/itemDetailFragment" />
+        <action
+            android:id="@+id/action_myItemsFragment_to_editItemFragment"
+            app:destination="@id/editItemFragment" />
+        <action
+            android:id="@+id/action_myItemsFragment_to_itemAnalyticsFragment"
+            app:destination="@id/itemAnalyticsFragment" />
+        <action
+            android:id="@+id/action_myItemsFragment_to_salesHistoryFragment"
+            app:destination="@id/salesHistoryFragment" />
+    </fragment>
+
+    <!-- Fragment: Add Item (Từ sell_nav_graph) -->
+    <fragment
+        android:id="@+id/addItemFragment"
+        android:name="com.example.tradeup.fragment.AddItemFragment"
+        android:label="Add New Item"
+        tools:layout="@layout/fragment_add_item">
+        <action
+            android:id="@+id/action_addItemFragment_to_myItemsFragment"
+            app:destination="@id/myItemsFragment"
+            app:popUpTo="@id/addItemFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_addItemFragment_to_previewItemFragment"
+            app:destination="@id/previewItemFragment">
+            <argument
+                android:name="title"
+                app:argType="string" />
+            <argument
+                android:name="description"
+                app:argType="string" />
+            <argument
+                android:name="price"
+                app:argType="long" />
+            <argument
+                android:name="category"
+                app:argType="string" />
+            <argument
+                android:name="condition"
+                app:argType="string" />
+            <argument
+                android:name="location"
+                app:argType="string" />
+            <argument
+                android:name="itemBehavior"
+                app:argType="string" />
+            <argument
+                android:name="tags"
+                app:argType="string[]"
+                app:nullable="true" />
+            <argument
+                android:name="imageUrls"
+                app:argType="string[]"
+                app:nullable="true" />
+        </action>
+    </fragment>
+
+    <!-- Fragment: Edit Item (Từ sell_nav_graph) -->
+    <fragment
+        android:id="@+id/editItemFragment"
+        android:name="com.example.tradeup.fragment.EditItemFragment"
+        android:label="Edit Item"
+        tools:layout="@layout/fragment_edit_item">
+        <action
+            android:id="@+id/action_editItemFragment_to_itemDetailFragment"
+            app:destination="@id/itemDetailFragment"
+            app:popUpTo="@id/myItemsFragment"
+            app:popUpToInclusive="false">
+            <argument
+                android:name="itemId"
+                app:argType="string" />
+        </action>
+    </fragment>
+
+    <!-- Fragment: Preview Item (Từ sell_nav_graph) -->
+    <fragment
+        android:id="@+id/previewItemFragment"
+        android:name="com.example.tradeup.fragment.PreviewItemFragment"
+        android:label="Preview Listing"
+        tools:layout="@layout/fragment_preview_item">
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="description"
+            app:argType="string" />
+        <argument
+            android:name="price"
+            app:argType="long" />
+        <argument
+            android:name="category"
+            app:argType="string" />
+        <argument
+            android:name="condition"
+            app:argType="string" />
+        <argument
+            android:name="location"
+            app:argType="string" />
+        <argument
+            android:name="itemBehavior"
+            app:argType="string" />
+        <argument
+            android:name="tags"
+            app:argType="string[]"
+            app:nullable="true" />
+        <argument
+            android:name="imageUrls"
+            app:argType="string[]"
+            app:nullable="true" />
+    </fragment>
+
+    <!-- Fragment: Review Moderation (Từ admin_nav_graph) -->
+    <fragment
+        android:id="@+id/reviewModerationFragment"
+        android:name="com.example.tradeup.fragment.ReviewModerationFragment"
+        android:label="Review Moderation"
+        tools:layout="@layout/fragment_review_moderation"/>
+
+    <!-- Fragment: Report List (Từ admin_nav_graph) -->
+    <fragment
+        android:id="@+id/reportListFragment"
+        android:name="com.example.tradeup.fragment.ReportListFragment"
+        android:label="Report List"
+        tools:layout="@layout/fragment_report_list">
+        <action
+            android:id="@+id/action_reportListFragment_to_reportDetailFragment"
+            app:destination="@id/reportDetailFragment" />
+    </fragment>
+
+    <!-- Fragment: Report Detail (Từ admin_nav_graph) -->
+    <fragment
+        android:id="@+id/reportDetailFragment"
+        android:name="com.example.tradeup.fragment.ReportDetailFragment"
+        android:label="Report Details"
+        tools:layout="@layout/fragment_report_detail">
+        <argument
+            android:name="reportId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_reportDetailFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment" />
+        <action
+            android:id="@+id/action_reportDetailFragment_to_itemDetailFragment"
+            app:destination="@id/itemDetailFragment" />
+        <action
+            android:id="@+id/action_reportDetailFragment_to_chatDetailFragment"
+            app:destination="@id/chatDetailFragment" />
+    </fragment>
+
+    <!-- Fragment: User Management (Từ admin_nav_graph) -->
+    <fragment
+        android:id="@+id/userManagementFragment"
+        android:name="com.example.tradeup.fragment.UserManagementFragment"
+        android:label="User Management"
+        tools:layout="@layout/fragment_user_management">
+        <action
+            android:id="@+id/action_userManagementFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment" />
+    </fragment>
+
+    <action android:id="@+id/action_global_addItemFragment"
+        app:destination="@id/addItemFragment" />
+    <action android:id="@+id/action_global_editItemFragment"
+        app:destination="@id/editItemFragment" />
+
 </navigation>
