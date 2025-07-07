@@ -18,12 +18,14 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     private Context context;
     private List<String> categoryList;
     private OnCategoryClickListener listener;
-    private String selectedCategory;
+    private String selectedCategory; // Để theo dõi danh mục được chọn
 
+    // Interface cho sự kiện click danh mục
     public interface OnCategoryClickListener {
         void onCategoryClick(String category);
     }
 
+    // Setter cho listener
     public void setOnCategoryClickListener(OnCategoryClickListener listener) {
         this.listener = listener;
     }
@@ -31,24 +33,46 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     public CategoryAdapter(Context context, List<String> categoryList) {
         this.context = context;
         this.categoryList = categoryList;
+        // Khởi tạo selectedCategory nếu cần một giá trị mặc định, ví dụ: categoryList.get(0)
+        // Hoặc để null và không có danh mục nào được chọn ban đầu.
+        this.selectedCategory = null; // hoặc categoryList.isEmpty() ? null : categoryList.get(0);
     }
 
+    // Phương thức để cập nhật danh sách danh mục
     public void setCategories(List<String> newCategoryList) {
         this.categoryList.clear();
         this.categoryList.addAll(newCategoryList);
         notifyDataSetChanged();
     }
 
+    // Phương thức để đặt danh mục được chọn và cập nhật UI
     public void setSelectedCategory(String category) {
-        this.selectedCategory = category;
-        notifyDataSetChanged();
+        if (!category.equals(this.selectedCategory)) {
+            String previousSelected = this.selectedCategory;
+            this.selectedCategory = category;
+
+            // Tìm vị trí của danh mục đã chọn trước đó và danh mục mới để cập nhật hiệu quả hơn
+            int previousPos = -1;
+            if (previousSelected != null) {
+                previousPos = categoryList.indexOf(previousSelected);
+            }
+            int newPos = categoryList.indexOf(selectedCategory);
+
+            if (previousPos != -1) {
+                notifyItemChanged(previousPos);
+            }
+            if (newPos != -1) {
+                notifyItemChanged(newPos);
+            }
+        }
     }
+
 
     @NonNull
     @Override
     public CategoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // You might want a simpler layout for categories, e.g., a TextView inside a CardView
-        View view = LayoutInflater.from(context).inflate(R.layout.item_category_chip, parent, false); // Create item_category_chip.xml
+        // Đảm bảo bạn đã có item_category_chip.xml trong thư mục res/layout
+        View view = LayoutInflater.from(context).inflate(R.layout.item_category_chip, parent, false);
         return new CategoryViewHolder(view);
     }
 
@@ -57,18 +81,15 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         String category = categoryList.get(position);
         holder.tvCategoryName.setText(category);
 
-        // Highlight selected category
+        // Đánh dấu danh mục được chọn (nếu bạn có style cho trạng thái "selected")
+        // Bạn cần định nghĩa `android:state_selected="true"` trong selector drawable cho background của item.
         holder.itemView.setSelected(category.equals(selectedCategory));
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
-                String previousSelected = selectedCategory;
-                selectedCategory = category;
-                listener.onCategoryClick(category);
-
-                // Update the views
-                notifyItemChanged(categoryList.indexOf(previousSelected));
-                notifyItemChanged(position);
+                // THAY ĐỔI: Sử dụng setSelectedCategory để cập nhật và thông báo thay đổi
+                setSelectedCategory(category);
+                listener.onCategoryClick(category); // Gọi listener
             }
         });
     }
@@ -83,7 +104,8 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 
         public CategoryViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvCategoryName = itemView.findViewById(R.id.tvCategoryName); // Ensure this ID matches your item_category_chip.xml
+            // Đảm bảo ID này khớp với TextView trong item_category_chip.xml của bạn
+            tvCategoryName = itemView.findViewById(R.id.tvCategoryName);
         }
     }
 }

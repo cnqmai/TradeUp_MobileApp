@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -839,5 +840,36 @@ public class FirebaseHelper {
         mDatabase.child("transactions").child(transaction.getTransaction_id()).setValue(transaction)
                 .addOnSuccessListener(aVoid -> callback.onSuccess())
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    // Thêm interface cho Item Fetch Listener nếu chưa có
+    public interface OnItemsFetchListener {
+        void onItemsFetched(List<Item> items);
+        void onFailure(String errorMessage);
+    }
+
+    // Phương thức mới để lấy các mặt hàng theo danh mục
+    public void getItemsByCategory(String category, final OnItemsFetchListener listener) {
+        Query query = mDatabase.child("items").orderByChild("category").equalTo(category);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<Item> items = new ArrayList<>();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Item item = snapshot.getValue(Item.class);
+                    if (item != null) {
+                        item.setId(snapshot.getKey()); // Đặt ID từ key của Firebase
+                        items.add(item);
+                    }
+                }
+                listener.onItemsFetched(items);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e(TAG, "Failed to load items by category: " + databaseError.getMessage());
+                listener.onFailure(databaseError.getMessage());
+            }
+        });
     }
 }

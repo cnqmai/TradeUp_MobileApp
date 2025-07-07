@@ -51,6 +51,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class HomeFragment extends Fragment implements CategoryAdapter.OnCategoryClickListener {
@@ -71,6 +72,7 @@ public class HomeFragment extends Fragment implements CategoryAdapter.OnCategory
     private FirebaseAuth mAuth;
 
     private ExecutorService backgroundExecutor;
+    private boolean isExecutorActive = true;
     private android.location.Location currentUserLocation; // Lưu trữ vị trí người dùng
 
     private String currentCategoryFilter = null;
@@ -82,6 +84,8 @@ public class HomeFragment extends Fragment implements CategoryAdapter.OnCategory
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        backgroundExecutor = Executors.newSingleThreadExecutor();
+        isExecutorActive = true;
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
@@ -93,8 +97,6 @@ public class HomeFragment extends Fragment implements CategoryAdapter.OnCategory
         firebaseHelper = new FirebaseHelper();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         mAuth = FirebaseAuth.getInstance();
-
-        backgroundExecutor = Executors.newSingleThreadExecutor();
 
         // Initialize RecyclerViews
         rvCategories = view.findViewById(R.id.rvCategories);
@@ -157,17 +159,16 @@ public class HomeFragment extends Fragment implements CategoryAdapter.OnCategory
         checkLocationPermissionAndFetchNearYou(); // This will also trigger fetchTrendingItems and fetchPersonalizedItems
     }
 
+    // THÊM PHƯƠNG THỨC XỬ LÝ CLICK TỪ CategoryAdapter
     @Override
     public void onCategoryClick(String categoryName) {
-        if (categoryName == null || categoryName.equals("Tất cả")) {
-            currentCategoryFilter = null;
-            tvPersonalizedItemsTitle.setText(getString(R.string.personalized_for_you));
-            fetchPersonalizedItems(currentUserLocation); // Pass the stored user location
-        } else {
-            currentCategoryFilter = categoryName;
-            tvPersonalizedItemsTitle.setText(getString(R.string.items_in_category, categoryName));
-            fetchItemsBySpecificCategory(categoryName, currentUserLocation);
-        }
+        Log.d(TAG, "Category clicked: " + categoryName);
+        // Chuyển sang một Fragment mới để hiển thị danh sách mặt hàng theo category
+        // Ví dụ: Tạo một CategoryItemListFragment
+        Bundle bundle = new Bundle();
+        bundle.putString("categoryName", categoryName); // Truyền tên danh mục
+        // Đảm bảo navigation graph của bạn có action từ HomeFragment đến CategoryItemListFragment
+        navController.navigate(R.id.action_homeFragment_to_categoryItemListFragment, bundle);
     }
 
     // Cập nhật phương thức này để nhận userLocation
@@ -343,7 +344,7 @@ public class HomeFragment extends Fragment implements CategoryAdapter.OnCategory
         itemsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                backgroundExecutor.execute(() -> {
+                executeIfPossible(() -> {
                     Set<String> categories = new HashSet<>();
                     categories.add("Tất cả");
 
@@ -363,7 +364,8 @@ public class HomeFragment extends Fragment implements CategoryAdapter.OnCategory
                     requireActivity().runOnUiThread(() -> {
                         categoryAdapter.setCategories(categoryList);
                         categoryAdapter.setSelectedCategory("Tất cả");
-                        onCategoryClick("Tất cả");
+                        // Xóa dòng này để tránh tự động chuyển sang CategoryItemListFragment
+                        // onCategoryClick("Tất cả");
                     });
                 });
             }
@@ -717,6 +719,17 @@ public class HomeFragment extends Fragment implements CategoryAdapter.OnCategory
         super.onDestroyView();
         if (backgroundExecutor != null && !backgroundExecutor.isShutdown()) {
             backgroundExecutor.shutdownNow();
+        }
+    }
+
+    // Add this method to the HomeFragment class
+    private void executeIfPossible(Runnable task) {
+        try {
+            if (isExecutorActive && backgroundExecutor != null && !backgroundExecutor.isShutdown()) {
+                backgroundExecutor.execute(task);
+            }
+        } catch (RejectedExecutionException e) {
+            Log.e(TAG, "Task rejected", e);
         }
     }
 }

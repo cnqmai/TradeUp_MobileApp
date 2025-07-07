@@ -19,7 +19,10 @@
             app:destination="@id/searchFragment" />
         <action
             android:id="@+id/action_homeFragment_to_notificationFragment"
-        app:destination="@id/notificationFragment" />
+            app:destination="@id/notificationFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_categoryItemListFragment"
+            app:destination="@id/categoryItemListFragment" />
     </fragment>
 
     <!-- Fragment: Admin Dashboard Home (Sử dụng AdminDashboardHomeFragment) -->
@@ -613,4 +616,13 @@
     <action android:id="@+id/action_global_editItemFragment"
         app:destination="@id/editItemFragment" />
 
+    <fragment
+        android:id="@+id/categoryItemListFragment"
+        android:name="com.example.tradeup.fragment.CategoryItemListFragment"
+        android:label="Category Items"
+        tools:layout="@layout/fragment_category_item_list">
+        <argument
+            android:name="categoryName"
+            app:argType="string" />
+    </fragment>
 </navigation>

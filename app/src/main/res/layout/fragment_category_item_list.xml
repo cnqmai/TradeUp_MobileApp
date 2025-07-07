@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/orange_skin"
+    tools:context=".fragment.CategoryItemListFragment">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_category_items"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/white"
+        android:elevation="4dp"
+        android:theme="?attr/actionBarTheme"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+        <ImageView
+            android:id="@+id/iv_back_button_category_items"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="14dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@android:color/black" />
+
+        <TextView
+            android:id="@+id/tv_category_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:textColor="@color/orange_bold"
+            tools:text="@string/category_label" />
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_category_items"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="16dp"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        app:spanCount="2"
+        tools:listitem="@layout/item_list_vertical" />
+
+    <TextView
+        android:id="@+id/tv_no_items_in_category"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/not_found_items_in_category"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:textSize="16sp"
+        android:textColor="@android:color/darker_gray" />
+
+</LinearLayout>

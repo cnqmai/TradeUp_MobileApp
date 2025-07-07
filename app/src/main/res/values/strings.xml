@@ -280,9 +280,11 @@
     <string name="seller_rating_format">%1$.1f/5.0</string>
     <string name="seller_rating_na">N/A</string>
     <string name="seller_unknown">Unknown Seller</string>
-    <string name="seller_load_error">Error Loading Seller</string> <string name="seller_rating_error">Rating: Error loading</string>
+    <string name="seller_load_error">Error Loading Seller</string>
+    <string name="seller_rating_error">Rating: Error loading</string>
     <string name="item_views">Views: %1$d</string>
-    <string name="item_views_zero">Views: 0</string> <string name="item_views_error">Views: Error loading</string>
+    <string name="item_views_zero">Views: 0</string>
+    <string name="item_views_error">Views: Error loading</string>
     <string name="cannot_record_user_view">Cannot record user view: missing userId, itemId or category.</string>
     <string name="toast_login_to_chat">Please log in to chat.</string>
     <string name="toast_seller_info_not_found">Seller information not found.</string>
@@ -296,7 +298,8 @@
     <string name="error_creating_chat_id">Error: Cannot create chat ID.</string>
     <string name="error_creating_new_chat">Error creating new chat.</string>
     <string name="error_opening_chat">Error: Cannot open chat.</string>
-    <string name="new_chat_message">Start a new conversation!</string> <string name="dialog_title_make_offer">Send Offer Price</string>
+    <string name="new_chat_message">Start a new conversation!</string>
+    <string name="dialog_title_make_offer">Send Offer Price</string>
     <string name="hint_enter_offer_price">Enter your offer price (e.g., 1200000)</string>
     <string name="button_send_offer">Send Offer</string>
     <string name="button_cancel">Cancel</string>
@@ -911,7 +914,8 @@
     <string name="moderation_reviewer_info_placeholder">Alex M. reported Sarah J.</string>
     <string name="moderation_review_status_pending">Pending</string>
     <string name="moderation_time_ago_placeholder">1 hour ago</string>
-    <string name="moderation_review_comment_placeholder">Inappropriate content that needs to be reviewed and decided if it should be approved or rejected.</string> <string name="moderation_button_approve">Approve</string>
+    <string name="moderation_review_comment_placeholder">Inappropriate content that needs to be reviewed and decided if it should be approved or rejected.</string>
+    <string name="moderation_button_approve">Approve</string>
     <string name="moderation_button_reject">Reject</string>
 
     <!-- Report Detail Fragment Strings -->
@@ -1026,4 +1030,5 @@
     <string name="rejected_reviews_label">Rejected</string>
     <string name="no_reviews_for_moderation">No reviews for moderation.</string>
 
+    <string name="not_found_items_in_category">No items found in this category</string>
 </resources>
